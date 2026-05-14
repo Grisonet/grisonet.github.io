@@ -5,7 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GR Data — Sistema de Pesquisas Eleitorais</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗳</text></svg>">
-  <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Outfit',system-ui,sans-serif;background:#F9FAFB}#root{min-height:100vh}::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:#D1D5DB;border-radius:3px}select:focus,input:focus{outline:2px solid #E8491D33}</style>
+  <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Outfit',system-ui,sans-serif;background:#F9FAFB}#root{min-height:100vh}::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:#D1D5DB;border-radius:3px}select:focus,input:focus{outline:2px solid #E8491D33}#__errbox{position:fixed;top:0;left:0;right:0;background:#fee;color:#900;border-bottom:3px solid #c00;padding:14px 20px;font-family:Menlo,monospace;font-size:12px;z-index:99999;max-height:60vh;overflow:auto;white-space:pre-wrap;line-height:1.5}#__errbox b{font-family:'Outfit',sans-serif;color:#c00;font-size:14px;display:block;margin-bottom:6px}#__errbox button{margin-top:8px;padding:4px 10px;background:#c00;color:#fff;border:none;border-radius:4px;cursor:pointer;font-family:'Outfit',sans-serif}</style>
 </head>
-<body><div id="root"></div><script src="app.js"></script></body>
+<body>
+<div id="root"></div>
+<script>
+  (function(){
+    var box=null;
+    function show(msg){
+      if(!box){
+        box=document.createElement('div');
+        box.id='__errbox';
+        box.innerHTML='<b>⚠️ Erro JavaScript detectado — copia e manda pro debug:</b>';
+        var btn=document.createElement('button');
+        btn.textContent='Fechar';
+        btn.onclick=function(){box.remove();box=null};
+        box.appendChild(btn);
+        document.body.appendChild(box);
+      }
+      var pre=document.createElement('div');
+      pre.textContent=msg;
+      pre.style.marginTop='8px';
+      pre.style.paddingTop='6px';
+      pre.style.borderTop='1px dashed #c00';
+      box.appendChild(pre);
+    }
+    window.addEventListener('error',function(e){
+      show('[error] '+(e.message||'?')+'\nat '+(e.filename||'?')+':'+(e.lineno||'?')+':'+(e.colno||'?')+(e.error&&e.error.stack?'\n'+e.error.stack:''));
+    });
+    window.addEventListener('unhandledrejection',function(e){
+      var r=e.reason;
+      show('[promise rejection] '+(r&&r.message?r.message:r)+(r&&r.stack?'\n'+r.stack:''));
+    });
+    // Also expose for manual logging from React boundaries
+    window.__grDataLogError=show;
+  })();
+</script>
+<script src="app.js"></script>
+</body>
 </html>
