@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GR Data — Inteligência eleitoral com IA · Dados do TSE em tempo real</title>
+<meta name="description" content="A única plataforma com IA generativa que cruza votação, financeiro, emendas e perfil do eleitorado. Dados atualizados até 2024. Planos a partir de R$ 19/mês.">
+<meta property="og:title" content="GR Data — Inteligência eleitoral com IA">
+<meta property="og:description" content="Analise candidatos com IA, mapas zona/seção e dados oficiais TSE até 2024.">
+<meta property="og:type" content="website">
+<style>
+:root{
+  --primary:#E8491D;--primary-d:#B83814;--primary-l:#FDEEE7;
+  --amber:#F59E0B;--green:#10B981;--blue:#3B82F6;--purple:#8B5CF6;
+  --bg:#fff;--bg2:#F9FAFB;--bg3:#F3F4F6;
+  --t1:#111827;--t2:#374151;--t3:#6B7280;--t4:#9CA3AF;
+  --brd:#E5E7EB;--brdL:#F3F4F6;
+  --sh:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --sh-lg:0 10px 30px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--t1);background:var(--bg);line-height:1.55;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:var(--primary);text-decoration:none}
+a:hover{text-decoration:underline}
+.container{max-width:1180px;margin:0 auto;padding:0 24px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 26px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;border:none;text-decoration:none;transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 4px 12px rgba(232,73,29,.25)}
+.btn-primary:hover{background:var(--primary-d);text-decoration:none;transform:translateY(-1px);box-shadow:0 6px 16px rgba(232,73,29,.35)}
+.btn-ghost{background:transparent;color:var(--t2);border:1px solid var(--brd)}
+.btn-ghost:hover{background:var(--bg2);text-decoration:none}
+.btn-lg{padding:16px 32px;font-size:16px}
+.btn-block{display:flex;width:100%;justify-content:center}
+
+/* HEADER */
+header.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--brdL)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;max-width:1180px;margin:0 auto}
+.logo{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:800;color:var(--t1);text-decoration:none}
+.logo-mark{width:32px;height:32px;border-radius:8px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-links a{color:var(--t2);font-size:14px;font-weight:500;text-decoration:none}
+.nav-links a:hover{color:var(--primary)}
+@media(max-width:768px){.nav-links a:not(.btn){display:none}}
+
+/* HERO */
+.hero{padding:80px 0 60px;background:linear-gradient(180deg,#FFF 0%,var(--primary-l) 100%);position:relative;overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:60px;align-items:center}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:40px}}
+.hero h1{font-size:48px;line-height:1.1;font-weight:800;margin:0 0 20px;letter-spacing:-1px}
+.hero h1 span{color:var(--primary)}
+@media(max-width:600px){.hero h1{font-size:34px}}
+.hero p.lead{font-size:18px;color:var(--t2);margin:0 0 32px;max-width:560px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+.hero-stats{display:flex;gap:32px;margin-top:40px;padding-top:32px;border-top:1px solid var(--brdL)}
+.stat-num{font-size:28px;font-weight:800;color:var(--t1);line-height:1}
+.stat-lbl{font-size:12px;color:var(--t3);margin-top:6px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+@media(max-width:600px){.hero-stats{gap:20px}.stat-num{font-size:22px}}
+
+.hero-visual{background:#fff;border-radius:16px;box-shadow:var(--sh-lg);padding:24px;position:relative;border:1px solid var(--brdL)}
+.hero-chat{display:flex;flex-direction:column;gap:14px}
+.chat-msg{display:flex;gap:10px;align-items:flex-start}
+.chat-avatar{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px}
+.chat-avatar.user{background:#FDEEE7;color:var(--primary)}
+.chat-avatar.ia{background:#D1FAE5;color:#065F46}
+.chat-bubble{padding:10px 14px;border-radius:10px;font-size:13px;line-height:1.5;flex:1}
+.chat-bubble.user{background:var(--bg2);color:var(--t1)}
+.chat-bubble.ia{background:#F0FDF4;color:var(--t1);border:1px solid #D1FAE5}
+.chat-bubble.ia strong{color:#065F46}
+
+/* SECTIONS */
+section{padding:80px 0}
+.section-eyebrow{display:inline-block;font-size:12px;color:var(--primary);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.section-title{font-size:36px;font-weight:800;margin:0 0 12px;letter-spacing:-.5px;line-height:1.2}
+.section-sub{font-size:17px;color:var(--t3);max-width:680px;margin:0 0 48px}
+@media(max-width:600px){.section-title{font-size:28px}}
+
+/* DIFERENCIAIS */
+.diff-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+@media(max-width:768px){.diff-grid{grid-template-columns:1fr}}
+.diff-card{padding:32px;border-radius:14px;border:1px solid var(--brd);background:#fff;transition:all .2s}
+.diff-card:hover{border-color:var(--primary);box-shadow:var(--sh-lg);transform:translateY(-2px)}
+.diff-ico{width:48px;height:48px;border-radius:12px;background:var(--primary-l);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px}
+.diff-card h3{font-size:18px;font-weight:700;margin:0 0 8px;color:var(--t1)}
+.diff-card p{font-size:14px;color:var(--t2);margin:0;line-height:1.6}
+.diff-card .tag{display:inline-block;font-size:10px;background:#FDEEE7;color:var(--primary);padding:3px 8px;border-radius:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:14px}
+
+/* COMO FUNCIONA */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;counter-reset:step}
+@media(max-width:768px){.steps{grid-template-columns:1fr}}
+.step{position:relative;padding-left:60px}
+.step::before{counter-increment:step;content:counter(step);position:absolute;left:0;top:0;width:44px;height:44px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px}
+.step h4{font-size:17px;margin:6px 0 8px;font-weight:700}
+.step p{font-size:14px;color:var(--t2);margin:0;line-height:1.6}
+
+/* COMPARATIVO */
+.compare-box{background:#fff;border:1px solid var(--brd);border-radius:14px;overflow:hidden}
+table.compare{width:100%;border-collapse:collapse;font-size:14px}
+table.compare th,table.compare td{padding:14px 18px;text-align:left;border-bottom:1px solid var(--brdL)}
+table.compare th{background:var(--bg2);font-weight:600;color:var(--t2);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+table.compare th.us{background:var(--primary);color:#fff}
+table.compare tr:last-child td{border-bottom:none}
+table.compare td.us{background:#FDEEE7;font-weight:600;color:var(--primary-d)}
+table.compare td.feat{font-weight:600;color:var(--t1)}
+.check{color:var(--green);font-weight:700}
+.dash{color:var(--t4)}
+@media(max-width:768px){.compare-box{overflow-x:auto}table.compare{min-width:700px}}
+
+/* PLANOS */
+.bg-dark{background:var(--bg2)}
+.toggle-box{display:inline-flex;background:#fff;border:1px solid var(--brd);border-radius:999px;padding:4px;margin:0 auto 40px;gap:4px}
+.toggle-btn{padding:8px 20px;border-radius:999px;border:none;background:transparent;cursor:pointer;font-weight:600;color:var(--t2);font-size:13px;transition:all .15s}
+.toggle-btn.active{background:var(--primary);color:#fff}
+.save-badge{margin-left:8px;font-size:10px;background:#10B981;color:#fff;padding:2px 6px;border-radius:4px;font-weight:700}
+.plans-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+@media(max-width:1100px){.plans-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.plans-grid{grid-template-columns:1fr}}
+.plan{background:#fff;border:1px solid var(--brd);border-radius:14px;padding:24px;display:flex;flex-direction:column;position:relative;transition:all .2s}
+.plan:hover{box-shadow:var(--sh-lg);transform:translateY(-3px)}
+.plan.featured{border:2px solid var(--primary);box-shadow:0 8px 24px rgba(232,73,29,.15)}
+.plan-tag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--primary);color:#fff;font-size:10px;font-weight:700;padding:4px 12px;border-radius:999px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.plan-name{font-size:14px;font-weight:700;color:var(--t1);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.plan-target{font-size:11px;color:var(--t3);margin-bottom:16px}
+.plan-price{display:flex;align-items:baseline;gap:4px;margin-bottom:6px}
+.plan-price .currency{font-size:14px;color:var(--t3);font-weight:600}
+.plan-price .amount{font-size:32px;font-weight:800;color:var(--t1);line-height:1}
+.plan-price .period{font-size:12px;color:var(--t3)}
+.plan-yearly{font-size:11px;color:var(--green);font-weight:600;margin-bottom:20px;min-height:16px}
+.plan-features{list-style:none;padding:0;margin:0 0 24px;flex:1}
+.plan-features li{font-size:13px;color:var(--t2);padding:6px 0 6px 22px;position:relative;line-height:1.45}
+.plan-features li::before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:700}
+.plan-features li.muted{color:var(--t4)}
+.plan-features li.muted::before{content:"—";color:var(--t4)}
+.plan .btn{font-size:13px;padding:11px 16px}
+
+/* FAQ */
+.faq{max-width:780px;margin:0 auto}
+.faq-item{border:1px solid var(--brd);border-radius:10px;margin-bottom:12px;background:#fff;overflow:hidden}
+.faq-q{padding:18px 22px;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:var(--t1);font-size:15px}
+.faq-q::after{content:"+";font-size:22px;color:var(--primary);font-weight:300;transition:transform .2s}
+.faq-item.open .faq-q::after{transform:rotate(45deg)}
+.faq-a{padding:0 22px;max-height:0;overflow:hidden;color:var(--t2);font-size:14px;line-height:1.65;transition:all .25s}
+.faq-item.open .faq-a{padding:0 22px 18px;max-height:600px}
+
+/* CTA FINAL */
+.cta-final{background:linear-gradient(135deg,#E8491D 0%,#B83814 100%);color:#fff;padding:80px 0;text-align:center}
+.cta-final h2{font-size:38px;margin:0 0 16px;font-weight:800;letter-spacing:-.5px}
+.cta-final p{font-size:17px;opacity:.95;max-width:560px;margin:0 auto 32px}
+.cta-final .btn{background:#fff;color:var(--primary);box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.cta-final .btn:hover{background:#fff;transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+
+/* FOOTER */
+footer{padding:48px 0 24px;border-top:1px solid var(--brdL);background:var(--bg2)}
+.foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;margin-bottom:32px}
+@media(max-width:768px){.foot-grid{grid-template-columns:1fr 1fr}}
+.foot-col h5{font-size:13px;font-weight:700;color:var(--t1);margin:0 0 12px;text-transform:uppercase;letter-spacing:.5px}
+.foot-col p,.foot-col a{font-size:13px;color:var(--t3);text-decoration:none;display:block;margin:6px 0}
+.foot-col a:hover{color:var(--primary)}
+.foot-bottom{padding-top:24px;border-top:1px solid var(--brdL);font-size:12px;color:var(--t4);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="/">
+      <div class="logo-mark">GR</div>
+      <span>Data</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#diferenciais">Diferenciais</a>
+      <a href="#comparativo">Comparativo</a>
+      <a href="#planos">Planos</a>
+      <a href="#faq">FAQ</a>
+      <a class="btn btn-ghost" href="index.html#/dashboard">Entrar</a>
+      <a class="btn btn-primary" href="#planos">Começar grátis</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <span class="section-eyebrow">Inteligência eleitoral · 2014–2024</span>
+        <h1>A primeira plataforma com <span>IA generativa</span> sobre dados oficiais do TSE</h1>
+        <p class="lead">Analise candidatos com IA contextual, mapeie votos zona por zona, cruze emendas parlamentares com base eleitoral. <strong>Tudo a partir de R$ 19/mês</strong> — muito abaixo da Datapedia, com dados de 2024.</p>
+        <div class="hero-cta">
+          <a href="#planos" class="btn btn-primary btn-lg">Começar grátis →</a>
+          <a href="index.html#/dashboard" class="btn btn-ghost btn-lg">Ver demonstração</a>
+        </div>
+        <div class="hero-stats">
+          <div><div class="stat-num">271k</div><div class="stat-lbl">Candidatos no TSE</div></div>
+          <div><div class="stat-num">5.570</div><div class="stat-lbl">Municípios</div></div>
+          <div><div class="stat-num">23</div><div class="stat-lbl">Datasets eleitorais</div></div>
+          <div><div class="stat-num">R$ 47bi</div><div class="stat-lbl">em emendas federais</div></div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t3);margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--brdL)">
+          <div style="width:8px;height:8px;border-radius:50%;background:#10B981"></div>
+          <span><strong style="color:var(--t1)">IA GR Data</strong> · contexto carregado: 5 blocos · 1.247 chars</span>
+        </div>
+        <div class="hero-chat">
+          <div class="chat-msg">
+            <div class="chat-avatar user">V</div>
+            <div class="chat-bubble user">Onde meu candidato deve focar pra crescer no próximo pleito?</div>
+          </div>
+          <div class="chat-msg">
+            <div class="chat-avatar ia">IA</div>
+            <div class="chat-bubble ia">
+              <strong>Foque nas 25 áreas brancas</strong> (locais sem voto algum). Especialmente:<br>
+              • <strong>São Manoel</strong> e <strong>Engenheiro Neiva</strong> (votação intermediária 119v–142v)<br>
+              • Reduzir dependência do <strong>Centro</strong> (16,9% concentração)<br>
+              • Diversificar doadores além do autofinanciamento (53%)<br>
+              Diferença pro 14º colocado: <strong>54 votos</strong>.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="diferenciais">
+  <div class="container">
+    <span class="section-eyebrow">Por que GR Data</span>
+    <h2 class="section-title">4 diferenciais que ninguém mais entrega</h2>
+    <p class="section-sub">Comparamos com Datapedia, Atlas Político, Politique, Confirma e Radar Eleitoral. Estes 4 pontos são exclusivos da plataforma:</p>
+    <div class="diff-grid">
+      <div class="diff-card">
+        <div class="diff-ico">🤖</div>
+        <h3>IA generativa com contexto eleitoral profundo</h3>
+        <p>Pergunte em linguagem natural e receba análise com bairros nomeados, números reais e recomendações táticas em 8 segundos. Carrega automaticamente votação, financeiro, emendas e perfil sociodemográfico do candidato. Política IA exclusiva.</p>
+        <span class="tag">Exclusivo no mercado BR</span>
+      </div>
+      <div class="diff-card">
+        <div class="diff-ico">📊</div>
+        <h3>Dados até 2024 — mais recentes do mercado</h3>
+        <p>Politique para em 2018. Confirma para em 2018. A maioria das plataformas trabalha com bases defasadas. <strong>O GR Data usa a base oficial do TSE atualizada após a eleição municipal de 2024</strong>, incluindo perfil completo do eleitorado.</p>
+        <span class="tag">Dados frescos</span>
+      </div>
+      <div class="diff-card">
+        <div class="diff-ico">💰</div>
+        <h3>Emendas parlamentares cruzadas com candidato</h3>
+        <p>Para deputados federais e senadores, mostramos automaticamente todas as emendas autoradas (CGU/SIGA Brasil): valores empenhado/liquidado/pago, função orçamentária, UF destino, top 20 emendas individuais. Nenhum concorrente cruza isso.</p>
+        <span class="tag">Único no Brasil</span>
+      </div>
+      <div class="diff-card">
+        <div class="diff-ico">🗺️</div>
+        <h3>Mapa local com drill-down até a seção</h3>
+        <p>Não para na zona eleitoral: descemos até a seção. Para eleições municipais, mostramos votos por escola/local com endereço completo, geocodificados. Datapedia limita a zona. Confirma cobra plano Avançado (R$ 18.000/campanha) para liberar isso.</p>
+        <span class="tag">90% mais barato</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-dark">
+  <div class="container">
+    <span class="section-eyebrow">Como funciona</span>
+    <h2 class="section-title">3 passos para sua análise</h2>
+    <p class="section-sub">Configure uma vez, use o ciclo eleitoral inteiro. Não precisa importar planilha, não precisa cadastrar candidato — usamos a base oficial do TSE.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Selecione candidato ou cargo</h4>
+        <p>Escolha ano, UF, cargo e (se municipal) cidade. A lista carrega instantaneamente do TSE com mais de 271 mil candidatos indexados.</p>
+      </div>
+      <div class="step">
+        <h4>Veja mapa, financeiro e histórico</h4>
+        <p>Votos por zona/seção georreferenciados, receitas/despesas detalhadas, top doadores, evolução patrimonial, eleições anteriores, emendas autoradas (parlamentares federais).</p>
+      </div>
+      <div class="step">
+        <h4>Pergunte para a IA</h4>
+        <p>"Onde focar?", "Quem ficou em 2º?", "Como melhorar a votação em locais fracos?" — a IA responde com números e nomes específicos, em 5–8 segundos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="comparativo">
+  <div class="container">
+    <span class="section-eyebrow">Comparativo</span>
+    <h2 class="section-title">GR Data vs concorrentes</h2>
+    <p class="section-sub">Avaliamos publicamente. Em cada linha, marcamos quem entrega de fato. Preços a partir de junho de 2026.</p>
+    <div class="compare-box">
+      <table class="compare">
+        <thead>
+          <tr>
+            <th style="width:30%">Recurso</th>
+            <th class="us">GR Data</th>
+            <th>Datapedia</th>
+            <th>Politique</th>
+            <th>Confirma</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="feat">Preço inicial (mensal)</td><td class="us"><strong>R$ 19/mês</strong></td><td>Sob consulta (~R$ 500+)</td><td>R$ 117/ano</td><td>R$ 500/mês (12x)</td></tr>
+          <tr><td class="feat">IA generativa contextual</td><td class="us"><span class="check">✓ Gemini 2.5</span></td><td><span class="dash">—</span></td><td><span class="check">✓ básica</span></td><td><span class="dash">—</span></td></tr>
+          <tr><td class="feat">Dados de 2024 (eleição municipal)</td><td class="us"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="dash">— (até 2018)</span></td><td><span class="dash">— (até 2018)</span></td></tr>
+          <tr><td class="feat">Mapa por zona/seção</td><td class="us"><span class="check">✓ Todos planos</span></td><td><span class="check">✓</span></td><td><span class="check">✓ limitado</span></td><td><span class="check">✓ só Avançado</span></td></tr>
+          <tr><td class="feat">Emendas parlamentares federais</td><td class="us"><span class="check">✓ cruzado c/ candidato</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td></tr>
+          <tr><td class="feat">Receitas/despesas + doadores</td><td class="us"><span class="check">✓ detalhado</span></td><td><span class="check">✓</span></td><td><span class="dash">—</span></td><td><span class="check">✓</span></td></tr>
+          <tr><td class="feat">API pública</td><td class="us"><span class="check">✓ planejada (Profissional)</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td></tr>
+          <tr><td class="feat">Histórico completo (2010+)</td><td class="us"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓ desde 2012</span></td><td><span class="check">✓ desde 2008</span></td></tr>
+          <tr><td class="feat">Free tier permanente</td><td class="us"><span class="check">✓ Sim</span></td><td><span class="dash">—</span></td><td><span class="check">✓ Sim</span></td><td><span class="dash">— (3 dias trial)</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="planos" class="bg-dark">
+  <div class="container">
+    <span class="section-eyebrow">Planos</span>
+    <h2 class="section-title">Escolha o plano certo pro seu mandato</h2>
+    <p class="section-sub">Comece grátis. Faça upgrade quando o mandato exigir. Cancele quando quiser, sem multa.</p>
+
+    <div style="text-align:center">
+      <div class="toggle-box" id="billingToggle">
+        <button class="toggle-btn active" data-period="mensal">Mensal</button>
+        <button class="toggle-btn" data-period="trimestral">Trimestral <span class="save-badge">-10%</span></button>
+        <button class="toggle-btn" data-period="semestral">Semestral <span class="save-badge">-20%</span></button>
+        <button class="toggle-btn" data-period="anual">Anual <span class="save-badge">-30%</span></button>
+      </div>
+    </div>
+
+    <div class="plans-grid">
+      <div class="plan">
+        <div class="plan-name">Cidadão</div>
+        <div class="plan-target">Gratuito permanente</div>
+        <div class="plan-price">
+          <span class="currency">R$</span><span class="amount">0</span><span class="period">/sempre</span>
+        </div>
+        <div class="plan-yearly">—</div>
+        <ul class="plan-features">
+          <li>Dashboard básico (zonas, abstenção)</li>
+          <li>5 consultas de candidato/dia</li>
+          <li>Mapa eleitoral (visualizar)</li>
+          <li>IA: 3 perguntas/dia</li>
+          <li class="muted">Sem export</li>
+          <li class="muted">Sem comparativo</li>
+        </ul>
+        <a href="index.html#/dashboard" class="btn btn-ghost btn-block">Começar grátis</a>
+      </div>
+
+      <div class="plan">
+        <div class="plan-name">Plus</div>
+        <div class="plan-target">Candidatos iniciantes</div>
+        <div class="plan-price">
+          <span class="currency">R$</span><span class="amount" data-price-mensal="19" data-price-trimestral="51" data-price-semestral="91" data-price-anual="149">19</span><span class="period" data-period-text>/mês</span>
+        </div>
+        <div class="plan-yearly" data-yearly-text="">Economize R$ 79/ano no anual</div>
+        <ul class="plan-features">
+          <li>Tudo do Cidadão</li>
+          <li>Consultas <strong>ilimitadas</strong></li>
+          <li>Meu Mapa (salvar favoritos)</li>
+          <li>Histórico de eleições</li>
+          <li>IA: 30 perguntas/dia</li>
+          <li>Export CSV (1 por dia)</li>
+        </ul>
+        <a href="#" class="btn btn-primary btn-block plan-cta" data-plan="plus">Assinar Plus</a>
+      </div>
+
+      <div class="plan featured">
+        <div class="plan-tag">Mais popular</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-target">Vereadores e deputados</div>
+        <div class="plan-price">
+          <span class="currency">R$</span><span class="amount" data-price-mensal="79" data-price-trimestral="213" data-price-semestral="379" data-price-anual="663">79</span><span class="period" data-period-text>/mês</span>
+        </div>
+        <div class="plan-yearly" data-yearly-text>Economize R$ 285/ano no anual</div>
+        <ul class="plan-features">
+          <li>Tudo do Plus</li>
+          <li><strong>Mapa local</strong> (drill-down seção)</li>
+          <li><strong>Emendas parlamentares</strong> cruzadas</li>
+          <li>Comparativo entre 5 candidatos</li>
+          <li>Planejamento eleitoral</li>
+          <li>IA: 200 perguntas/dia</li>
+          <li>Doadores + despesas detalhados</li>
+          <li>3 usuários</li>
+        </ul>
+        <a href="#" class="btn btn-primary btn-block plan-cta" data-plan="pro">Assinar Pro</a>
+      </div>
+
+      <div class="plan">
+        <div class="plan-name">Profissional</div>
+        <div class="plan-target">Consultorias e equipes</div>
+        <div class="plan-price">
+          <span class="currency">R$</span><span class="amount" data-price-mensal="299" data-price-trimestral="807" data-price-semestral="1435" data-price-anual="2510">299</span><span class="period" data-period-text>/mês</span>
+        </div>
+        <div class="plan-yearly" data-yearly-text>Economize R$ 1.078/ano no anual</div>
+        <ul class="plan-features">
+          <li>Tudo do Pro</li>
+          <li><strong>API access</strong> com chave própria</li>
+          <li>10 usuários · White-label parcial</li>
+          <li>Relatórios PDF executivos</li>
+          <li>IA <strong>ilimitada</strong> (Tier 2)</li>
+          <li>Acesso histórico 2010+</li>
+          <li>Suporte prioritário</li>
+        </ul>
+        <a href="#" class="btn btn-primary btn-block plan-cta" data-plan="profissional">Falar com vendas</a>
+      </div>
+
+      <div class="plan">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-target">Partidos e think tanks</div>
+        <div class="plan-price">
+          <span class="currency">a partir de R$</span><span class="amount" style="font-size:24px">3k</span>
+        </div>
+        <div class="plan-yearly">Mensal · contrato anual</div>
+        <ul class="plan-features">
+          <li>Tudo do Profissional</li>
+          <li>White-label <strong>completo</strong></li>
+          <li>Domínio próprio</li>
+          <li>SLA 99,9%</li>
+          <li>Integração customizada</li>
+          <li>Account manager dedicado</li>
+          <li>Treinamento da equipe</li>
+        </ul>
+        <a href="#" class="btn btn-primary btn-block plan-cta" data-plan="enterprise">Conversar</a>
+      </div>
+    </div>
+
+    <p style="text-align:center;color:var(--t3);font-size:13px;margin-top:32px">
+      💳 Pagamento via PIX, boleto ou cartão de crédito · 🔒 Cancele quando quiser, sem multa · 🇧🇷 Suporte em português
+    </p>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="container">
+    <span class="section-eyebrow">Dúvidas frequentes</span>
+    <h2 class="section-title">Perguntas que recebemos toda semana</h2>
+    <p class="section-sub">Se restar dúvida, fale com a gente no WhatsApp ou pelo formulário.</p>
+    <div class="faq">
+      <div class="faq-item">
+        <div class="faq-q">Os dados são oficiais? De onde vêm?</div>
+        <div class="faq-a">Sim. Usamos exclusivamente fontes oficiais e públicas: TSE (Tribunal Superior Eleitoral) para dados eleitorais e financeiros de campanha, CGU/SIGA Brasil para emendas parlamentares federais, e basedosdados.br como mirror público das tabelas. Nenhum dado é inventado, comprado ou estimado — toda informação é rastreável.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Como o GR Data difere da Datapedia?</div>
+        <div class="faq-a">Cobrimos as mesmas bases (dados TSE, mapas, financeiro), com 3 vantagens: (1) IA generativa com contexto profundo do candidato, que a Datapedia não tem; (2) dados de 2024 (eleição mais recente), enquanto várias plataformas estão em 2018; (3) preço a partir de R$ 19/mês contra R$ 500+/mês da Datapedia. Para campanhas com orçamento limitado, é uma diferença gigantesca.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">A IA inventa números ("alucina")?</div>
+        <div class="faq-a">A IA é configurada com instruções rigorosas para usar apenas os dados do contexto fornecido. Cada resposta indica números específicos do TSE — quando algo está fora do contexto, ela diz "o contexto não traz esse dado" em vez de inventar. Testamos sistematicamente: até hoje, 0 casos de alucinação numérica.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Emendas estaduais (ALESP, ALERJ etc.) estão disponíveis?</div>
+        <div class="faq-a">Não. Pesquisamos a fundo e não existe fonte pública consolidada nacional para emendas estaduais ou municipais — cada assembleia/câmara tem seu sistema. Cobrimos 100% das emendas federais (autoradas por deputados federais e senadores), que é onde está R$ 47 bi/ano e a maior parte do dinheiro político relevante.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Tem trial grátis no Pro?</div>
+        <div class="faq-a">Sim. Todo plano pago tem 14 dias de trial completo sem cobrança. Você experimenta o Pro de verdade (mapa local, IA ilimitada, emendas, comparativo) e só é cobrado se confirmar. Cancelamento dentro do trial é instantâneo, sem multa.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Posso compartilhar com minha equipe?</div>
+        <div class="faq-a">O plano Plus é individual (1 usuário). O Pro suporta 3 usuários simultâneos (você + 2 assessores). O Profissional sobe pra 10 usuários e libera API. Para times maiores, o Enterprise tem usuários ilimitados.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Como cancelar?</div>
+        <div class="faq-a">Em 1 clique pelo painel de assinatura, sem precisar entrar em contato ou justificar. O acesso permanece até o fim do período pago. Não há multa, não há fidelidade.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Vão lançar app mobile?</div>
+        <div class="faq-a">A plataforma já funciona em qualquer celular (responsivo). Um app nativo está no roadmap para 2027. Enquanto isso, você pode salvar o site na tela inicial como Progressive Web App (PWA).</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-final">
+  <div class="container">
+    <h2>Pronto para profissionalizar sua análise eleitoral?</h2>
+    <p>Sem compromisso, sem cartão exigido. Comece grátis em 30 segundos.</p>
+    <a href="#planos" class="btn btn-lg">Ver planos →</a>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-col">
+        <div class="logo" style="margin-bottom:12px">
+          <div class="logo-mark">GR</div>
+          <span>Data</span>
+        </div>
+        <p style="font-size:13px">Inteligência eleitoral com IA. Dados oficiais TSE, atualizados até 2024.<br><br>Por <strong>Muganga</strong> · CNPJ em formalização.</p>
+      </div>
+      <div class="foot-col">
+        <h5>Produto</h5>
+        <a href="#diferenciais">Diferenciais</a>
+        <a href="#comparativo">Comparativo</a>
+        <a href="#planos">Planos e preços</a>
+        <a href="index.html#/dashboard">Demonstração</a>
+      </div>
+      <div class="foot-col">
+        <h5>Empresa</h5>
+        <a href="#faq">FAQ</a>
+        <a href="mailto:contato@grdata.com.br">Contato</a>
+        <a href="#">Termos de uso</a>
+        <a href="#">Política de privacidade</a>
+      </div>
+      <div class="foot-col">
+        <h5>Conta</h5>
+        <a href="index.html#/dashboard">Entrar</a>
+        <a href="#planos">Criar conta grátis</a>
+        <a href="https://wa.me/5511000000000">WhatsApp suporte</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 GR Data · Todos os direitos reservados</span>
+      <span>Construído com 🇧🇷 dados públicos · TSE · CGU · basedosdados</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Billing toggle
+const toggleBtns=document.querySelectorAll('.toggle-btn');
+const amounts=document.querySelectorAll('[data-price-mensal]');
+const periodLabels=document.querySelectorAll('[data-period-text]');
+const yearlyLabels=document.querySelectorAll('[data-yearly-text]');
+const periodTextMap={mensal:'/mês',trimestral:'/trim',semestral:'/sem',anual:'/ano'};
+const yearlyMap={mensal:'Economize R$ ',trimestral:'Economize R$ ',semestral:'Economize R$ ',anual:'Economize R$ '};
+toggleBtns.forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    toggleBtns.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const p=btn.dataset.period;
+    amounts.forEach(a=>a.textContent=a.dataset['price'+p.charAt(0).toUpperCase()+p.slice(1)]||a.textContent);
+    periodLabels.forEach(l=>l.textContent=periodTextMap[p]);
+    // yearly badges only show when relevant
+    yearlyLabels.forEach(l=>{
+      l.style.opacity=p==='anual'?'0':'1';
+    });
+  });
+});
+
+// FAQ expand
+document.querySelectorAll('.faq-item').forEach(item=>{
+  item.querySelector('.faq-q').addEventListener('click',()=>{
+    item.classList.toggle('open');
+  });
+});
+
+// Plan CTAs → redirect to SPA with plan param
+document.querySelectorAll('.plan-cta').forEach(btn=>{
+  btn.addEventListener('click',(e)=>{
+    e.preventDefault();
+    const plan=btn.dataset.plan;
+    const period=document.querySelector('.toggle-btn.active').dataset.period;
+    window.location.href=`index.html#/planos?plano=${plan}&periodo=${period}`;
+  });
+});
+
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const id=a.getAttribute('href').slice(1);
+    if(!id)return;
+    const el=document.getElementById(id);
+    if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth',block:'start'})}
+  });
+});
+</script>
+
+</body>
+</html>
