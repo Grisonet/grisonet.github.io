@@ -45,5 +45,29 @@
   })();
 </script>
 <script src="app.js"></script>
+<!-- Suporte por WhatsApp. Fica FORA do #root de propósito: o app é um bundle
+     (app.js) gerado por esbuild a partir de um fonte que não vive neste
+     repositório, então um botão aqui sobrevive a qualquer rebuild. -->
+<a id="gr-suporte" href="https://wa.me/551132807177?text=Ol%C3%A1%21%20Sou%20usu%C3%A1rio%20do%20GR%20Data%20e%20preciso%20de%20ajuda%20com%20a%20plataforma." target="_blank" rel="noopener"
+   aria-label="Falar com o suporte do GR Data no WhatsApp" title="Suporte no WhatsApp">
+  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2zm5.8 14.16c-.25.69-1.44 1.32-1.99 1.36-.53.04-1.02.23-3.45-.72-2.9-1.14-4.73-4.1-4.87-4.29-.14-.19-1.16-1.54-1.16-2.94s.73-2.09 1-2.37c.26-.29.57-.36.76-.36.19 0 .38 0 .55.01.18.01.41-.07.64.49.25.6.83 2.07.9 2.22.07.15.12.32.02.51-.09.19-.14.31-.28.48-.14.16-.29.36-.42.49-.14.14-.28.29-.12.57.16.28.72 1.18 1.54 1.91 1.06.94 1.95 1.24 2.23 1.38.28.14.44.12.6-.07.17-.19.69-.8.87-1.08.18-.28.36-.23.61-.14.25.09 1.58.75 1.85.88.27.14.45.21.51.32.07.12.07.65-.18 1.35z"/></svg>
+  <span>Suporte</span>
+</a>
+<style>
+  #gr-suporte {
+    position: fixed; right: 20px; bottom: 20px; z-index: 9998;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 16px; border-radius: 999px;
+    background: #FF6428; color: #fff; text-decoration: none;
+    font: 600 14px/1 'Inter', system-ui, sans-serif;
+    box-shadow: 0 6px 20px -6px rgba(0,0,0,.35);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  #gr-suporte:hover { transform: translateY(-1px); box-shadow: 0 10px 26px -8px rgba(0,0,0,.45); }
+  #gr-suporte:focus-visible { outline: 3px solid #080808; outline-offset: 2px; }
+  /* Em tela estreita vira só o ícone, para não cobrir conteúdo. */
+  @media (max-width: 520px) { #gr-suporte span { display: none; } #gr-suporte { padding: 12px; } }
+  @media (prefers-reduced-motion: reduce) { #gr-suporte { transition: none; } }
+</style>
 </body>
 </html>
