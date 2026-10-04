@@ -170,7 +170,8 @@ async function loadData(){
   }catch(e){ document.getElementById("updated").textContent="aguardando dados…"; return; }
   byIbge={}; data.cidades.forEach(c=>byIbge[c.ibge]=c);
   colorize(); drawPins(); scoreboard();
-  document.getElementById("updated").textContent="dados de "+data.updated;
+  const pstTxt=(data.pst!=null)?" · "+Number(data.pst).toFixed(2).replace(".",",")+"% apurado SP":"";
+  document.getElementById("updated").textContent="dados de "+data.updated+pstTxt;
   if(selectedId) renderDetail(selectedId);
 }
 function colorize(){ gMun.selectAll("path").attr("fill",d=>colorOf(byIbge[d.properties.id])); }
