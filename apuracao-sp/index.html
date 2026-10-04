@@ -196,10 +196,9 @@ const DEPS=[
 /* ---- destaques por visitante (localStorage) ---- */
 const LSK="sp2026:favs";
 const fk=(rk,n)=>rk+":"+n;
-const DEFAULTS=new Set();
-DEPS.forEach(r=>Object.keys(r.track).forEach(n=>DEFAULTS.add(fk(r.key,n))));
 let favs;
-(function(){ let s=null; try{const raw=localStorage.getItem(LSK); if(raw)s=new Set(JSON.parse(raw));}catch(e){} favs=s||new Set(DEFAULTS); })();
+// sem destaques por padrão; cada visitante monta os seus, salvos neste navegador
+(function(){ let s=null; try{const raw=localStorage.getItem(LSK); if(raw)s=new Set(JSON.parse(raw));}catch(e){} favs=s||new Set(); })();
 function saveFavs(){ try{localStorage.setItem(LSK,JSON.stringify([...favs]));}catch(e){} }
 const isFav=k=>favs.has(k);
 function toggleFav(k){ favs.has(k)?favs.delete(k):favs.add(k); saveFavs(); repaint(); }
