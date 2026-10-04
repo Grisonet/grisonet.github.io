@@ -283,12 +283,14 @@ const partyFilters={};   // partido selecionado por cargo
 const searchBox=k=>`<input class="search" type="search" data-k="${k}" value="${esc(filters[k]||"")}" placeholder="🔎 buscar candidato pelo nome…" autocomplete="off" spellcheck="false">`;
 function partySelect(k,parties){
   const cur=partyFilters[k]||"";
-  const opts=['<option value="">Todos os partidos</option>']
-    .concat(parties.map(p=>`<option value="${esc(p.toLowerCase())}"${cur===p.toLowerCase()?' selected':''}>${esc(p)}</option>`));
+  const opts=['<option value="">Todos os partidos/federações</option>']
+    .concat(parties.map(p=>`<option value="${esc(p.key)}"${cur===p.key?' selected':''}>${esc(p.label)}</option>`));
   return `<select class="pfilter" data-k="${k}">${opts.join("")}</select>`;
 }
 function filterBar(k,cs){
-  const parties=[...new Set(cs.map(c=>c.sg).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt"));
+  const seen=new Map();  // agremiação (federação ou partido) = unidade de filtro
+  cs.forEach(c=>{ if(c._agr && !seen.has(c._agr)) seen.set(c._agr,{key:c._agr.toLowerCase(), label:(c._fed?"★ ":"")+c._agr}); });
+  const parties=[...seen.values()].sort((a,b)=>a.label.localeCompare(b.label,"pt"));
   return `<div class="filters">${searchBox(k)}${partySelect(k,parties)}</div>`;
 }
 function applyFilter(k){
@@ -310,7 +312,9 @@ function applyAllFilters(){ new Set([...Object.keys(filters),...Object.keys(part
 function flat(doc){
   const out=[];
   (doc.carg||[]).forEach(c=>(c.agr||[]).forEach(a=>(a.par||[]).forEach(p=>(p.cand||[]).forEach(cd=>{
-    out.push({n:cd.n,nm:cd.nm,nmu:cd.nmu,e:cd.e,st:cd.st||"",sg:p.sg||"",_vap:toInt(cd.vap),_pvap:toNum(cd.pvap),pvap:cd.pvap});
+    out.push({n:cd.n,nm:cd.nm,nmu:cd.nmu,e:cd.e,st:cd.st||"",sg:p.sg||"",
+      _agr:(a.com||p.sg||"").replace(/\s+/g,""), _fed:a.tp==="f",
+      _vap:toInt(cd.vap),_pvap:toNum(cd.pvap),pvap:cd.pvap});
   }))));
   out.sort((x,y)=>y._vap-x._vap);
   return out;
@@ -346,7 +350,7 @@ function row(rk,c,rank,{lead=false,vaga=false,label=null}={}){
   if(!elt&&c._seat) seat=c._contest?`<span class="selo disputa">🟨 vaga em disputa</span>`:`<span class="selo seat">🪑 vaga (proj.)</span>`;
   else if(!elt&&c._contest) seat=`<span class="selo supl">🟨 1º suplente</span>`;
   const dnm=norm((label||c.nmu||c.nm||"")+" "+(c.sg||"")+" "+c.n);
-  return `<div class="rr ${lead?'lead':''} ${on?'sel':''} ${elt?'eleito':''} ${c._seat?'seatwin':''} ${c._contest?'contest':''}" data-nm="${esc(dnm)}" data-sg="${esc((c.sg||'').toLowerCase())}" style="--fill:${fill}">
+  return `<div class="rr ${lead?'lead':''} ${on?'sel':''} ${elt?'eleito':''} ${c._seat?'seatwin':''} ${c._contest?'contest':''}" data-nm="${esc(dnm)}" data-sg="${esc((c._agr||c.sg||'').toLowerCase())}" style="--fill:${fill}">
     <span class="rk">${rank}</span>
     <div class="main">
       <div class="nmrow"><span class="nm">${esc(label||c.nmu||c.nm)}</span>${c.sg?`<span class="party">${esc(c.sg)}</span>`:""}${vtag}${selo}${seat}</div>
