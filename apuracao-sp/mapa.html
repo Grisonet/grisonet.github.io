@@ -3,23 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Mapa SP · Samuel × Dani</title>
+<title>Guaratinguetá · Estudo da Votação</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <style>
   :root{
-    --canvas:#ffffff;--parchment:#f6f5f3;--ink:#080808;--graphite:#454545;--steel:#7a7a7a;
-    --hairline:#e5e5e5;--divider:#f0efed;--primary:#FF4C00;
-    --samuel:#1E63C8;--dani:#E0218A;--nodata:#dcdce2;
+    --canvas:#ffffff;--parchment:#f6f5f3;--pearl:#faf9f7;--ink:#080808;--graphite:#454545;--steel:#7a7a7a;
+    --hairline:#e5e5e5;--divider:#f0efed;--track:#f0efed;--primary:#FF4C00;--amber:#FFC200;
+    --samuel:#1E63C8;--dani:#E0218A;--pos:#16A34A;
     color-scheme:light;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--parchment);color:var(--ink);font-family:"Inter",system-ui,sans-serif;letter-spacing:-.011em;line-height:1.45}
-  h1,h2,h3{margin:0;font-weight:600;letter-spacing:-.021em}
-  .wrap{max-width:1200px;margin:0 auto;padding-inline:16px}
-
+  body{margin:0;background:var(--parchment);color:var(--ink);font-family:"Inter",system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.011em;line-height:1.45;font-size:15px}
+  h1,h2,h3{margin:0;font-weight:600;letter-spacing:-.021em;text-wrap:balance}
+  .wrap{max-width:1180px;margin:0 auto;padding-inline:16px}
   header{position:sticky;top:0;z-index:30;background:#080808;color:#fff;border-bottom:1px solid rgba(255,255,255,.08)}
   .hd{display:flex;align-items:center;gap:11px;padding-block:11px;flex-wrap:wrap}
   .grlogo{height:22px;width:auto;fill:#fff;display:block}
@@ -27,63 +25,66 @@
   .htitle{font-weight:600;font-size:clamp(13px,2.6vw,16px);white-space:nowrap}
   .htitle b{color:var(--primary)}
   .live{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:#ccc;white-space:nowrap}
-  .dot{width:8px;height:8px;border-radius:50%;background:var(--primary);animation:pulse 1.8s infinite}
-  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,76,0,.6)}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
-
-  main{padding-block:16px 40px}
-  .scoreboard{display:grid;gap:12px;grid-template-columns:1fr 1fr;margin-bottom:14px}
-  .cc{display:flex;align-items:center;gap:12px;background:var(--canvas);border:1px solid var(--hairline);border-radius:16px;padding:13px 15px;min-width:0}
-  .cc img{width:46px;height:46px;border-radius:50%;object-fit:cover;flex:none;border:3px solid var(--c)}
-  .cc .nm{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .cc .meta{font-size:12.5px;color:var(--steel)}
-  .cc .big{font-size:22px;font-weight:600;letter-spacing:-.02em;margin-left:auto;text-align:right;color:var(--c)}
-  .cc .big small{display:block;font-size:11px;color:var(--steel);font-weight:400;letter-spacing:0}
-
-  .toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
-  .search{flex:1;min-width:180px;font:inherit;font-size:14px;border:1px solid var(--hairline);border-radius:9999px;padding:10px 16px;background:var(--canvas);color:var(--ink)}
-  .search:focus-visible{outline:none;border-color:var(--primary);box-shadow:0 0 0 2px rgba(255,76,0,.15)}
-  .btn{font:inherit;font-size:13px;font-weight:600;color:var(--graphite);background:var(--divider);border:0;border-radius:9999px;padding:9px 14px;cursor:pointer}
-  .chk{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--graphite);user-select:none;cursor:pointer}
-
-  .mapcard{background:var(--canvas);border:1px solid var(--hairline);border-radius:18px;padding:10px;position:relative;overflow:hidden}
-  svg#map{width:100%;height:auto;display:block;touch-action:none;cursor:grab}
-  svg#map:active{cursor:grabbing}
-  path.mun{stroke:#fff;stroke-width:.4;vector-effect:non-scaling-stroke;transition:fill .5s ease}
-  path.mun.selected{stroke:var(--primary);stroke-width:2.2}
-  .pin image{pointer-events:none}
-  .legend{display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--graphite);padding:8px 4px 2px}
-  .legend .sw{display:inline-flex;align-items:center;gap:6px}
-  .legend .box{width:13px;height:13px;border-radius:4px}
-  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--steel);margin:4px 2px 11px;display:flex;align-items:center;gap:10px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--primary)}
+  main{padding-block:18px 44px}
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--steel);margin:26px 2px 11px;display:flex;align-items:center;gap:10px}
   .eyebrow .rule{flex:1;height:1px;background:var(--hairline)}
-  .clegend{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-  .cchip{display:inline-flex;align-items:center;gap:8px;background:var(--canvas);border:1px solid var(--hairline);border-radius:9999px;padding:4px 12px 4px 4px;font-size:12.5px}
-  .cchip img{width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid var(--cc)}
-  .cchip b{font-weight:600}
-  .cchip .n{color:var(--steel);font-weight:400}
-  .upd{font-size:12px;color:var(--steel);margin-left:auto;white-space:nowrap}
+  .intro{color:var(--steel);font-size:13.5px;margin:2px 2px 14px}
 
-  .tip{position:fixed;pointer-events:none;background:#080808;color:#fff;font-size:12.5px;padding:8px 11px;border-radius:9px;z-index:50;opacity:0;transition:opacity .1s;max-width:230px;line-height:1.4}
-  .tip b{font-weight:600}
-  .tip .s{color:#7db3ff}.tip .d{color:#ff8ecb}
+  .kpis{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .kpi{background:var(--canvas);border:1px solid var(--hairline);border-radius:16px;padding:15px 16px}
+  .kpi .l{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--steel);font-weight:600}
+  .kpi .v{font-size:26px;font-weight:600;letter-spacing:-.025em;margin-top:5px}
+  .kpi .v small{font-size:13px;color:var(--steel);font-weight:400;letter-spacing:0}
 
-  .detail{background:var(--canvas);border:1px solid var(--hairline);border-radius:14px;padding:13px 16px;margin-top:12px;display:none}
-  .detail.on{display:block}
-  .detail h3{font-size:16px;margin-bottom:4px}
-  .detail .row{display:flex;align-items:center;gap:10px;margin-top:8px}
-  .detail .bar{flex:1;height:10px;border-radius:9999px;background:var(--divider);overflow:hidden;min-width:60px}
-  .detail .bar>i{display:block;height:100%}
-  .detail .lbl{font-size:13px;min-width:120px;display:flex;align-items:center;gap:7px}
-  .detail .lbl img{width:22px;height:22px;border-radius:50%;object-fit:cover}
-  .detail .v{font-weight:600;font-size:14px;min-width:92px;text-align:right}
+  /* head to head */
+  .h2h{background:var(--canvas);border:1px solid var(--hairline);border-radius:18px;padding:20px;margin-top:6px}
+  .h2h .top{display:flex;gap:14px;align-items:stretch;flex-wrap:wrap}
+  .cand{flex:1 1 220px;min-width:0;display:flex;gap:13px;align-items:center;padding:14px;border-radius:14px;border:1px solid var(--hairline)}
+  .cand.win{border-color:var(--c);box-shadow:inset 3px 0 0 var(--c)}
+  .cand img{width:60px;height:60px;border-radius:50%;object-fit:cover;border:3px solid var(--c);flex:none}
+  .cand .nm{font-weight:600;font-size:16px}
+  .cand .meta{font-size:12.5px;color:var(--steel)}
+  .cand .big{font-size:30px;font-weight:600;letter-spacing:-.025em;color:var(--c);margin-top:2px}
+  .cand .big small{font-size:13px;color:var(--steel);font-weight:400}
+  .h2hbar{display:flex;height:18px;border-radius:9999px;overflow:hidden;margin-top:16px;background:var(--divider)}
+  .h2hbar i{display:block;height:100%}
+  .h2hnote{font-size:13px;color:var(--graphite);margin-top:10px}
+  .h2hnote b{font-weight:600}
+  .vsstate{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:12.5px;color:var(--steel);border-top:1px dashed var(--hairline);padding-top:11px}
 
-  footer{color:var(--steel);font-size:12px;border-top:1px solid var(--hairline);padding-block:18px;margin-top:26px;line-height:1.7}
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));align-items:start}
+  .card{background:var(--canvas);border:1px solid var(--hairline);border-radius:18px;padding:18px 18px 14px;min-width:0}
+  .chead{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .chead .ic{font-size:16px}.chead h3{font-size:16px}
+  .csub{font-size:12px;color:var(--steel);margin-bottom:10px}
+  .rr{position:relative;display:flex;align-items:center;gap:10px;padding:7px 2px;border-bottom:1px solid var(--divider)}
+  .rr:last-child{border-bottom:0}
+  .rr.mine{background:color-mix(in srgb,var(--primary) 7%,transparent);border-radius:10px;padding-inline:8px;box-shadow:inset 3px 0 0 var(--primary);border-bottom:1px solid transparent}
+  .rk{width:22px;text-align:center;font-size:12.5px;font-weight:600;color:var(--steel);flex:none}
+  .main{flex:1;min-width:0}
+  .nmrow{display:flex;align-items:center;gap:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nm{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rr.mine .nm{font-weight:600}
+  .party{flex:none;font-size:10px;font-weight:600;color:var(--graphite);background:var(--divider);border:1px solid var(--hairline);border-radius:9999px;padding:1px 6px}
+  .vg{flex:none;font-size:9.5px;font-weight:700;color:#080808;background:var(--amber);border-radius:9999px;padding:1px 6px}
+  .trk{height:5px;border-radius:9999px;background:var(--track);overflow:hidden;margin-top:5px}
+  .trk>i{display:block;height:100%;border-radius:9999px;background:var(--fill,var(--steel))}
+  .val{flex:none;text-align:right;min-width:92px}
+  .val .pc{font-size:15px;font-weight:600}
+  .val .vt{font-size:10.5px;color:var(--steel)}
+  .minilbl{font-size:10.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--primary);margin:10px 2px 2px}
+  .note{font-size:11.5px;color:var(--steel);margin-top:9px;border-top:1px dashed var(--hairline);padding-top:8px}
+
+  footer{color:var(--steel);font-size:12px;border-top:1px solid var(--hairline);padding-block:18px;margin-top:30px;line-height:1.7}
   footer b{color:var(--graphite)}
   .contact{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-bottom:13px;margin-bottom:12px;border-bottom:1px solid var(--hairline)}
   .wabtn{display:inline-flex;align-items:center;gap:8px;background:var(--primary);color:#080808;font-weight:600;font-size:14px;text-decoration:none;border-radius:9999px;padding:10px 18px}
   .grlogo-foot{height:20px;fill:var(--graphite);margin-left:auto;opacity:.85}
-  a{color:var(--primary)}
-  @media(max-width:560px){.scoreboard{grid-template-columns:1fr}.cc .big{font-size:19px}}
+  .nav{display:inline-flex;gap:8px;align-items:center;font-size:13px}
+  .nav a{color:var(--primary);text-decoration:none;font-weight:600}
+  .skl{color:var(--steel);font-size:13px;padding:10px 2px}
+  @media(max-width:480px){.kpi .v{font-size:22px}.cand .big{font-size:25px}}
 </style>
 </head>
 <body>
@@ -91,263 +92,131 @@
 
 <header><div class="wrap hd">
   <svg class="grlogo" role="img" aria-label="GR Data"><use href="#grlogo"/></svg>
-  <span class="sep"></span><span class="htitle"><b>Mapas</b> · Apuração 2026</span>
-  <span class="live"><span class="dot"></span><span id="updated">carregando…</span></span>
+  <span class="sep"></span><span class="htitle"><b>Guaratinguetá</b> · Estudo da Votação 2026</span>
+  <span class="live"><span class="dot"></span><span id="upd">carregando…</span></span>
 </div></header>
 
 <main class="wrap">
-  <div class="eyebrow">🗳️ Presidente — por estado (Brasil)<span class="rule"></span></div>
-  <div id="pres-legend" class="clegend"></div>
-  <div class="toolbar">
-    <input class="search" id="pres-q" list="pres-list" placeholder="🔎 buscar estado…" autocomplete="off">
-    <datalist id="pres-list"></datalist>
-    <button class="btn" id="pres-reset">ver todo o Brasil</button>
-    <label class="chk"><input type="checkbox" id="pres-pins" checked> fotos</label>
-    <span class="upd" id="pres-upd"></span>
-  </div>
-  <div class="mapcard"><svg id="pres-map" viewBox="0 0 1000 1000" role="img" aria-label="Mapa do Brasil"></svg></div>
-  <div class="detail" id="pres-detail"></div>
+  <div class="nav" style="margin-top:14px">← <a href="./">voltar ao painel geral de SP</a></div>
 
-  <div class="eyebrow" style="margin-top:30px">🏛️ Governador — por cidade (São Paulo)<span class="rule"></span></div>
-  <div id="gov-legend" class="clegend"></div>
-  <div class="toolbar">
-    <input class="search" id="gov-q" list="gov-list" placeholder="🔎 buscar cidade…" autocomplete="off">
-    <datalist id="gov-list"></datalist>
-    <button class="btn" id="gov-reset">ver todo o estado</button>
-    <label class="chk"><input type="checkbox" id="gov-pins" checked> fotos</label>
-    <span class="upd" id="gov-upd"></span>
-  </div>
-  <div class="mapcard"><svg id="gov-map" viewBox="0 0 1000 820" role="img" aria-label="Governador por cidade"></svg></div>
-  <div class="detail" id="gov-detail"></div>
+  <div class="eyebrow" style="margin-top:16px">Panorama da cidade<span class="rule"></span></div>
+  <section class="kpis" id="kpis"><div class="skl">Carregando dados do TSE…</div></section>
 
-  <div class="eyebrow" style="margin-top:30px">⚔️ Cabo Samuel × Dani Dias — Dep. Estadual por cidade (SP)<span class="rule"></span></div>
-  <div class="scoreboard">
-    <div class="cc" style="--c:var(--samuel)"><img src="fotos/samuel.jpg" alt="Cabo Samuel"><div style="min-width:0"><div class="nm">Cabo Samuel</div><div class="meta">55033 · lidera em <b id="cs">—</b> cidades</div></div><div class="big" id="vs">—<small>votos no estado</small></div></div>
-    <div class="cc" style="--c:var(--dani)"><img src="fotos/dani.jpg" alt="Dani Dias"><div style="min-width:0"><div class="nm">Dani Dias da Rádio</div><div class="meta">10002 · lidera em <b id="cd">—</b> cidades</div></div><div class="big" id="vd">—<small>votos no estado</small></div></div>
-  </div>
+  <div class="eyebrow">⚔️ Cabo Samuel × Dani Dias em Guaratinguetá<span class="rule"></span></div>
+  <div class="h2h" id="h2h"><div class="skl">—</div></div>
 
-  <div class="toolbar">
-    <input class="search" id="q" list="cities" placeholder="🔎 buscar cidade (ex.: Guaratinguetá)…" autocomplete="off">
-    <datalist id="cities"></datalist>
-    <button class="btn" id="reset">ver todo o estado</button>
-    <label class="chk"><input type="checkbox" id="pins" checked> fotos nas cidades</label>
-  </div>
-
-  <div class="mapcard">
-    <svg id="map" viewBox="0 0 1000 820" role="img" aria-label="Mapa de São Paulo"></svg>
-  </div>
-  <div class="legend">
-    <span class="sw"><span class="box" style="background:var(--samuel)"></span> Cabo Samuel à frente</span>
-    <span class="sw"><span class="box" style="background:var(--dani)"></span> Dani Dias à frente</span>
-    <span class="sw"><span class="box" style="background:var(--nodata)"></span> sem apuração / empate</span>
-  </div>
-
-  <div class="detail" id="detail"></div>
+  <div class="eyebrow">Resultado por cargo em Guaratinguetá<span class="rule"></span></div>
+  <section class="grid" id="cargos"></section>
 
   <footer>
     <div class="contact">
       <a class="wabtn" href="https://wa.me/551132807177" target="_blank" rel="noopener">💬 WhatsApp Griso — informações</a>
       <svg class="grlogo grlogo-foot" role="img" aria-label="GR Data"><use href="#grlogo"/></svg>
     </div>
-    <div>Fonte: <b>TSE</b> (resultados por município, cargo Deputado Estadual). Comparativo <b>Cabo Samuel (55033) × Dani Dias da Rádio (10002)</b> nos 645 municípios de SP. Dados agregados a cada ~3 min. Projeto independente, sem vínculo com a Justiça Eleitoral.</div>
+    <div>Fonte: <b>Tribunal Superior Eleitoral</b> — resultados do município de Guaratinguetá (SP), 324 seções. Dados a nível de município (a votação por seção não é aberta no feed ao vivo do TSE). <span id="tsetime"></span> Projeto independente, sem vínculo com a Justiça Eleitoral.</div>
   </footer>
 </main>
 
-<div class="tip" id="tip"></div>
-
 <script>
-const SAMUEL="#1E63C8",DANI="#E0218A",NODATA="#dcdce2";
-const W=1000,H=820;
-let geo,data,byIbge={},path,proj,svg,g,gMun,gPins,zoom,selectedId=null;
-const tip=document.getElementById("tip");
-const nf=n=>Number(n||0).toLocaleString("pt-BR");
-const norm=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+const H="https://resultados.tse.jus.br/oficial/ele2026", CD="64696";
+const U=(pl,c)=>`${H}/${pl}/dados/sp/sp${CD}-c${c}-e00${pl}-u.json`;
+const CARGOS=[
+  {key:"PRES",ic:"🇧🇷",nm:"Presidente",url:U("6257","0001"),top:12},
+  {key:"GOV", ic:"🏛️",nm:"Governador",url:U("6259","0003"),top:5},
+  {key:"SEN", ic:"🗳️",nm:"Senador",sub:"2 vagas",url:U("6259","0005"),vagas:2,top:13},
+  {key:"DF",  ic:"🟧",nm:"Deputado Federal",url:U("6259","0006"),top:12,
+    track:{"2033":"Danilo do Posto","5522":"Guti","2222":"Renato Bolsonaro","5533":"Paulo A. Barbosa","1800":"Marco Martins","5588":"Vinicius Marchese","1502":"Sidney Cruz"}},
+  {key:"DE",  ic:"🟧",nm:"Deputado Estadual",url:U("6259","0007"),top:12,
+    track:{"55900":"Aline Torres","55033":"Cabo Samuel","18000":"Prof. Fernando Oliveira","10002":"Dani Dias da Rádio","15115":"Regina Nunes"}},
+];
+const toInt=s=>parseInt(String(s==null?0:s).replace(/\./g,""),10)||0;
+const toNum=s=>parseFloat(String(s==null?0:s).replace(/\./g,"").replace(",","."))||0;
+const fmtV=n=>Number(n||0).toLocaleString("pt-BR");
+const fmtP=s=>toNum(s).toFixed(2).replace(".",",");
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+function flat(doc){const o=[];(doc.carg||[]).forEach(c=>(c.agr||[]).forEach(a=>(a.par||[]).forEach(p=>(p.cand||[]).forEach(cd=>o.push({n:cd.n,nm:cd.nmu||cd.nm,sg:p.sg||"",v:toInt(cd.vap),p:toNum(cd.pvap),pv:cd.pvap})))));o.sort((a,b)=>b.v-a.v);return o;}
+async function getJSON(u){const r=await fetch(u+"?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;return r.json();}
 
-function leaderOf(c){ if(!c||c.p<=0||c.s===c.d) return null; return c.s>c.d?"s":"d"; }
-function colorOf(c){ const l=leaderOf(c); return l==="s"?SAMUEL:l==="d"?DANI:NODATA; }
-
-async function init(){
-  geo=await fetch("sp-mun.geojson").then(r=>r.json());
-  proj=d3.geoMercator().fitSize([W,H],geo);
-  path=d3.geoPath(proj);
-  svg=d3.select("#map");
-  const defs=svg.append("defs");
-  defs.append("clipPath").attr("id","pclip").append("circle").attr("r",4.5);
-  g=svg.append("g");
-  gMun=g.append("g");
-  gPins=g.append("g");
-  gMun.selectAll("path").data(geo.features).join("path")
-    .attr("class","mun").attr("d",path).attr("fill",NODATA)
-    .attr("data-ibge",d=>d.properties.id)
-    .on("mousemove",hover).on("mouseleave",()=>tip.style.opacity=0)
-    .on("click",(e,d)=>selectCity(d.properties.id,true));
-  // datalist
-  const dl=document.getElementById("cities");
-  geo.features.map(d=>d.properties.name).sort((a,b)=>a.localeCompare(b,"pt"))
-    .forEach(n=>{const o=document.createElement("option");o.value=n;dl.appendChild(o);});
-  zoom=d3.zoom().scaleExtent([1,30]).on("zoom",e=>g.attr("transform",e.transform));
-  svg.call(zoom);
-  document.getElementById("q").addEventListener("change",e=>{
-    const f=geo.features.find(d=>norm(d.properties.name)===norm(e.target.value));
-    if(f) selectCity(f.properties.id,true);
-  });
-  document.getElementById("reset").addEventListener("click",resetView);
-  document.getElementById("pins").addEventListener("change",drawPins);
-  await loadData();
-  setInterval(loadData,60000);
+function kpis(est){
+  const e=est.e||{},v=est.v||{},s=est.s||{};
+  const d=[
+    {l:"Eleitorado apto",v:fmtV(toInt(e.te))},
+    {l:"Comparecimento",v:fmtP(e.pc)+"<small>%</small>",s:fmtV(toInt(e.c))+" votantes"},
+    {l:"Abstenção",v:fmtP(e.pa)+"<small>%</small>",s:fmtV(toInt(e.a))+" eleitores"},
+    {l:"Votos válidos",v:fmtV(toInt(v.vv))},
+    {l:"Brancos",v:fmtV(toInt(v.vb))+`<small> (${fmtP(v.pvb)}%)</small>`},
+    {l:"Nulos",v:fmtV(toInt(v.vn||v.tvn))+`<small> (${fmtP(v.ptvn)}%)</small>`},
+    {l:"Seções",v:fmtV(toInt(s.st))+`<small>/${fmtV(toInt(s.ts))}</small>`,s:fmtP(s.pst)+"% apurado"},
+  ];
+  return d.map(k=>`<div class="kpi"><div class="l">${k.l}</div><div class="v">${k.v}</div>${k.s?`<div class="l" style="text-transform:none;letter-spacing:0;margin-top:4px;color:var(--steel);font-weight:400">${k.s}</div>`:""}</div>`).join("");
 }
 
-async function loadData(){
+function h2h(est, stateDoc){
+  const cs=flat(est);
+  const S=cs.find(c=>c.n==="55033")||{v:0,p:0}, D=cs.find(c=>c.n==="10002")||{v:0,p:0};
+  const rk={}; cs.forEach((c,i)=>rk[c.n]=i+1);
+  const tot=S.v+D.v||1, sp=S.v/tot*100, dp=D.v/tot*100;
+  const win=S.v>=D.v?"S":"D", diff=Math.abs(S.v-D.v);
+  // estado
+  let stTxt="";
+  if(stateDoc){const scs=flat(stateDoc);const Ss=scs.find(c=>c.n==="55033")||{p:0,v:0},Ds=scs.find(c=>c.n==="10002")||{p:0,v:0};
+    stTxt=`<div class="vsstate"><span>No estado: <b style="color:var(--samuel)">Samuel ${fmtP(Ss.pv)}%</b> (${fmtV(Ss.v)}) · <b style="color:var(--dani)">Dani ${fmtP(Ds.pv)}%</b> (${fmtV(Ds.v)})</span></div>`;}
+  return `<div class="top">
+    <div class="cand ${win==="S"?"win":""}" style="--c:var(--samuel)"><img src="fotos/samuel.jpg" alt=""><div style="min-width:0"><div class="nm">Cabo Samuel</div><div class="meta">55033 · ${rk["55033"]||"—"}º em Guará</div><div class="big">${fmtV(S.v)}<small> votos · ${fmtP(S.pv)}%</small></div></div></div>
+    <div class="cand ${win==="D"?"win":""}" style="--c:var(--dani)"><img src="fotos/dani.jpg" alt=""><div style="min-width:0"><div class="nm">Dani Dias da Rádio</div><div class="meta">10002 · ${rk["10002"]||"—"}º em Guará</div><div class="big">${fmtV(D.v)}<small> votos · ${fmtP(D.pv)}%</small></div></div></div>
+  </div>
+  <div class="h2hbar"><i style="width:${sp}%;background:var(--samuel)"></i><i style="width:${dp}%;background:var(--dani)"></i></div>
+  <div class="h2hnote">Em Guaratinguetá, <b>${win==="S"?"Cabo Samuel":"Dani Dias"}</b> está à frente por <b>${fmtV(diff)}</b> voto(s) (${(Math.abs(sp-dp)).toFixed(1).replace(".",",")} p.p. no confronto direto).</div>
+  ${stTxt}`;
+}
+
+function cargoCard(r,doc){
+  const cs=flat(doc); const maxP=Math.max(0.0001,...cs.map(c=>c.p));
+  const rk={}; cs.forEach((c,i)=>rk[c.n]=i+1);
+  const vagas=r.vagas||0;
+  const rowFor=(c,i)=>{
+    const mine=r.track&&r.track[c.n];
+    const label=mine||c.nm;
+    const vg=(vagas&&i<vagas)?`<span class="vg">🏆 eleito</span>`:"";
+    const fill=mine?"var(--primary)":(vagas&&i<vagas?"var(--primary)":"var(--steel)");
+    return `<div class="rr ${mine?'mine':''}" style="--fill:${fill}">
+      <span class="rk">${rk[c.n]}</span>
+      <div class="main"><div class="nmrow"><span class="nm">${esc(label)}</span>${c.sg?`<span class="party">${esc(c.sg)}</span>`:""}${vg}</div>
+        <div class="trk"><i style="width:${c.p/maxP*100}%"></i></div></div>
+      <div class="val"><div class="pc">${fmtP(c.pv)}%</div><div class="vt">${fmtV(c.v)}</div></div>
+    </div>`;
+  };
+  const top=cs.slice(0,r.top).map((c,i)=>rowFor(c,i)).join("");
+  let mineBlock="";
+  if(r.track){
+    const mine=cs.filter(c=>r.track[c.n]);
+    mineBlock=`<div class="minilbl">★ Seus candidatos em Guaratinguetá</div>`+
+      mine.map(c=>rowFor(c,cs.indexOf(c))).join("");
+  }
+  const v=doc.v||{};
+  const note=`<div class="note">Brancos: ${fmtV(toInt(v.vb))} (${fmtP(v.pvb)}%) · Nulos: ${fmtV(toInt(v.vn||v.tvn))} (${fmtP(v.ptvn)}%) · Válidos: ${fmtV(toInt(v.vv))}</div>`;
+  return `<div class="card">
+    <div class="chead"><span class="ic">${r.ic}</span><h3>${r.nm}</h3></div>
+    <div class="csub">${r.sub?r.sub+" · ":""}${cs.length} candidatos em Guaratinguetá</div>
+    ${mineBlock}
+    ${r.track?`<div class="minilbl" style="color:var(--steel)">Mais votados na cidade</div>`:""}
+    ${top}
+    ${note}
+  </div>`;
+}
+
+async function load(){
   try{
-    data=await fetch("estado.json?t="+Date.now(),{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.json();});
-  }catch(e){ document.getElementById("updated").textContent="aguardando dados…"; return; }
-  byIbge={}; data.cidades.forEach(c=>byIbge[c.ibge]=c);
-  colorize(); drawPins(); scoreboard();
-  const pstTxt=(data.pst!=null)?" · "+Number(data.pst).toFixed(2).replace(".",",")+"% apurado SP":"";
-  document.getElementById("updated").textContent="dados de "+data.updated+pstTxt;
-  if(selectedId) renderDetail(selectedId);
+    const docs=await Promise.all(CARGOS.map(r=>getJSON(r.url).catch(()=>null)));
+    const est=docs[4]; // dep estadual (tem e/v/s da cidade)
+    let stateDoc=null; try{stateDoc=await getJSON(`${H}/6259/dados/sp/sp-c0007-e006259-u.json`);}catch(e){}
+    if(est){document.getElementById("kpis").innerHTML=kpis(est); document.getElementById("h2h").innerHTML=h2h(est,stateDoc);
+      const g=est; if(g.dg&&g.hg)document.getElementById("tsetime").textContent="Gerado em "+g.dg+" "+g.hg+".";
+      document.getElementById("upd").textContent=toNum(est.s.pst)>=100?"100% apurado":fmtP(est.s.pst)+"% apurado";}
+    document.getElementById("cargos").innerHTML=CARGOS.map((r,i)=>docs[i]?cargoCard(r,docs[i]):"").join("");
+  }catch(e){ document.getElementById("upd").textContent="erro ao carregar"; }
 }
-function colorize(){ gMun.selectAll("path").attr("fill",d=>colorOf(byIbge[d.properties.id])); }
-function scoreboard(){
-  let cs=0,cd=0;
-  geo.features.forEach(d=>{const l=leaderOf(byIbge[d.properties.id]); if(l==="s")cs++; else if(l==="d")cd++;});
-  document.getElementById("cs").textContent=cs;
-  document.getElementById("cd").textContent=cd;
-  document.getElementById("vs").innerHTML=nf(data.tot.s)+"<small>votos no estado</small>";
-  document.getElementById("vd").innerHTML=nf(data.tot.d)+"<small>votos no estado</small>";
-}
-function drawPins(){
-  const show=document.getElementById("pins").checked;
-  if(!show){ gPins.selectAll("*").remove(); return; }
-  const feats=geo.features.filter(d=>leaderOf(byIbge[d.properties.id]));
-  const sel=gPins.selectAll("g.pin").data(feats,d=>d.properties.id);
-  sel.exit().remove();
-  const ent=sel.enter().append("g").attr("class","pin");
-  ent.append("image").attr("clip-path","url(#pclip)").attr("x",-4.5).attr("y",-4.5).attr("width",9).attr("height",9);
-  ent.append("circle").attr("r",5).attr("fill","none").attr("stroke-width",1).attr("vector-effect","non-scaling-stroke");
-  const all=ent.merge(sel);
-  all.attr("transform",d=>{const c=path.centroid(d);return `translate(${c[0]},${c[1]})`;});
-  all.select("image").attr("href",d=>leaderOf(byIbge[d.properties.id])==="s"?"fotos/samuel.jpg":"fotos/dani.jpg");
-  all.select("circle").attr("stroke",d=>colorOf(byIbge[d.properties.id]));
-}
-function hover(e,d){
-  const c=byIbge[d.properties.id];
-  const l=leaderOf(c);
-  const who=l==="s"?'<span class="s">Samuel à frente</span>':l==="d"?'<span class="d">Dani à frente</span>':"sem apuração";
-  tip.innerHTML=`<b>${d.properties.name}</b><br>${c?`🔵 Samuel: ${nf(c.s)}<br>🩷 Dani: ${nf(c.d)}<br>${who} · ${c.p.toFixed(1).replace(".",",")}% apurado`:"sem dados"}`;
-  tip.style.left=Math.min(e.clientX+14,innerWidth-240)+"px";
-  tip.style.top=(e.clientY+14)+"px"; tip.style.opacity=1;
-}
-function selectCity(ibge,zoomTo){
-  selectedId=ibge;
-  gMun.selectAll("path").classed("selected",d=>d.properties.id===ibge);
-  const f=geo.features.find(d=>d.properties.id===ibge);
-  if(zoomTo&&f){
-    const [[x0,y0],[x1,y1]]=path.bounds(f);
-    const k=Math.min(30,.7*Math.min(W/(x1-x0),H/(y1-y0)));
-    const tx=W/2-k*(x0+x1)/2, ty=H/2-k*(y0+y1)/2;
-    svg.transition().duration(650).call(zoom.transform,d3.zoomIdentity.translate(tx,ty).scale(k));
-  }
-  renderDetail(ibge);
-}
-function renderDetail(ibge){
-  const f=geo.features.find(d=>d.properties.id===ibge); if(!f) return;
-  const c=byIbge[ibge]; const el=document.getElementById("detail");
-  const tot=c?(c.s+c.d):0;
-  const ps=tot?c.s/tot*100:0, pd=tot?c.d/tot*100:0;
-  el.className="detail on";
-  el.innerHTML=`<h3>${f.properties.name}</h3>
-    <div class="meta" style="font-size:12.5px;color:var(--steel)">${c?c.p.toFixed(2).replace(".",",")+"% apurado":"sem dados"}</div>
-    <div class="row"><span class="lbl"><img src="fotos/samuel.jpg"> Cabo Samuel</span><span class="bar"><i style="width:${ps}%;background:${SAMUEL}"></i></span><span class="v" style="color:${SAMUEL}">${nf(c?c.s:0)}</span></div>
-    <div class="row"><span class="lbl"><img src="fotos/dani.jpg"> Dani Dias</span><span class="bar"><i style="width:${pd}%;background:${DANI}"></i></span><span class="v" style="color:${DANI}">${nf(c?c.d:0)}</span></div>`;
-}
-function resetView(){
-  selectedId=null; gMun.selectAll("path").classed("selected",false);
-  document.getElementById("detail").className="detail";
-  document.getElementById("q").value="";
-  svg.transition().duration(500).call(zoom.transform,d3.zoomIdentity);
-}
-init();
-
-/* ===== mapas genéricos: Presidente (por UF) e Governador (por cidade) ===== */
-const PCOLOR={"13":"#C4122E","22":"#1E58A8","55":"#15A94D","30":"#F57C00","12":"#D21E2B","15":"#0E8A3E","45":"#0A77C2","70":"#6D4FB3","16":"#B91C1C","21":"#8A1C1C","27":"#E6007E","14":"#1FA0A0","29":"#B23600","35":"#5B6472","80":"#C026D3","10":"#1C4E9C"};
-const PAL=["#FF4C00","#454545","#FFC200","#7a7a7a","#B23600","#C9C7C4"];
-const candColor=n=>PCOLOR[n]||PAL[(parseInt(n,10)||0)%PAL.length];
-
-async function genMap(cfg){
-  const geo=await fetch(cfg.geojson).then(r=>r.json());
-  const proj=d3.geoMercator().fitSize([cfg.W,cfg.H],geo);
-  const path=d3.geoPath(proj);
-  const svg=d3.select("#"+cfg.svg);
-  svg.append("defs").append("clipPath").attr("id",cfg.svg+"-clip").append("circle").attr("r",cfg.pin);
-  const g=svg.append("g"),gMun=g.append("g"),gPins=g.append("g");
-  const zoom=d3.zoom().scaleExtent([1,30]).on("zoom",e=>g.attr("transform",e.transform));
-  svg.call(zoom);
-  const keyOf=d=>cfg.kind==="uf"?(d.properties.sigla||"").toLowerCase():d.properties.id;
-  const nameOf=d=>d.properties.name;
-  let BY={},DATA=null,selKey=null;
-  const $=id=>document.getElementById(id);
-  gMun.selectAll("path").data(geo.features).join("path").attr("class","mun").attr("d",path).attr("fill","#dcdce2")
-    .on("mousemove",hoverG).on("mouseleave",()=>tip.style.opacity=0).on("click",(e,d)=>selectG(d,true));
-  const dl=$(cfg.list);
-  geo.features.map(nameOf).sort((a,b)=>a.localeCompare(b,"pt")).forEach(n=>{const o=document.createElement("option");o.value=n;dl.appendChild(o);});
-  $(cfg.q).addEventListener("change",e=>{const f=geo.features.find(d=>norm(nameOf(d))===norm(e.target.value));if(f)selectG(f,true);});
-  $(cfg.reset).addEventListener("click",()=>{selKey=null;gMun.selectAll("path").classed("selected",false);$(cfg.detail).className="detail";$(cfg.q).value="";svg.transition().duration(500).call(zoom.transform,d3.zoomIdentity);});
-  $(cfg.pinsChk).addEventListener("change",drawPinsG);
-  const rowsList=()=>cfg.kind==="uf"?DATA.ufs:DATA.cidades;
-  const votesOf=r=>cfg.kind==="uf"?(r.top||[]):Object.entries(r.v||{}).sort((a,b)=>b[1]-a[1]);
-  function hoverG(e,d){
-    const r=BY[keyOf(d)];let html=`<b>${nameOf(d)}</b>`;
-    if(r&&r.lead){html+="<br>"+votesOf(r).slice(0,3).map(([n,v])=>`${DATA.cand[n]?DATA.cand[n].nm:n}: ${(+v).toLocaleString("pt-BR")}`).join("<br>")+`<br>${r.p.toFixed(1).replace(".",",")}% apurado`;}
-    else html+="<br>sem apuração";
-    tip.innerHTML=html;tip.style.left=Math.min(e.clientX+14,innerWidth-240)+"px";tip.style.top=(e.clientY+14)+"px";tip.style.opacity=1;
-  }
-  function drawPinsG(){
-    if(!$(cfg.pinsChk).checked){gPins.selectAll("*").remove();return;}
-    const feats=geo.features.filter(d=>{const r=BY[keyOf(d)];return r&&r.lead;});
-    const sel=gPins.selectAll("g.pin").data(feats,keyOf);
-    sel.exit().remove();
-    const ent=sel.enter().append("g").attr("class","pin");
-    ent.append("image").attr("clip-path",`url(#${cfg.svg}-clip)`).attr("x",-cfg.pin).attr("y",-cfg.pin).attr("width",cfg.pin*2).attr("height",cfg.pin*2);
-    ent.append("circle").attr("r",cfg.pin+1).attr("fill","none").attr("stroke-width",1).attr("vector-effect","non-scaling-stroke");
-    const all=ent.merge(sel);
-    all.attr("transform",d=>{const c=path.centroid(d);return `translate(${c[0]},${c[1]})`;});
-    all.select("image").attr("href",d=>`fotos/${cfg.photo}_${BY[keyOf(d)].lead}.jpg`);
-    all.select("circle").attr("stroke",d=>candColor(BY[keyOf(d)].lead));
-  }
-  function legendG(){
-    const tot=DATA.tot||{},lc={};
-    rowsList().forEach(r=>{if(r.lead)lc[r.lead]=(lc[r.lead]||0)+1;});
-    const order=Object.keys(DATA.cand).sort((a,b)=>(tot[b]||0)-(tot[a]||0)).filter(n=>(tot[n]||0)>0||lc[n]);
-    $(cfg.legend).innerHTML=order.map(n=>`<span class="cchip" style="--cc:${candColor(n)}"><img src="fotos/${cfg.photo}_${n}.jpg" alt=""><span><b>${DATA.cand[n].nm}</b> <span class="n">· lidera em ${lc[n]||0} ${cfg.kind==="uf"?"UF":"cid."}</span></span></span>`).join("");
-  }
-  function selectG(d,zoomTo){
-    selKey=keyOf(d);
-    gMun.selectAll("path").classed("selected",x=>keyOf(x)===selKey);
-    if(zoomTo){const [[x0,y0],[x1,y1]]=path.bounds(d);const k=Math.min(30,.7*Math.min(cfg.W/(x1-x0),cfg.H/(y1-y0)));svg.transition().duration(650).call(zoom.transform,d3.zoomIdentity.translate(cfg.W/2-k*(x0+x1)/2,cfg.H/2-k*(y0+y1)/2).scale(k));}
-    detailG(d);
-  }
-  function detailG(d){
-    const r=BY[keyOf(d)],el=$(cfg.detail);
-    if(!r||!r.lead){el.className="detail on";el.innerHTML=`<h3>${nameOf(d)}</h3><div style="color:var(--steel);font-size:12.5px">sem apuração</div>`;return;}
-    const vs=votesOf(r),tot=vs.reduce((a,b)=>a+(+b[1]),0)||1;
-    el.className="detail on";
-    el.innerHTML=`<h3>${nameOf(d)}</h3><div style="font-size:12.5px;color:var(--steel)">${r.p.toFixed(2).replace(".",",")}% apurado</div>`+
-      vs.slice(0,6).map(([n,v])=>`<div class="row"><span class="lbl"><img src="fotos/${cfg.photo}_${n}.jpg">${DATA.cand[n]?DATA.cand[n].nm:n}</span><span class="bar"><i style="width:${(+v)/tot*100}%;background:${candColor(n)}"></i></span><span class="v" style="color:${candColor(n)}">${(+v).toLocaleString("pt-BR")}</span></div>`).join("");
-  }
-  async function load(){
-    const data=await fetch(cfg.data+"?t="+Date.now(),{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.json();}).catch(()=>null);
-    if(!data){$(cfg.upd).textContent="aguardando dados…";return;}
-    DATA=data;BY={};rowsList().forEach(row=>BY[cfg.kind==="uf"?row.uf:row.ibge]=row);
-    gMun.selectAll("path").attr("fill",d=>{const r=BY[keyOf(d)];return r&&r.lead?candColor(r.lead):"#dcdce2";});
-    drawPinsG();legendG();
-    $(cfg.upd).textContent="dados de "+data.updated+(data.pst!=null?" · "+(+data.pst).toFixed(2).replace(".",",")+"% apurado":"");
-    if(selKey){const f=geo.features.find(d=>keyOf(d)===selKey);if(f)detailG(f);}
-  }
-  await load();setInterval(load,60000);
-}
-genMap({svg:"pres-map",geojson:"br-uf.geojson",data:"presidente.json",kind:"uf",W:1000,H:1000,pin:7,photo:"pres",legend:"pres-legend",q:"pres-q",list:"pres-list",reset:"pres-reset",pinsChk:"pres-pins",detail:"pres-detail",upd:"pres-upd"});
-genMap({svg:"gov-map",geojson:"sp-mun.geojson",data:"gov-sp.json",kind:"cid",W:1000,H:820,pin:5,photo:"gov",legend:"gov-legend",q:"gov-q",list:"gov-list",reset:"gov-reset",pinsChk:"gov-pins",detail:"gov-detail",upd:"gov-upd"});
+load(); setInterval(load,60000);
 </script>
 </body>
 </html>
