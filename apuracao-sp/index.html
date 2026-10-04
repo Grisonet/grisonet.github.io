@@ -374,6 +374,7 @@ function majorCard(r,doc){
 function renderMajorInto(key,r,doc){
   const cs=flat(doc),ap=pst(doc),vagas=r.vagas||1;
   const maxP=Math.max(0.0001,...cs.map(c=>c._pvap)); cs.forEach(c=>c._wpct=(c._pvap/maxP)*100);
+  markElected(cs,doc,r);
   const pill=document.getElementById("pill-"+key);
   if(pill) pill.innerHTML=`${ap.toFixed(2).replace(".",",")}% apurado<span class="mini"><i style="width:${ap}%"></i></span>`;
   const fb=document.getElementById("filters-"+key); if(fb) fb.innerHTML=filterBar(key,cs);
