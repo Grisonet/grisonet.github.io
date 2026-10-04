@@ -132,6 +132,7 @@
   .nomatch{color:var(--steel);font-size:13px;padding:8px 2px}
   .selo{flex:none;display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:.04em;
     padding:2px 8px;border-radius:9999px;background:var(--pos);color:#fff}
+  .selo.proj{background:var(--amber);color:#080808}
   .rr.eleito{background:color-mix(in srgb,var(--pos) 9%,transparent);border-radius:11px}
   .scroll{max-height:380px;overflow-y:auto;padding-right:6px;margin-top:4px}
   .scroll::-webkit-scrollbar{width:8px}.scroll::-webkit-scrollbar-thumb{background:var(--hairline);border-radius:8px}
@@ -231,7 +232,7 @@
       <svg class="grlogo grlogo-foot" role="img" aria-label="GR Data"><use href="#grlogo"/></svg>
     </div>
     <div>Fonte: <b>Tribunal Superior Eleitoral</b> — Sistema de Divulgação de Resultados. Dados gerados em <b id="tsetime">—</b>. Atualização automática a cada 20s.</div>
-    <div style="margin-top:4px">Percentuais sobre votos válidos. <span style="color:var(--amber)">★</span> seus destaques (salvos neste navegador) · 🏆 em vaga (majoritário) · <span style="color:var(--pos)">eleito</span> confirmado pelo TSE. Projeto independente, sem vínculo com a Justiça Eleitoral.</div>
+    <div style="margin-top:4px">Percentuais sobre votos válidos. <span style="color:var(--amber)">★</span> seus destaques (salvos neste navegador) · 🏅 ELEITO = <span style="color:var(--pos)">verde</span> confirmado pelo TSE, <span style="color:var(--amber)">âmbar</span> projeção matemática (maioria/vantagem insuperável) ainda não formalizada pelo TSE. Projeto independente, sem vínculo com a Justiça Eleitoral.</div>
   </footer>
 </main>
 <div class="tip" id="tip"></div>
@@ -241,9 +242,9 @@ const BASE="https://resultados.tse.jus.br/oficial/ele2026";
 const u=(pl,uf,c)=>`${BASE}/${pl}/dados/${uf}/${uf}-c${c}-e00${pl}-u.json`;
 
 const MAJOR=[
-  {key:"PRES",ico:"🇧🇷",nm:"Presidente",sub:"Brasil",url:u("6257","br","0001")},
-  {key:"GOV", ico:"🏛️",nm:"Governador",sub:"São Paulo",url:u("6259","sp","0003")},
-  {key:"SEN", ico:"🗳️",nm:"Senador",sub:"São Paulo · 2 vagas",url:u("6259","sp","0005"),vagas:2,wide:true},
+  {key:"PRES",ico:"🇧🇷",nm:"Presidente",sub:"Brasil",url:u("6257","br","0001"),tipo:"exec"},
+  {key:"GOV", ico:"🏛️",nm:"Governador",sub:"São Paulo",url:u("6259","sp","0003"),tipo:"exec"},
+  {key:"SEN", ico:"🗳️",nm:"Senador",sub:"São Paulo · 2 vagas",url:u("6259","sp","0005"),vagas:2,wide:true,tipo:"plur"},
 ];
 const DEPS=[
   {key:"DF",ico:"🟧",nm:"Deputado Federal",sub:"São Paulo",url:u("6259","sp","0006"),
@@ -308,7 +309,19 @@ function flat(doc){
   return out;
 }
 const pst=d=>toNum((d.s||{}).pst);
-const eleito=c=>c.e==="s";
+const eleito=c=>c._elt===true||c.e==="s";
+/* marca eleitos matematicamente garantidos nos majoritários (até o TSE confirmar via e='s') */
+function markElected(cs,doc,r){
+  const ap=toNum((doc.s||{}).pst), vv=toInt((doc.v||{}).vv)||cs.reduce((a,c)=>a+c._vap,0);
+  const rem=ap>0? vv*(100-ap)/ap*1.3 : Infinity;   // estimativa conservadora dos votos que faltam
+  const vagas=r.vagas||1;
+  if(r.tipo==="exec"){           // governador/presidente: eleito em 1º turno se >50% garantido
+    const L=cs[0]; if(L){ const cl=ap>0 && L._vap>0.5*(vv+rem); L._elt=cl||L.e==="s"; L._eltProj=cl&&L.e!=="s"; }
+  }else if(r.tipo==="plur"){     // senado: top-N com vantagem insuperável sobre o 1º de fora
+    const cut=cs[vagas]?cs[vagas]._vap:0;
+    cs.forEach((c,i)=>{ const cl=i<vagas&&ap>0&&(c._vap-cut)>rem; c._elt=cl||c.e==="s"; c._eltProj=cl&&c.e!=="s"; });
+  }
+}
 
 function starBtn(k){
   const on=isFav(k);
@@ -320,8 +333,8 @@ function row(rk,c,rank,{lead=false,vaga=false,label=null}={}){
   const fill=(on||lead)?"var(--primary)":"var(--steel)";
   const vtag=vaga?`<span class="tagv">🏆 vaga</span>`:"";
   const elt=eleito(c);
-  const stx=(c.st&&c.st.toLowerCase()!=="eleito")?" · "+esc(c.st):"";
-  const selo=elt?`<span class="selo">🏅 ELEITO${stx}</span>`:"";
+  const stx=c._eltProj?" (projeção)":((c.st&&c.st.toLowerCase()!=="eleito")?" · "+esc(c.st):"");
+  const selo=elt?`<span class="selo${c._eltProj?' proj':''}">🏅 ELEITO${stx}</span>`:"";
   const dnm=norm((label||c.nmu||c.nm||"")+" "+(c.sg||"")+" "+c.n);
   return `<div class="rr ${lead?'lead':''} ${on?'sel':''} ${elt?'eleito':''}" data-nm="${esc(dnm)}" data-sg="${esc((c.sg||'').toLowerCase())}" style="--fill:${fill}">
     <span class="rk">${rank}</span>
@@ -338,6 +351,7 @@ function majorCard(r,doc){
   const cs=flat(doc),ap=pst(doc),vagas=r.vagas||1;
   const maxP=Math.max(0.0001,...cs.map(c=>c._pvap));
   cs.forEach(c=>c._wpct=(c._pvap/maxP)*100);
+  markElected(cs,doc,r);
   const rows=cs.map((c,i)=>row(r.key,c,i+1,{lead:i<vagas,vaga:r.vagas&&i<vagas})).join("");
   return `<div class="card ${r.wide?'wide':''}">
     <div class="chead"><span class="ic">${r.ico}</span><div><h3>${r.nm}</h3><div class="sub">${r.sub}</div></div>
