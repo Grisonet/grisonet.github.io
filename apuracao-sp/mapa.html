@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mapa SP · Samuel × Dani</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root{
+    --canvas:#ffffff;--parchment:#f6f5f3;--ink:#080808;--graphite:#454545;--steel:#7a7a7a;
+    --hairline:#e5e5e5;--divider:#f0efed;--primary:#FF4C00;
+    --samuel:#1E63C8;--dani:#E0218A;--nodata:#dcdce2;
+    color-scheme:light;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--parchment);color:var(--ink);font-family:"Inter",system-ui,sans-serif;letter-spacing:-.011em;line-height:1.45}
+  h1,h2,h3{margin:0;font-weight:600;letter-spacing:-.021em}
+  .wrap{max-width:1200px;margin:0 auto;padding-inline:16px}
+
+  header{position:sticky;top:0;z-index:30;background:#080808;color:#fff;border-bottom:1px solid rgba(255,255,255,.08)}
+  .hd{display:flex;align-items:center;gap:11px;padding-block:11px;flex-wrap:wrap}
+  .grlogo{height:22px;width:auto;fill:#fff;display:block}
+  .sep{width:1px;height:20px;background:rgba(255,255,255,.22)}
+  .htitle{font-weight:600;font-size:clamp(13px,2.6vw,16px);white-space:nowrap}
+  .htitle b{color:var(--primary)}
+  .live{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:#ccc;white-space:nowrap}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--primary);animation:pulse 1.8s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,76,0,.6)}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
+
+  main{padding-block:16px 40px}
+  .scoreboard{display:grid;gap:12px;grid-template-columns:1fr 1fr;margin-bottom:14px}
+  .cc{display:flex;align-items:center;gap:12px;background:var(--canvas);border:1px solid var(--hairline);border-radius:16px;padding:13px 15px;min-width:0}
+  .cc img{width:46px;height:46px;border-radius:50%;object-fit:cover;flex:none;border:3px solid var(--c)}
+  .cc .nm{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cc .meta{font-size:12.5px;color:var(--steel)}
+  .cc .big{font-size:22px;font-weight:600;letter-spacing:-.02em;margin-left:auto;text-align:right;color:var(--c)}
+  .cc .big small{display:block;font-size:11px;color:var(--steel);font-weight:400;letter-spacing:0}
+
+  .toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .search{flex:1;min-width:180px;font:inherit;font-size:14px;border:1px solid var(--hairline);border-radius:9999px;padding:10px 16px;background:var(--canvas);color:var(--ink)}
+  .search:focus-visible{outline:none;border-color:var(--primary);box-shadow:0 0 0 2px rgba(255,76,0,.15)}
+  .btn{font:inherit;font-size:13px;font-weight:600;color:var(--graphite);background:var(--divider);border:0;border-radius:9999px;padding:9px 14px;cursor:pointer}
+  .chk{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--graphite);user-select:none;cursor:pointer}
+
+  .mapcard{background:var(--canvas);border:1px solid var(--hairline);border-radius:18px;padding:10px;position:relative;overflow:hidden}
+  svg#map{width:100%;height:auto;display:block;touch-action:none;cursor:grab}
+  svg#map:active{cursor:grabbing}
+  path.mun{stroke:#fff;stroke-width:.4;vector-effect:non-scaling-stroke;transition:fill .5s ease}
+  path.mun.selected{stroke:var(--primary);stroke-width:2.2}
+  .pin image{pointer-events:none}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--graphite);padding:8px 4px 2px}
+  .legend .sw{display:inline-flex;align-items:center;gap:6px}
+  .legend .box{width:13px;height:13px;border-radius:4px}
+
+  .tip{position:fixed;pointer-events:none;background:#080808;color:#fff;font-size:12.5px;padding:8px 11px;border-radius:9px;z-index:50;opacity:0;transition:opacity .1s;max-width:230px;line-height:1.4}
+  .tip b{font-weight:600}
+  .tip .s{color:#7db3ff}.tip .d{color:#ff8ecb}
+
+  .detail{background:var(--canvas);border:1px solid var(--hairline);border-radius:14px;padding:13px 16px;margin-top:12px;display:none}
+  .detail.on{display:block}
+  .detail h3{font-size:16px;margin-bottom:4px}
+  .detail .row{display:flex;align-items:center;gap:10px;margin-top:8px}
+  .detail .bar{flex:1;height:10px;border-radius:9999px;background:var(--divider);overflow:hidden;min-width:60px}
+  .detail .bar>i{display:block;height:100%}
+  .detail .lbl{font-size:13px;min-width:120px;display:flex;align-items:center;gap:7px}
+  .detail .lbl img{width:22px;height:22px;border-radius:50%;object-fit:cover}
+  .detail .v{font-weight:600;font-size:14px;min-width:92px;text-align:right}
+
+  footer{color:var(--steel);font-size:12px;border-top:1px solid var(--hairline);padding-block:18px;margin-top:26px;line-height:1.7}
+  footer b{color:var(--graphite)}
+  .contact{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-bottom:13px;margin-bottom:12px;border-bottom:1px solid var(--hairline)}
+  .wabtn{display:inline-flex;align-items:center;gap:8px;background:var(--primary);color:#080808;font-weight:600;font-size:14px;text-decoration:none;border-radius:9999px;padding:10px 18px}
+  .grlogo-foot{height:20px;fill:var(--graphite);margin-left:auto;opacity:.85}
+  a{color:var(--primary)}
+  @media(max-width:560px){.scoreboard{grid-template-columns:1fr}.cc .big{font-size:19px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" aria-hidden="true" style="position:absolute"><symbol id="grlogo" viewBox="0 0 1743.4 319.86"><g><g><path d="M657.86,248.74c-25.77-1.21-49.42-14.95-63.2-36.96l-13.25-23.52-33.24-6.42v-6.44l25.96-.06h122.08c22.88,0,45.6-8.76,61.21-23.13,17.43-16.02,28.35-39,28.35-64.54,0-28.82-13.9-54.38-35.37-70.35-14.6-10.88-34.59-17.32-54.19-17.32l-251.01.07v65.46s0,0,0,0v248.84h71.71l-1.04-95.41,18.71,29.87.24.39c24.2,38.63,65.72,62.8,110.97,64.98,2.18.12,4.39.17,6.59.17h125.26v-65.54h-116.06c-1.24,0-2.48-.02-3.72-.09ZM515.52,119.87v-41.93l-14.33-5.97v-6.44h177.27c5.96,0,11.45,1.91,15.92,5.16,1.17.84,2.27,1.79,3.29,2.8,4.92,4.92,7.96,11.72,7.96,19.21,0,15-12.16,27.17-27.17,27.17h-162.94Z"/><path d="M177.59,119.87h213.39v194.5h-72.97l2.3-95.41-18.71,29.87-.24.39c-25.39,40.53-69.84,65.15-117.66,65.15h-6.11v-.67l-.41.67h-17.73C72.64,314.37,0,243.99,0,157.18c0-43.41,18.16-82.7,47.17-111.14C76.18,17.59,116.05,0,159.45,0l225.16.07v65.46h-212.45c-50.62,0-91.65,41.04-91.65,91.65,0,25.31,10.26,48.22,26.85,64.81,16.58,16.58,39.49,26.84,64.8,26.84h2.34c27.2,0,52.48-14,66.92-37.05l13.79-23.66v.11l33.36-6.44v-6.44h-25.92.01s-85.07-.01-85.07-.01v-55.47Z"/></g><g opacity=".8"><path d="M900.33,1.34h114.23c94.46,0,139.27,64.14,139.27,158.16s-47.89,155.96-142.34,155.96h-111.15V1.34ZM1010.16,280.75c73.81,0,103.24-47.45,103.24-121.25s-26.36-123.89-100.17-123.89h-73.37v245.15h70.29Z"/><path d="M1330.43,283.83h-.44c-13.62,17.57-36.9,36.03-75.56,36.03-43.05,0-76.88-20.21-76.88-63.26,0-53.6,42.18-64.58,98.85-73.37,32.07-4.83,54.48-7.91,54.48-32.51s-18.45-39.98-50.96-39.98c-36.9,0-55.36,15.82-56.67,50.08h-34.27c1.32-43.93,30.31-76.88,90.5-76.88,48.33,0,83.91,18.01,83.91,72.05v108.08c0,18.45,4.39,28.56,24.16,24.16h1.32v25.92c-4.39,1.76-10.1,3.51-19.33,3.51-23.29,0-35.59-10.54-39.1-33.83ZM1331.31,231.55v-38.66c-11.86,7.47-32.51,13.18-51.84,16.69-35.59,6.59-64.14,12.74-64.14,46.13,0,30.31,23.72,36.9,47.01,36.9,47.45,0,68.97-34.71,68.97-61.07Z"/><path d="M1396.33,88.33h32.95V16.72h35.58v71.61h43.93v29h-43.93v147.62c0,15.82,8.35,21.09,22.85,21.09,7.03,0,14.94-1.76,18.89-3.08h1.32v30.75c-8.35,1.76-18.01,3.08-28.56,3.08-29,0-50.08-11.86-50.08-43.93V117.32h-32.95v-29Z"/><path d="M1684.97,283.83h-.44c-13.62,17.57-36.9,36.03-75.57,36.03-43.05,0-76.88-20.21-76.88-63.26,0-53.6,42.18-64.58,98.85-73.37,32.07-4.83,54.48-7.91,54.48-32.51s-18.45-39.98-50.96-39.98c-36.9,0-55.36,15.82-56.67,50.08h-34.27c1.32-43.93,30.31-76.88,90.5-76.88,48.33,0,83.91,18.01,83.91,72.05v108.08c0,18.45,4.39,28.56,24.16,24.16h1.32v25.92c-4.39,1.76-10.1,3.51-19.33,3.51-23.28,0-35.59-10.54-39.1-33.83ZM1685.85,231.55v-38.66c-11.86,7.47-32.51,13.18-51.84,16.69-35.59,6.59-64.14,12.74-64.14,46.13,0,30.31,23.72,36.9,47.01,36.9,47.45,0,68.97-34.71,68.97-61.07Z"/></g></g></symbol></svg>
+
+<header><div class="wrap hd">
+  <svg class="grlogo" role="img" aria-label="GR Data"><use href="#grlogo"/></svg>
+  <span class="sep"></span><span class="htitle">Mapa SP · <b>Samuel × Dani</b></span>
+  <span class="live"><span class="dot"></span><span id="updated">carregando…</span></span>
+</div></header>
+
+<main class="wrap">
+  <div class="scoreboard">
+    <div class="cc" style="--c:var(--samuel)"><img src="fotos/samuel.jpg" alt="Cabo Samuel"><div style="min-width:0"><div class="nm">Cabo Samuel</div><div class="meta">55033 · lidera em <b id="cs">—</b> cidades</div></div><div class="big" id="vs">—<small>votos no estado</small></div></div>
+    <div class="cc" style="--c:var(--dani)"><img src="fotos/dani.jpg" alt="Dani Dias"><div style="min-width:0"><div class="nm">Dani Dias da Rádio</div><div class="meta">10002 · lidera em <b id="cd">—</b> cidades</div></div><div class="big" id="vd">—<small>votos no estado</small></div></div>
+  </div>
+
+  <div class="toolbar">
+    <input class="search" id="q" list="cities" placeholder="🔎 buscar cidade (ex.: Guaratinguetá)…" autocomplete="off">
+    <datalist id="cities"></datalist>
+    <button class="btn" id="reset">ver todo o estado</button>
+    <label class="chk"><input type="checkbox" id="pins" checked> fotos nas cidades</label>
+  </div>
+
+  <div class="mapcard">
+    <svg id="map" viewBox="0 0 1000 820" role="img" aria-label="Mapa de São Paulo"></svg>
+  </div>
+  <div class="legend">
+    <span class="sw"><span class="box" style="background:var(--samuel)"></span> Cabo Samuel à frente</span>
+    <span class="sw"><span class="box" style="background:var(--dani)"></span> Dani Dias à frente</span>
+    <span class="sw"><span class="box" style="background:var(--nodata)"></span> sem apuração / empate</span>
+  </div>
+
+  <div class="detail" id="detail"></div>
+
+  <footer>
+    <div class="contact">
+      <a class="wabtn" href="https://wa.me/551132807177" target="_blank" rel="noopener">💬 WhatsApp Griso — informações</a>
+      <svg class="grlogo grlogo-foot" role="img" aria-label="GR Data"><use href="#grlogo"/></svg>
+    </div>
+    <div>Fonte: <b>TSE</b> (resultados por município, cargo Deputado Estadual). Comparativo <b>Cabo Samuel (55033) × Dani Dias da Rádio (10002)</b> nos 645 municípios de SP. Dados agregados a cada ~3 min. Projeto independente, sem vínculo com a Justiça Eleitoral.</div>
+  </footer>
+</main>
+
+<div class="tip" id="tip"></div>
+
+<script>
+const SAMUEL="#1E63C8",DANI="#E0218A",NODATA="#dcdce2";
+const W=1000,H=820;
+let geo,data,byIbge={},path,proj,svg,g,gMun,gPins,zoom,selectedId=null;
+const tip=document.getElementById("tip");
+const nf=n=>Number(n||0).toLocaleString("pt-BR");
+const norm=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+
+function leaderOf(c){ if(!c||c.p<=0||c.s===c.d) return null; return c.s>c.d?"s":"d"; }
+function colorOf(c){ const l=leaderOf(c); return l==="s"?SAMUEL:l==="d"?DANI:NODATA; }
+
+async function init(){
+  geo=await fetch("sp-mun.geojson").then(r=>r.json());
+  proj=d3.geoMercator().fitSize([W,H],geo);
+  path=d3.geoPath(proj);
+  svg=d3.select("#map");
+  const defs=svg.append("defs");
+  defs.append("clipPath").attr("id","pclip").append("circle").attr("r",7);
+  g=svg.append("g");
+  gMun=g.append("g");
+  gPins=g.append("g");
+  gMun.selectAll("path").data(geo.features).join("path")
+    .attr("class","mun").attr("d",path).attr("fill",NODATA)
+    .attr("data-ibge",d=>d.properties.id)
+    .on("mousemove",hover).on("mouseleave",()=>tip.style.opacity=0)
+    .on("click",(e,d)=>selectCity(d.properties.id,true));
+  // datalist
+  const dl=document.getElementById("cities");
+  geo.features.map(d=>d.properties.name).sort((a,b)=>a.localeCompare(b,"pt"))
+    .forEach(n=>{const o=document.createElement("option");o.value=n;dl.appendChild(o);});
+  zoom=d3.zoom().scaleExtent([1,30]).on("zoom",e=>g.attr("transform",e.transform));
+  svg.call(zoom);
+  document.getElementById("q").addEventListener("change",e=>{
+    const f=geo.features.find(d=>norm(d.properties.name)===norm(e.target.value));
+    if(f) selectCity(f.properties.id,true);
+  });
+  document.getElementById("reset").addEventListener("click",resetView);
+  document.getElementById("pins").addEventListener("change",drawPins);
+  await loadData();
+  setInterval(loadData,60000);
+}
+
+async function loadData(){
+  try{
+    data=await fetch("estado.json?t="+Date.now(),{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.json();});
+  }catch(e){ document.getElementById("updated").textContent="aguardando dados…"; return; }
+  byIbge={}; data.cidades.forEach(c=>byIbge[c.ibge]=c);
+  colorize(); drawPins(); scoreboard();
+  document.getElementById("updated").textContent="dados de "+data.updated;
+  if(selectedId) renderDetail(selectedId);
+}
+function colorize(){ gMun.selectAll("path").attr("fill",d=>colorOf(byIbge[d.properties.id])); }
+function scoreboard(){
+  let cs=0,cd=0;
+  geo.features.forEach(d=>{const l=leaderOf(byIbge[d.properties.id]); if(l==="s")cs++; else if(l==="d")cd++;});
+  document.getElementById("cs").textContent=cs;
+  document.getElementById("cd").textContent=cd;
+  document.getElementById("vs").innerHTML=nf(data.tot.s)+"<small>votos no estado</small>";
+  document.getElementById("vd").innerHTML=nf(data.tot.d)+"<small>votos no estado</small>";
+}
+function drawPins(){
+  const show=document.getElementById("pins").checked;
+  if(!show){ gPins.selectAll("*").remove(); return; }
+  const feats=geo.features.filter(d=>leaderOf(byIbge[d.properties.id]));
+  const sel=gPins.selectAll("g.pin").data(feats,d=>d.properties.id);
+  sel.exit().remove();
+  const ent=sel.enter().append("g").attr("class","pin");
+  ent.append("image").attr("clip-path","url(#pclip)").attr("x",-7).attr("y",-7).attr("width",14).attr("height",14);
+  ent.append("circle").attr("r",8).attr("fill","none").attr("stroke-width",2).attr("vector-effect","non-scaling-stroke");
+  const all=ent.merge(sel);
+  all.attr("transform",d=>{const c=path.centroid(d);return `translate(${c[0]},${c[1]})`;});
+  all.select("image").attr("href",d=>leaderOf(byIbge[d.properties.id])==="s"?"fotos/samuel.jpg":"fotos/dani.jpg");
+  all.select("circle").attr("stroke",d=>colorOf(byIbge[d.properties.id]));
+}
+function hover(e,d){
+  const c=byIbge[d.properties.id];
+  const l=leaderOf(c);
+  const who=l==="s"?'<span class="s">Samuel à frente</span>':l==="d"?'<span class="d">Dani à frente</span>':"sem apuração";
+  tip.innerHTML=`<b>${d.properties.name}</b><br>${c?`🔵 Samuel: ${nf(c.s)}<br>🩷 Dani: ${nf(c.d)}<br>${who} · ${c.p.toFixed(1).replace(".",",")}% apurado`:"sem dados"}`;
+  tip.style.left=Math.min(e.clientX+14,innerWidth-240)+"px";
+  tip.style.top=(e.clientY+14)+"px"; tip.style.opacity=1;
+}
+function selectCity(ibge,zoomTo){
+  selectedId=ibge;
+  gMun.selectAll("path").classed("selected",d=>d.properties.id===ibge);
+  const f=geo.features.find(d=>d.properties.id===ibge);
+  if(zoomTo&&f){
+    const [[x0,y0],[x1,y1]]=path.bounds(f);
+    const k=Math.min(30,.7*Math.min(W/(x1-x0),H/(y1-y0)));
+    const tx=W/2-k*(x0+x1)/2, ty=H/2-k*(y0+y1)/2;
+    svg.transition().duration(650).call(zoom.transform,d3.zoomIdentity.translate(tx,ty).scale(k));
+  }
+  renderDetail(ibge);
+}
+function renderDetail(ibge){
+  const f=geo.features.find(d=>d.properties.id===ibge); if(!f) return;
+  const c=byIbge[ibge]; const el=document.getElementById("detail");
+  const tot=c?(c.s+c.d):0;
+  const ps=tot?c.s/tot*100:0, pd=tot?c.d/tot*100:0;
+  el.className="detail on";
+  el.innerHTML=`<h3>${f.properties.name}</h3>
+    <div class="meta" style="font-size:12.5px;color:var(--steel)">${c?c.p.toFixed(2).replace(".",",")+"% apurado":"sem dados"}</div>
+    <div class="row"><span class="lbl"><img src="fotos/samuel.jpg"> Cabo Samuel</span><span class="bar"><i style="width:${ps}%;background:${SAMUEL}"></i></span><span class="v" style="color:${SAMUEL}">${nf(c?c.s:0)}</span></div>
+    <div class="row"><span class="lbl"><img src="fotos/dani.jpg"> Dani Dias</span><span class="bar"><i style="width:${pd}%;background:${DANI}"></i></span><span class="v" style="color:${DANI}">${nf(c?c.d:0)}</span></div>`;
+}
+function resetView(){
+  selectedId=null; gMun.selectAll("path").classed("selected",false);
+  document.getElementById("detail").className="detail";
+  document.getElementById("q").value="";
+  svg.transition().duration(500).call(zoom.transform,d3.zoomIdentity);
+}
+init();
+</script>
+</body>
+</html>
