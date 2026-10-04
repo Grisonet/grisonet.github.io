@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Apuração SP 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap">
+<style>
+  /* Layout: apuração ao vivo no Design System Griso (GR Data) — nav preta, KPIs, cards brancos hairline, ranked-bar-list. Light-first (DS daytime) + dark via charcoal tiles. */
+  :root{
+    --canvas:#ffffff; --parchment:#f6f5f3; --pearl:#faf9f7;
+    --ink:#080808; --graphite:#454545; --steel:#7a7a7a;
+    --hairline:#e5e5e5; --divider:#f0efed; --track:#f0efed;
+    --primary:#FF4C00; --primary-on-dark:#FF8552; --amber:#FFC200; --rust:#B23600;
+    --pos:#16A34A; --pos-bg:#E8F7EE; --neg:#DC2626;
+    --sel-tint:rgba(255,76,0,.07);
+    color-scheme:light;
+    --maxw:1200px;
+  }
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+    --canvas:#1b1b1b; --parchment:#161616; --pearl:#222222;
+    --ink:#ffffff; --graphite:#cccccc; --steel:#9a9a9a;
+    --hairline:rgba(255,255,255,.13); --divider:rgba(255,255,255,.08); --track:rgba(255,255,255,.09);
+    --pos:#34d17f; --pos-bg:rgba(52,209,127,.16);
+    --sel-tint:rgba(255,76,0,.15);
+    color-scheme:dark;
+  }}
+  :root[data-theme="dark"]{
+    --canvas:#1b1b1b; --parchment:#161616; --pearl:#222222;
+    --ink:#ffffff; --graphite:#cccccc; --steel:#9a9a9a;
+    --hairline:rgba(255,255,255,.13); --divider:rgba(255,255,255,.08); --track:rgba(255,255,255,.09);
+    --pos:#34d17f; --pos-bg:rgba(52,209,127,.16);
+    --sel-tint:rgba(255,76,0,.15);
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--parchment); color:var(--ink);
+    font-family:"Inter",system-ui,-apple-system,sans-serif; font-variant-numeric:tabular-nums;
+    margin:0; letter-spacing:-.011em; line-height:1.47; font-size:15px}
+  h1,h2,h3{margin:0; font-weight:600; letter-spacing:-.021em; text-wrap:balance}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding-inline:16px}
+
+  /* nav preta (global-nav Griso: único lugar com preto puro) */
+  header{position:sticky; top:env(safe-area-inset-top,0px); z-index:30; background:#080808; color:#fff;
+    border-bottom:1px solid rgba(255,255,255,.08)}
+  .hd{display:flex; align-items:center; gap:14px; padding-block:11px; flex-wrap:wrap}
+  .mark{display:flex; align-items:center; gap:10px; min-width:0}
+  .mark .sq{width:26px;height:26px;border-radius:7px;background:var(--primary);flex:none}
+  .mark .t{font-weight:700; font-size:clamp(16px,3vw,20px); letter-spacing:-.022em}
+  .mark .t b{color:var(--primary); font-weight:700}
+  .live{display:flex; align-items:center; gap:8px; margin-left:auto; font-size:12px; color:#cccccc; white-space:nowrap}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--primary);animation:pulse 1.8s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,76,0,.6)}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
+  @media(prefers-reduced-motion:reduce){.dot{animation:none}}
+  .clock{color:#fff;font-weight:600}
+
+  main{padding-block:18px 44px}
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--steel);margin:4px 2px 11px;display:flex;align-items:center;gap:10px}
+  .eyebrow .rule{flex:1;height:1px;background:var(--hairline)}
+
+  /* KPI strip */
+  .kpis{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-bottom:26px}
+  .kpi{background:var(--canvas);border:1px solid var(--hairline);border-radius:18px;padding:18px 20px}
+  .kpi .l{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--steel);font-weight:600}
+  .kpi .v{font-size:30px;font-weight:600;letter-spacing:-.025em;margin-top:6px}
+  .kpi .v small{font-size:15px;color:var(--steel);font-weight:400;letter-spacing:0}
+  .kpi .gauge{height:6px;border-radius:9999px;background:var(--track);overflow:hidden;margin-top:11px}
+  .kpi .gauge>i{display:block;height:100%;background:var(--primary);width:0;border-radius:9999px;transition:width .7s ease}
+
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+  .card{background:var(--canvas);border:1px solid var(--hairline);border-radius:18px;padding:22px 22px 18px;min-width:0}
+  .card.wide{grid-column:1/-1}
+  .chead{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+  .chead .ic{font-size:16px}
+  .chead h3{font-size:17px;font-weight:600}
+  .chead .sub{font-size:12px;color:var(--steel);font-weight:400;letter-spacing:0}
+  .pill{margin-left:auto;display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--graphite);background:var(--divider);border-radius:9999px;padding:5px 11px;white-space:nowrap}
+  .pill .mini{width:52px;height:5px;border-radius:9999px;background:var(--track);overflow:hidden}
+  .pill .mini>i{display:block;height:100%;background:var(--primary);width:0;transition:width .7s ease}
+
+  /* ranked-bar-list */
+  .rbl{display:flex;flex-direction:column}
+  .rr{position:relative;display:flex;align-items:center;gap:11px;padding:9px 2px;border-bottom:1px solid var(--divider)}
+  .rr:last-child{border-bottom:0}
+  .rk{width:22px;text-align:center;font-size:13px;font-weight:600;color:var(--steel);flex:none}
+  .main{flex:1;min-width:0}
+  .nmrow{display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nm{font-size:15px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rr.lead .nm{font-weight:600}
+  .party{flex:none;font-size:10.5px;font-weight:600;letter-spacing:.02em;color:var(--graphite);background:var(--divider);border:1px solid var(--hairline);border-radius:9999px;padding:1px 7px}
+  .tagv{flex:none;font-size:10px;font-weight:700;letter-spacing:.03em;padding:2px 7px;border-radius:9999px;background:var(--amber);color:#080808}
+  .tage{flex:none;font-size:10px;font-weight:700;letter-spacing:.03em;padding:2px 7px;border-radius:9999px;background:var(--pos-bg);color:var(--pos)}
+  .star{flex:none;color:var(--amber);font-size:13px}
+  .trk{height:6px;border-radius:9999px;background:var(--track);overflow:hidden;margin-top:6px}
+  .trk>i{display:block;height:100%;width:0;border-radius:9999px;background:var(--fill,var(--steel));transition:width .7s cubic-bezier(.2,.7,.2,1)}
+  .val{flex:none;text-align:right;min-width:96px}
+  .val .pc{font-size:17px;font-weight:600;letter-spacing:-.02em}
+  .rr.lead .val .pc{color:var(--primary)}
+  .val .vt{font-size:11px;color:var(--steel)}
+
+  /* linha destacada (seu candidato) */
+  .rr.sel{background:var(--sel-tint);border-radius:11px;border-bottom:1px solid transparent;padding-left:10px;padding-right:8px;box-shadow:inset 3px 0 0 var(--primary)}
+  .rr.sel + .rr{border-top:1px solid var(--divider)}
+
+  /* bloco "seus candidatos" + lista completa rolável */
+  .seus{background:var(--pearl);border:1px solid var(--hairline);border-radius:14px;padding:6px 12px;margin-bottom:14px}
+  .seuslbl{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--primary);padding:8px 2px 2px;display:flex;align-items:center;gap:7px}
+  .alllbl{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--steel);margin:4px 2px 2px}
+  .scroll{max-height:380px;overflow-y:auto;padding-right:6px;margin-top:4px}
+  .scroll::-webkit-scrollbar{width:8px}.scroll::-webkit-scrollbar-thumb{background:var(--hairline);border-radius:8px}
+
+  footer{color:var(--steel);font-size:12px;border-top:1px solid var(--hairline);padding-block:18px;margin-top:30px;line-height:1.7}
+  footer b{color:var(--graphite);font-weight:600}
+  .skl{color:var(--steel);font-size:14px;padding:12px 2px}
+  .err{color:var(--neg)}
+  a{color:var(--primary)}
+  @media(max-width:480px){.card{padding:18px 15px}.val{min-width:78px}.kpi .v{font-size:26px}}
+</style>
+</head>
+<body>
+
+
+<header>
+  <div class="wrap hd">
+    <div class="mark"><span class="sq"></span><span class="t">Apuração <b>SP</b> · 2026</span></div>
+    <div class="live"><span class="dot"></span><span id="livetxt">conectando…</span><span class="clock" id="clock">--:--:--</span></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="kpis" id="kpis"></section>
+
+  <div class="eyebrow">Cargos majoritários<span class="rule"></span></div>
+  <section class="grid" id="major"><div class="skl">Carregando dados do TSE…</div></section>
+
+  <div class="eyebrow" style="margin-top:26px">Deputados — todos os candidatos de SP<span class="rule"></span></div>
+  <section class="grid" id="deps"></section>
+
+  <footer>
+    <div>Fonte: <b>Tribunal Superior Eleitoral</b> — Sistema de Divulgação de Resultados. Dados gerados em <b id="tsetime">—</b>. Atualização automática a cada 20s.</div>
+    <div style="margin-top:4px">Percentuais sobre votos válidos. <span style="color:var(--amber)">★</span> seus candidatos em destaque · 🏆 em vaga (majoritário) · <span style="color:var(--pos)">eleito</span> confirmado pelo TSE. Projeto independente, sem vínculo com a Justiça Eleitoral.</div>
+  </footer>
+</main>
+
+<script>
+const BASE="https://resultados.tse.jus.br/oficial/ele2026";
+const u=(pl,uf,c)=>`${BASE}/${pl}/dados/${uf}/${uf}-c${c}-e00${pl}-u.json`;
+
+const MAJOR=[
+  {key:"PRES",ico:"🇧🇷",nm:"Presidente",sub:"Brasil",url:u("6257","br","0001")},
+  {key:"GOV", ico:"🏛️",nm:"Governador",sub:"São Paulo",url:u("6259","sp","0003")},
+  {key:"SEN", ico:"🗳️",nm:"Senador",sub:"São Paulo · 3 vagas",url:u("6259","sp","0005"),vagas:3,wide:true},
+];
+const DEPS=[
+  {key:"DF",ico:"🟧",nm:"Deputado Federal",sub:"São Paulo",url:u("6259","sp","0006"),
+    track:{"2033":"Danilo do Posto de Saúde","5522":"Guti","2222":"Renato Bolsonaro","5533":"Paulo Alexandre Barbosa","1800":"Marco Martins","5588":"Vinicius Marchese","1502":"Sidney Cruz"}},
+  {key:"DE",ico:"🟧",nm:"Deputado Estadual",sub:"São Paulo",url:u("6259","sp","0007"),
+    track:{"55900":"Aline Torres","55033":"Cabo Samuel","18000":"Prof. Fernando Oliveira","10002":"Dani Dias da Rádio","15115":"Regina Nunes"}},
+];
+
+const toNum=s=>parseFloat(String(s==null?0:s).replace(/\./g,"").replace(",","."))||0;
+const toInt=s=>parseInt(String(s==null?0:s).replace(/\./g,""),10)||0;
+const fmtV=n=>n.toLocaleString("pt-BR");
+const fmtP=s=>toNum(s).toFixed(2).replace(".",",");
+const esc=s=>String(s==null?"":s).replace(/[&<>]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]));
+
+function flat(doc){
+  const out=[];
+  (doc.carg||[]).forEach(c=>(c.agr||[]).forEach(a=>(a.par||[]).forEach(p=>(p.cand||[]).forEach(cd=>{
+    out.push({n:cd.n,nm:cd.nm,nmu:cd.nmu,e:cd.e,sg:p.sg||"",_vap:toInt(cd.vap),_pvap:toNum(cd.pvap),pvap:cd.pvap});
+  }))));
+  out.sort((x,y)=>y._vap-x._vap);
+  return out;
+}
+const pst=d=>toNum((d.s||{}).pst);
+const eleito=c=>c.e==="s";
+
+function majorCard(r,doc){
+  const cs=flat(doc),ap=pst(doc),vagas=r.vagas||1;
+  const maxP=Math.max(0.0001,...cs.map(c=>c._pvap));
+  const rows=cs.map((c,i)=>{
+    const lead=i<vagas;
+    const w=(c._pvap/maxP)*100;
+    const fill=lead?"var(--primary)":"var(--steel)";
+    const vaga=r.vagas&&i<vagas?`<span class="tagv">🏆 vaga</span>`:"";
+    const el=eleito(c)?`<span class="tage">eleito</span>`:"";
+    return `<div class="rr ${lead?'lead':''}" style="--fill:${fill}">
+      <span class="rk">${i+1}</span>
+      <div class="main">
+        <div class="nmrow"><span class="nm">${esc(c.nmu||c.nm)}</span>${c.sg?`<span class="party">${esc(c.sg)}</span>`:""}${vaga}${el}</div>
+        <div class="trk"><i style="width:${w}%"></i></div>
+      </div>
+      <div class="val"><div class="pc">${fmtP(c.pvap)}%</div><div class="vt">${fmtV(c._vap)}</div></div>
+    </div>`;
+  }).join("");
+  return `<div class="card ${r.wide?'wide':''}">
+    <div class="chead"><span class="ic">${r.ico}</span><div><h3>${r.nm}</h3><div class="sub">${r.sub}</div></div>
+      <span class="pill">${ap.toFixed(2).replace(".",",")}% apurado<span class="mini"><i style="width:${ap}%"></i></span></span></div>
+    <div class="rbl">${rows||'<div class="skl">—</div>'}</div>
+  </div>`;
+}
+
+function depRow(c,rank,sel,maxP){
+  const w=Math.max(1.5,(c._pvap/maxP)*100);
+  const fill=sel?"var(--primary)":"var(--steel)";
+  const el=eleito(c)?`<span class="tage">eleito</span>`:"";
+  const star=sel?`<span class="star">★</span>`:"";
+  return `<div class="rr ${sel?'sel lead':''}" style="--fill:${fill}">
+    <span class="rk">${rank}</span>
+    <div class="main">
+      <div class="nmrow">${star}<span class="nm">${esc(c.nmu||c.nm)}</span>${c.sg?`<span class="party">${esc(c.sg)}</span>`:""}${el}</div>
+      <div class="trk"><i style="width:${w}%"></i></div>
+    </div>
+    <div class="val"><div class="pc">${fmtP(c.pvap)}%</div><div class="vt">${fmtV(c._vap)}</div></div>
+  </div>`;
+}
+function depCard(r,doc){
+  const cs=flat(doc),ap=pst(doc);
+  const maxP=Math.max(0.0001,...cs.map(c=>c._pvap));
+  const rankOf=new Map(); cs.forEach((c,i)=>rankOf.set(c.n,i+1));
+  const sels=cs.filter(c=>r.track[c.n]);
+  const seus=sels.map(c=>depRow({...c,nmu:r.track[c.n]},rankOf.get(c.n),true,maxP)).join("");
+  const all=cs.map((c,i)=>depRow(c,i+1,!!r.track[c.n],maxP)).join("");
+  return `<div class="card">
+    <div class="chead"><span class="ic">${r.ico}</span><div><h3>${r.nm}</h3><div class="sub">${r.sub} · ${cs.length} candidatos</div></div>
+      <span class="pill">${ap.toFixed(2).replace(".",",")}% apurado<span class="mini"><i style="width:${ap}%"></i></span></span></div>
+    <div class="seus">
+      <div class="seuslbl"><span class="star">★</span> Seus candidatos</div>
+      <div class="rbl">${seus||'<div class="skl">não encontrados</div>'}</div>
+    </div>
+    <div class="alllbl">Todos os candidatos — ranking do estado</div>
+    <div class="scroll" data-k="${r.key}"><div class="rbl">${all}</div></div>
+  </div>`;
+}
+
+function kpis(doc){
+  const s=doc.s||{},e=doc.e||{},v=doc.v||{};
+  const ap=toNum(s.pst), st=toInt(s.st), ts=toInt(s.ts);
+  const te=toInt(e.te), tv=toInt(v.tv), vv=toInt(v.vv);
+  const comp=te?tv/te*100:0;
+  const data=[
+    {l:"Apuração SP",v:ap.toFixed(2).replace(".",",")+"<small>%</small>",g:ap},
+    {l:"Seções totalizadas",v:fmtV(st)+`<small> / ${fmtV(ts)}</small>`,g:ts?st/ts*100:0},
+    {l:"Comparecimento",v:comp.toFixed(1).replace(".",",")+"<small>%</small>",g:comp},
+    {l:"Votos válidos",v:fmtV(vv),g:null},
+  ];
+  return data.map(k=>`<div class="kpi"><div class="l">${k.l}</div><div class="v">${k.v}</div>${k.g!=null?`<div class="gauge"><i style="width:${Math.min(k.g,100)}%"></i></div>`:""}</div>`).join("");
+}
+
+async function getJSON(url){const r=await fetch(url,{cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);return r.json();}
+
+let firstOK=false;
+async function tick(){
+  try{
+    const maj=await Promise.all(MAJOR.map(r=>getJSON(r.url)));
+    const dep=await Promise.all(DEPS.map(r=>getJSON(r.url)));
+    document.getElementById("kpis").innerHTML=kpis(maj[1]); // governador SP = totais do estado
+    document.getElementById("major").innerHTML=MAJOR.map((r,i)=>majorCard(r,maj[i])).join("");
+    // preserva o scroll das listas completas ao re-renderizar
+    const pos={}; document.querySelectorAll(".scroll").forEach(el=>pos[el.dataset.k]=el.scrollTop);
+    document.getElementById("deps").innerHTML=DEPS.map((r,i)=>depCard(r,dep[i])).join("");
+    document.querySelectorAll(".scroll").forEach(el=>{if(pos[el.dataset.k])el.scrollTop=pos[el.dataset.k];});
+    const g=maj[1]||{}; if(g.dg&&g.hg)document.getElementById("tsetime").textContent=`${g.dg} ${g.hg}`;
+    document.getElementById("livetxt").textContent=Math.max(...maj.map(pst))>0?"ao vivo":"aguardando urnas";
+    firstOK=true;
+  }catch(e){
+    document.getElementById("livetxt").innerHTML='<span class="err">reconectando…</span>';
+    if(!firstOK){const s=document.querySelector("#major .skl"); if(s)s.textContent="Sem conexão com o TSE. Tentando de novo…";}
+  }
+}
+function clock(){document.getElementById("clock").textContent=new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",second:"2-digit"});}
+clock();setInterval(clock,1000);
+tick();setInterval(tick,20000);
+</script>
+
+</body>
+</html>
