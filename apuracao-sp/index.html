@@ -120,11 +120,18 @@
   .seushint{color:var(--steel);font-size:12.5px;font-weight:400;letter-spacing:0;text-transform:none;padding:4px 2px 8px}
   .alllbl{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--steel);margin:10px 2px 2px}
   [hidden]{display:none!important}
-  .search{width:100%;font:inherit;font-size:14px;color:var(--ink);background:var(--canvas);
-    border:1px solid var(--hairline);border-radius:9999px;padding:9px 15px;margin:2px 0 10px;outline:none}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 10px}
+  .search{flex:1 1 160px;min-width:0;font:inherit;font-size:14px;color:var(--ink);background:var(--canvas);
+    border:1px solid var(--hairline);border-radius:9999px;padding:9px 15px;outline:none}
   .search::placeholder{color:var(--steel)}
   .search:focus-visible{border-color:var(--primary);box-shadow:0 0 0 2px var(--sel-tint)}
+  .pfilter{flex:0 0 auto;max-width:48%;font:inherit;font-size:13px;color:var(--ink);background:var(--canvas);
+    border:1px solid var(--hairline);border-radius:9999px;padding:9px 14px;cursor:pointer;outline:none}
+  .pfilter:focus-visible{border-color:var(--primary);box-shadow:0 0 0 2px var(--sel-tint)}
   .nomatch{color:var(--steel);font-size:13px;padding:8px 2px}
+  .selo{flex:none;display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:.04em;
+    padding:2px 8px;border-radius:9999px;background:var(--pos);color:#fff}
+  .rr.eleito{background:color-mix(in srgb,var(--pos) 9%,transparent);border-radius:11px}
   .scroll{max-height:380px;overflow-y:auto;padding-right:6px;margin-top:4px}
   .scroll::-webkit-scrollbar{width:8px}.scroll::-webkit-scrollbar-thumb{background:var(--hairline);border-radius:8px}
 
@@ -210,25 +217,40 @@ const fmtP=s=>toNum(s).toFixed(2).replace(".",",");
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 const norm=s=>String(s==null?"":s).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
 
-/* ---- busca por nome, por cargo ---- */
-const filters={};
+/* ---- busca por nome + filtro de partido, por cargo ---- */
+const filters={};        // texto de busca por cargo
+const partyFilters={};   // partido selecionado por cargo
 const searchBox=k=>`<input class="search" type="search" data-k="${k}" value="${esc(filters[k]||"")}" placeholder="🔎 buscar candidato pelo nome…" autocomplete="off" spellcheck="false">`;
+function partySelect(k,parties){
+  const cur=partyFilters[k]||"";
+  const opts=['<option value="">Todos os partidos</option>']
+    .concat(parties.map(p=>`<option value="${esc(p.toLowerCase())}"${cur===p.toLowerCase()?' selected':''}>${esc(p)}</option>`));
+  return `<select class="pfilter" data-k="${k}">${opts.join("")}</select>`;
+}
+function filterBar(k,cs){
+  const parties=[...new Set(cs.map(c=>c.sg).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt"));
+  return `<div class="filters">${searchBox(k)}${partySelect(k,parties)}</div>`;
+}
 function applyFilter(k){
-  const f=norm(filters[k]||"");
+  const f=norm(filters[k]||""), pf=partyFilters[k]||"";
   document.querySelectorAll('[data-scope="'+k+'"]').forEach(sc=>{
     let any=false;
-    sc.querySelectorAll(".rr").forEach(r=>{ const hit=!f||(r.dataset.nm||"").includes(f); r.hidden=!hit; if(hit)any=true; });
+    sc.querySelectorAll(".rr").forEach(r=>{
+      const okN=!f||(r.dataset.nm||"").includes(f);
+      const okP=!pf||(r.dataset.sg||"")===pf;
+      const hit=okN&&okP; r.hidden=!hit; if(hit)any=true;
+    });
     let nm=sc.querySelector(".nomatch");
-    if(f&&!any){ if(!nm){nm=document.createElement("div");nm.className="nomatch";nm.textContent="Nenhum candidato encontrado.";sc.appendChild(nm);} nm.hidden=false; }
+    if(!any){ if(!nm){nm=document.createElement("div");nm.className="nomatch";nm.textContent="Nenhum candidato encontrado.";sc.appendChild(nm);} nm.hidden=false; }
     else if(nm){ nm.hidden=true; }
   });
 }
-function applyAllFilters(){ Object.keys(filters).forEach(applyFilter); }
+function applyAllFilters(){ new Set([...Object.keys(filters),...Object.keys(partyFilters)]).forEach(applyFilter); }
 
 function flat(doc){
   const out=[];
   (doc.carg||[]).forEach(c=>(c.agr||[]).forEach(a=>(a.par||[]).forEach(p=>(p.cand||[]).forEach(cd=>{
-    out.push({n:cd.n,nm:cd.nm,nmu:cd.nmu,e:cd.e,sg:p.sg||"",_vap:toInt(cd.vap),_pvap:toNum(cd.pvap),pvap:cd.pvap});
+    out.push({n:cd.n,nm:cd.nm,nmu:cd.nmu,e:cd.e,st:cd.st||"",sg:p.sg||"",_vap:toInt(cd.vap),_pvap:toNum(cd.pvap),pvap:cd.pvap});
   }))));
   out.sort((x,y)=>y._vap-x._vap);
   return out;
@@ -245,12 +267,14 @@ function row(rk,c,rank,{lead=false,vaga=false,label=null}={}){
   const w=c._wpct;
   const fill=(on||lead)?"var(--primary)":"var(--steel)";
   const vtag=vaga?`<span class="tagv">🏆 vaga</span>`:"";
-  const etag=eleito(c)?`<span class="tage">eleito</span>`:"";
+  const elt=eleito(c);
+  const stx=(c.st&&c.st.toLowerCase()!=="eleito")?" · "+esc(c.st):"";
+  const selo=elt?`<span class="selo">🏅 ELEITO${stx}</span>`:"";
   const dnm=norm((label||c.nmu||c.nm||"")+" "+(c.sg||"")+" "+c.n);
-  return `<div class="rr ${lead?'lead':''} ${on?'sel':''}" data-nm="${esc(dnm)}" style="--fill:${fill}">
+  return `<div class="rr ${lead?'lead':''} ${on?'sel':''} ${elt?'eleito':''}" data-nm="${esc(dnm)}" data-sg="${esc((c.sg||'').toLowerCase())}" style="--fill:${fill}">
     <span class="rk">${rank}</span>
     <div class="main">
-      <div class="nmrow"><span class="nm">${esc(label||c.nmu||c.nm)}</span>${c.sg?`<span class="party">${esc(c.sg)}</span>`:""}${vtag}${etag}</div>
+      <div class="nmrow"><span class="nm">${esc(label||c.nmu||c.nm)}</span>${c.sg?`<span class="party">${esc(c.sg)}</span>`:""}${vtag}${selo}</div>
       <div class="trk"><i style="width:${w}%"></i></div>
     </div>
     <div class="val"><div class="pc">${fmtP(c.pvap)}%</div><div class="vt">${fmtV(c._vap)}</div></div>
@@ -266,7 +290,7 @@ function majorCard(r,doc){
   return `<div class="card ${r.wide?'wide':''}">
     <div class="chead"><span class="ic">${r.ico}</span><div><h3>${r.nm}</h3><div class="sub">${r.sub}</div></div>
       <span class="pill">${ap.toFixed(2).replace(".",",")}% apurado<span class="mini"><i style="width:${ap}%"></i></span></span></div>
-    ${searchBox(r.key)}
+    ${filterBar(r.key,cs)}
     <div class="rbl" data-scope="${r.key}">${rows||'<div class="skl">—</div>'}</div>
   </div>`;
 }
@@ -286,7 +310,7 @@ function depCard(r,doc){
       <span class="pill">${ap.toFixed(2).replace(".",",")}% apurado<span class="mini"><i style="width:${ap}%"></i></span></span></div>
     <div class="seus"><div class="seuslbl"><span style="color:var(--amber)">★</span> Seus destaques</div><div class="rbl">${seus}</div></div>
     <div class="alllbl">Todos os candidatos — ranking do estado</div>
-    ${searchBox(r.key)}
+    ${filterBar(r.key,cs)}
     <div class="scroll" data-k="${r.key}"><div class="rbl" data-scope="${r.key}">${all}</div></div>
   </div>`;
 }
@@ -348,6 +372,11 @@ document.getElementById("clrfav").addEventListener("click",()=>{ favs=new Set();
 document.addEventListener("input",e=>{
   const i=e.target.closest(".search"); if(!i) return;
   filters[i.dataset.k]=i.value; applyFilter(i.dataset.k);
+});
+/* filtro de partido */
+document.addEventListener("change",e=>{
+  const s=e.target.closest(".pfilter"); if(!s) return;
+  partyFilters[s.dataset.k]=s.value; applyFilter(s.dataset.k);
 });
 
 function clock(){document.getElementById("clock").textContent=new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",second:"2-digit"});}
