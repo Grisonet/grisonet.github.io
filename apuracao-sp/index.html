@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <style>
   /* Layout: apuração ao vivo no Design System Griso (GR Data) — nav preta, KPIs, cards brancos hairline, ranked-bar-list. Cada visitante escolhe seus destaques (★, salvos no navegador). Light-first + dark via charcoal tiles. */
   :root{
@@ -145,6 +146,31 @@
   .err{color:var(--neg)}
   a{color:var(--primary)}
   @media(max-width:480px){.card{padding:18px 14px}.val{min-width:76px}.kpi .v{font-size:26px}}
+  /* mapas embutidos (Presidente/Governador ao lado da lista) */
+  .cardcols{display:flex;gap:18px;flex-wrap:wrap}
+  .col-list{flex:1 1 300px;min-width:0}
+  .col-map{flex:1 1 340px;min-width:0}
+  .col-map svg{width:100%;height:auto;display:block;background:var(--canvas);border-radius:12px;touch-action:none;cursor:grab}
+  .col-map svg:active{cursor:grabbing}
+  path.mun{stroke:var(--canvas);stroke-width:.4;vector-effect:non-scaling-stroke;transition:fill .5s ease}
+  path.mun.selected{stroke:var(--primary);stroke-width:2.2}
+  .pin image{pointer-events:none}
+  .clegend{display:flex;gap:6px 10px;flex-wrap:wrap;margin:8px 2px 2px;font-size:11.5px;color:var(--graphite)}
+  .cchip{display:inline-flex;align-items:center;gap:6px}
+  .cchip img{width:22px;height:22px;border-radius:50%;object-fit:cover;border:2px solid var(--cc)}
+  .cchip .n{color:var(--steel)}
+  .upd{font-size:11px;color:var(--steel);margin-top:6px}
+  .tip{position:fixed;pointer-events:none;background:#080808;color:#fff;font-size:12px;padding:7px 10px;border-radius:9px;z-index:60;opacity:0;transition:opacity .1s;max-width:230px;line-height:1.4}
+  .tip b{font-weight:600}
+  /* projeção de cadeiras */
+  .cadeiras{background:var(--pearl);border:1px solid var(--hairline);border-radius:14px;padding:11px 13px;margin-bottom:14px}
+  .cadhd{font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--ink);margin-bottom:8px}
+  .cadhd span{color:var(--steel);font-weight:400;letter-spacing:0}
+  .cadrow{display:flex;align-items:center;gap:9px;padding:3px 0}
+  .cadsg{flex:0 0 112px;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cadbar{flex:1;height:9px;border-radius:9999px;background:var(--divider);overflow:hidden;min-width:40px}
+  .cadbar>i{display:block;height:100%;background:var(--primary);border-radius:9999px}
+  .cadn{flex:0 0 26px;text-align:right;font-weight:700;font-size:15px}
 </style>
 </head>
 <body>
@@ -169,6 +195,31 @@
   <section class="kpis" id="kpis"></section>
 
   <div class="eyebrow">Cargos majoritários<span class="rule"></span></div>
+
+  <div class="card wide" style="margin-bottom:14px">
+    <div class="chead"><span class="ic">🇧🇷</span><div><h3>Presidente</h3><div class="sub">Brasil · mapa por estado</div></div><span class="pill" id="pill-PRES">—</span></div>
+    <div id="filters-PRES"></div>
+    <div class="cardcols">
+      <div class="col-list"><div class="rbl" data-scope="PRES" id="rows-PRES"><div class="skl">Carregando…</div></div></div>
+      <div class="col-map">
+        <svg id="imap-PRES" viewBox="0 0 1000 1000" role="img" aria-label="Mapa do Brasil"></svg>
+        <div class="clegend" id="ileg-PRES"></div><div class="upd" id="iupd-PRES"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card wide" style="margin-bottom:14px">
+    <div class="chead"><span class="ic">🏛️</span><div><h3>Governador — São Paulo</h3><div class="sub">mapa por cidade</div></div><span class="pill" id="pill-GOV">—</span></div>
+    <div id="filters-GOV"></div>
+    <div class="cardcols">
+      <div class="col-list"><div class="rbl" data-scope="GOV" id="rows-GOV"><div class="skl">Carregando…</div></div></div>
+      <div class="col-map">
+        <svg id="imap-GOV" viewBox="0 0 1000 820" role="img" aria-label="Mapa de SP"></svg>
+        <div class="clegend" id="ileg-GOV"></div><div class="upd" id="iupd-GOV"></div>
+      </div>
+    </div>
+  </div>
+
   <section class="grid" id="major"><div class="skl">Carregando dados do TSE…</div></section>
 
   <div class="eyebrow" style="margin-top:26px">Deputados — todos os candidatos de SP<span class="rule"></span></div>
@@ -183,6 +234,7 @@
     <div style="margin-top:4px">Percentuais sobre votos válidos. <span style="color:var(--amber)">★</span> seus destaques (salvos neste navegador) · 🏆 em vaga (majoritário) · <span style="color:var(--pos)">eleito</span> confirmado pelo TSE. Projeto independente, sem vínculo com a Justiça Eleitoral.</div>
   </footer>
 </main>
+<div class="tip" id="tip"></div>
 
 <script>
 const BASE="https://resultados.tse.jus.br/oficial/ele2026";
@@ -295,6 +347,36 @@ function majorCard(r,doc){
   </div>`;
 }
 
+function renderMajorInto(key,r,doc){
+  const cs=flat(doc),ap=pst(doc),vagas=r.vagas||1;
+  const maxP=Math.max(0.0001,...cs.map(c=>c._pvap)); cs.forEach(c=>c._wpct=(c._pvap/maxP)*100);
+  const pill=document.getElementById("pill-"+key);
+  if(pill) pill.innerHTML=`${ap.toFixed(2).replace(".",",")}% apurado<span class="mini"><i style="width:${ap}%"></i></span>`;
+  const fb=document.getElementById("filters-"+key); if(fb) fb.innerHTML=filterBar(key,cs);
+  const rowsEl=document.getElementById("rows-"+key);
+  if(rowsEl) rowsEl.innerHTML=cs.map((c,i)=>row(key,c,i+1,{lead:i<vagas,vaga:r.vagas&&i<vagas})).join("")||'<div class="skl">—</div>';
+}
+
+/* projeção de cadeiras (TSE: agr.vag) */
+function seatsOf(doc){
+  const carg=(doc.carg||[])[0]||{}; const qe=toInt(carg.qe);
+  const ags=(carg.agr||[]).map(a=>({
+    sg:(a.par||[]).map(p=>p.sg).join("/"),
+    seats:toInt(a.vag),
+    votes:(a.par||[]).reduce((s,p)=>s+toInt(p.tvtn)+toInt(p.tvtl),0)
+  })).filter(a=>a.votes>0);
+  ags.sort((x,y)=> y.seats-x.seats || y.votes-x.votes);
+  return {qe, total:ags.reduce((s,a)=>s+a.seats,0), ags};
+}
+function cadeirasBlock(doc,r){
+  const S=seatsOf(doc); if(!S.qe) return "";
+  const comSeats=S.ags.filter(a=>a.seats>0);
+  const maxs=Math.max(1,...comSeats.map(a=>a.seats));
+  const totalCad=r.key==="DF"?70:94;
+  const rows=comSeats.map(a=>`<div class="cadrow"><span class="cadsg">${esc(a.sg)}</span><span class="cadbar"><i style="width:${a.seats/maxs*100}%"></i></span><span class="cadn">${a.seats}</span></div>`).join("");
+  return `<div class="cadeiras"><div class="cadhd">🪑 Projeção de cadeiras <span>· ${S.total}/${totalCad} definidas pelo TSE · quociente ${fmtV(S.qe)}</span></div>${rows||'<div class="seushint">aguardando distribuição de vagas…</div>'}</div>`;
+}
+
 function depCard(r,doc){
   const cs=flat(doc),ap=pst(doc);
   const maxP=Math.max(0.0001,...cs.map(c=>c._pvap));
@@ -308,6 +390,7 @@ function depCard(r,doc){
   return `<div class="card">
     <div class="chead"><span class="ic">${r.ico}</span><div><h3>${r.nm}</h3><div class="sub">${r.sub} · ${cs.length} candidatos</div></div>
       <span class="pill">${ap.toFixed(2).replace(".",",")}% apurado<span class="mini"><i style="width:${ap}%"></i></span></span></div>
+    ${cadeirasBlock(doc,r)}
     <div class="seus"><div class="seuslbl"><span style="color:var(--amber)">★</span> Seus destaques</div><div class="rbl">${seus}</div></div>
     <div class="alllbl">Todos os candidatos — ranking do estado</div>
     ${filterBar(r.key,cs)}
@@ -337,7 +420,9 @@ function paint(){
   const caret=fkk?act.selectionStart:null;
   document.getElementById("favn").textContent=favs.size;
   document.getElementById("kpis").innerHTML=kpis(LAST.maj[1]);
-  document.getElementById("major").innerHTML=MAJOR.map((r,i)=>majorCard(r,LAST.maj[i])).join("");
+  renderMajorInto("PRES",MAJOR[0],LAST.maj[0]);
+  renderMajorInto("GOV",MAJOR[1],LAST.maj[1]);
+  document.getElementById("major").innerHTML=majorCard(MAJOR[2],LAST.maj[2]);
   const pos={}; document.querySelectorAll(".scroll").forEach(el=>pos[el.dataset.k]=el.scrollTop);
   document.getElementById("deps").innerHTML=DEPS.map((r,i)=>depCard(r,LAST.dep[i])).join("");
   document.querySelectorAll(".scroll").forEach(el=>{if(pos[el.dataset.k])el.scrollTop=pos[el.dataset.k];});
@@ -383,6 +468,53 @@ function clock(){document.getElementById("clock").textContent=new Date().toLocal
 clock();setInterval(clock,1000);
 document.getElementById("favn").textContent=favs.size;
 tick();setInterval(tick,20000);
+
+/* ===== mapas embutidos: Presidente (por UF) e Governador (por cidade) ===== */
+const tip=document.getElementById("tip");
+const PCOLOR={"13":"#C4122E","22":"#1E58A8","55":"#15A94D","30":"#F57C00","12":"#D21E2B","15":"#0E8A3E","45":"#0A77C2","70":"#6D4FB3","16":"#B91C1C","21":"#8A1C1C","27":"#E6007E","14":"#1FA0A0","29":"#B23600","35":"#5B6472","80":"#C026D3","10":"#1C4E9C"};
+const PAL=["#FF4C00","#454545","#FFC200","#7a7a7a","#B23600","#C9C7C4"];
+const candColor=n=>PCOLOR[n]||PAL[(parseInt(n,10)||0)%PAL.length];
+function genMap(cfg){(async()=>{
+  if(typeof d3==="undefined")return;
+  const geo=await fetch(cfg.geojson).then(r=>r.json()).catch(()=>null); if(!geo)return;
+  const svg=d3.select("#"+cfg.svg); if(svg.empty())return;
+  const proj=d3.geoMercator().fitSize([cfg.W,cfg.H],geo),path=d3.geoPath(proj);
+  svg.append("defs").append("clipPath").attr("id",cfg.svg+"-clip").append("circle").attr("r",cfg.pin);
+  const g=svg.append("g"),gMun=g.append("g"),gPins=g.append("g");
+  const zoom=d3.zoom().scaleExtent([1,30]).on("zoom",e=>g.attr("transform",e.transform)); svg.call(zoom);
+  const keyOf=d=>cfg.kind==="uf"?(d.properties.sigla||"").toLowerCase():d.properties.id, nameOf=d=>d.properties.name;
+  let BY={},DATA=null,selKey=null;
+  gMun.selectAll("path").data(geo.features).join("path").attr("class","mun").attr("d",path).attr("fill","#dcdce2")
+    .on("mousemove",hoverG).on("mouseleave",()=>tip&&(tip.style.opacity=0)).on("click",(e,d)=>selG(d));
+  const rowsList=()=>cfg.kind==="uf"?DATA.ufs:DATA.cidades;
+  const votesOf=r=>cfg.kind==="uf"?(r.top||[]):Object.entries(r.v||{}).sort((a,b)=>b[1]-a[1]);
+  function hoverG(e,d){ if(!tip||!DATA)return; const r=BY[keyOf(d)]; let h=`<b>${nameOf(d)}</b>`;
+    if(r&&r.lead)h+="<br>"+votesOf(r).slice(0,3).map(([n,v])=>`${DATA.cand[n]?DATA.cand[n].nm:n}: ${(+v).toLocaleString("pt-BR")}`).join("<br>")+`<br>${r.p.toFixed(1).replace(".",",")}% apurado`;
+    else h+="<br>sem apuração"; tip.innerHTML=h; tip.style.left=Math.min(e.clientX+14,innerWidth-240)+"px"; tip.style.top=(e.clientY+14)+"px"; tip.style.opacity=1; }
+  function drawPins(){ const feats=geo.features.filter(d=>{const r=BY[keyOf(d)];return r&&r.lead;});
+    const s=gPins.selectAll("g.pin").data(feats,keyOf); s.exit().remove();
+    const en=s.enter().append("g").attr("class","pin");
+    en.append("image").attr("clip-path",`url(#${cfg.svg}-clip)`).attr("x",-cfg.pin).attr("y",-cfg.pin).attr("width",cfg.pin*2).attr("height",cfg.pin*2);
+    en.append("circle").attr("r",cfg.pin+1).attr("fill","none").attr("stroke-width",1).attr("vector-effect","non-scaling-stroke");
+    const all=en.merge(s); all.attr("transform",d=>{const c=path.centroid(d);return `translate(${c[0]},${c[1]})`;});
+    all.select("image").attr("href",d=>`fotos/${cfg.photo}_${BY[keyOf(d)].lead}.jpg`);
+    all.select("circle").attr("stroke",d=>candColor(BY[keyOf(d)].lead)); }
+  function legendG(){ const tot=DATA.tot||{},lc={}; rowsList().forEach(r=>{if(r.lead)lc[r.lead]=(lc[r.lead]||0)+1;});
+    const order=Object.keys(DATA.cand).sort((a,b)=>(tot[b]||0)-(tot[a]||0)).filter(n=>(tot[n]||0)>0||lc[n]).slice(0,8);
+    const el=document.getElementById(cfg.legend); if(el)el.innerHTML=order.map(n=>`<span class="cchip" style="--cc:${candColor(n)}"><img src="fotos/${cfg.photo}_${n}.jpg" alt=""><span>${DATA.cand[n].nm} <span class="n">·${lc[n]||0}</span></span></span>`).join(""); }
+  function selG(d){ selKey=keyOf(d); gMun.selectAll("path").classed("selected",x=>keyOf(x)===selKey);
+    const [[x0,y0],[x1,y1]]=path.bounds(d); const k=Math.min(30,.7*Math.min(cfg.W/(x1-x0),cfg.H/(y1-y0)));
+    svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity.translate(cfg.W/2-k*(x0+x1)/2,cfg.H/2-k*(y0+y1)/2).scale(k)); }
+  async function load(){ const data=await fetch(cfg.data+"?t="+Date.now(),{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.json();}).catch(()=>null);
+    const up=document.getElementById(cfg.upd);
+    if(!data){ if(up)up.textContent="mapa: aguardando dados…"; return; }
+    DATA=data; BY={}; rowsList().forEach(row=>BY[cfg.kind==="uf"?row.uf:row.ibge]=row);
+    gMun.selectAll("path").attr("fill",d=>{const r=BY[keyOf(d)];return r&&r.lead?candColor(r.lead):"#dcdce2";});
+    drawPins(); legendG(); if(up)up.textContent="mapa: "+data.updated+(data.pst!=null?" · "+(+data.pst).toFixed(1).replace(".",",")+"% apurado":""); }
+  await load(); setInterval(load,60000);
+})();}
+genMap({svg:"imap-PRES",geojson:"br-uf.geojson",data:"presidente.json",kind:"uf",W:1000,H:1000,pin:6,photo:"pres",legend:"ileg-PRES",upd:"iupd-PRES"});
+genMap({svg:"imap-GOV",geojson:"sp-mun.geojson",data:"gov-sp.json",kind:"cid",W:1000,H:820,pin:5,photo:"gov",legend:"ileg-GOV",upd:"iupd-GOV"});
 </script>
 
 </body>
