@@ -133,6 +133,9 @@
   .selo{flex:none;display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:.04em;
     padding:2px 8px;border-radius:9999px;background:var(--pos);color:#fff}
   .selo.proj{background:var(--amber);color:#080808}
+  .selo.seat{background:#0E9488;color:#fff}
+  .rr.seatwin{background:color-mix(in srgb,#0E9488 12%,transparent);border-radius:11px}
+  .rr.seatwin .nm{font-weight:600}
   .rr.eleito{background:color-mix(in srgb,var(--pos) 9%,transparent);border-radius:11px}
   .scroll{max-height:380px;overflow-y:auto;padding-right:6px;margin-top:4px}
   .scroll::-webkit-scrollbar{width:8px}.scroll::-webkit-scrollbar-thumb{background:var(--hairline);border-radius:8px}
@@ -232,7 +235,7 @@
       <svg class="grlogo grlogo-foot" role="img" aria-label="GR Data"><use href="#grlogo"/></svg>
     </div>
     <div>Fonte: <b>Tribunal Superior Eleitoral</b> — Sistema de Divulgação de Resultados. Dados gerados em <b id="tsetime">—</b>. Atualização automática a cada 20s.</div>
-    <div style="margin-top:4px">Percentuais sobre votos válidos. <span style="color:var(--amber)">★</span> seus destaques (salvos neste navegador) · 🏅 ELEITO = <span style="color:var(--pos)">verde</span> confirmado pelo TSE, <span style="color:var(--amber)">âmbar</span> projeção matemática (maioria/vantagem insuperável) ainda não formalizada pelo TSE. Projeto independente, sem vínculo com a Justiça Eleitoral.</div>
+    <div style="margin-top:4px">Percentuais sobre votos válidos. <span style="color:var(--amber)">★</span> seus destaques (salvos neste navegador) · 🏅 ELEITO = <span style="color:var(--pos)">verde</span> confirmado pelo TSE, <span style="color:var(--amber)">âmbar</span> projeção matemática. <span style="color:#0E9488">🪑 vaga (proj.)</span> = deputado dentro das cadeiras projetadas do seu partido (ordem por voto nominal; use o filtro de partido). Projeto independente, sem vínculo com a Justiça Eleitoral.</div>
   </footer>
 </main>
 <div class="tip" id="tip"></div>
@@ -335,11 +338,12 @@ function row(rk,c,rank,{lead=false,vaga=false,label=null}={}){
   const elt=eleito(c);
   const stx=c._eltProj?" (projeção)":((c.st&&c.st.toLowerCase()!=="eleito")?" · "+esc(c.st):"");
   const selo=elt?`<span class="selo${c._eltProj?' proj':''}">🏅 ELEITO${stx}</span>`:"";
+  const seat=(!elt&&c._seat)?`<span class="selo seat">🪑 vaga (proj.)</span>`:"";
   const dnm=norm((label||c.nmu||c.nm||"")+" "+(c.sg||"")+" "+c.n);
-  return `<div class="rr ${lead?'lead':''} ${on?'sel':''} ${elt?'eleito':''}" data-nm="${esc(dnm)}" data-sg="${esc((c.sg||'').toLowerCase())}" style="--fill:${fill}">
+  return `<div class="rr ${lead?'lead':''} ${on?'sel':''} ${elt?'eleito':''} ${c._seat?'seatwin':''}" data-nm="${esc(dnm)}" data-sg="${esc((c.sg||'').toLowerCase())}" style="--fill:${fill}">
     <span class="rk">${rank}</span>
     <div class="main">
-      <div class="nmrow"><span class="nm">${esc(label||c.nmu||c.nm)}</span>${c.sg?`<span class="party">${esc(c.sg)}</span>`:""}${vtag}${selo}</div>
+      <div class="nmrow"><span class="nm">${esc(label||c.nmu||c.nm)}</span>${c.sg?`<span class="party">${esc(c.sg)}</span>`:""}${vtag}${selo}${seat}</div>
       <div class="trk"><i style="width:${w}%"></i></div>
     </div>
     <div class="val"><div class="pc">${fmtP(c.pvap)}%</div><div class="vt">${fmtV(c._vap)}</div></div>
@@ -382,6 +386,16 @@ function seatsOf(doc){
   ags.sort((x,y)=> y.seats-x.seats || y.votes-x.votes);
   return {qe, total:ags.reduce((s,a)=>s+a.seats,0), ags};
 }
+/* candidatos projetados a pegar as cadeiras do partido: top-N por voto nominal (N=vag do TSE), piso 10% do QE */
+function seatWinners(doc){
+  const carg=(doc.carg||[])[0]||{}; const qe=toInt(carg.qe); const thr=qe*0.1; const win=new Set();
+  (carg.agr||[]).forEach(a=>{
+    const vag=toInt(a.vag); if(!vag) return;
+    const cc=[]; (a.par||[]).forEach(p=>(p.cand||[]).forEach(c=>cc.push({n:c.n,v:toInt(c.vap)})));
+    cc.filter(c=>c.v>=thr).sort((x,y)=>y.v-x.v).slice(0,vag).forEach(c=>win.add(c.n));
+  });
+  return win;
+}
 function cadeirasBlock(doc,r){
   const S=seatsOf(doc); if(!S.qe) return "";
   const comSeats=S.ags.filter(a=>a.seats>0);
@@ -395,6 +409,7 @@ function depCard(r,doc){
   const cs=flat(doc),ap=pst(doc);
   const maxP=Math.max(0.0001,...cs.map(c=>c._pvap));
   cs.forEach(c=>c._wpct=Math.max(1.5,(c._pvap/maxP)*100));
+  const WIN=seatWinners(doc); cs.forEach(c=>c._seat=WIN.has(c.n));
   const rankOf=new Map(); cs.forEach((c,i)=>rankOf.set(c.n,i+1));
   const sel=cs.filter(c=>isFav(fk(r.key,c.n)));
   const seus=sel.length
