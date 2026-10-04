@@ -45,10 +45,12 @@
   header{position:sticky; top:env(safe-area-inset-top,0px); z-index:30; background:#080808; color:#fff;
     border-bottom:1px solid rgba(255,255,255,.08)}
   .hd{display:flex; align-items:center; gap:14px; padding-block:11px; flex-wrap:wrap}
-  .mark{display:flex; align-items:center; gap:10px; min-width:0}
-  .mark .sq{width:26px;height:26px;border-radius:7px;background:var(--primary);flex:none}
-  .mark .t{font-weight:700; font-size:clamp(16px,3vw,20px); letter-spacing:-.022em}
-  .mark .t b{color:var(--primary); font-weight:700}
+  .mark{display:flex; align-items:center; gap:11px; min-width:0}
+  .grlogo{height:23px; width:auto; fill:currentColor; display:block}
+  .mark .grlogo{color:#fff}
+  .mark .sep{width:1px; height:20px; background:rgba(255,255,255,.22); flex:none}
+  .mark .t{font-weight:600; font-size:clamp(13px,2.6vw,17px); letter-spacing:-.022em; color:#fff; white-space:nowrap}
+  .mark .t b{color:var(--primary); font-weight:600}
   .live{display:flex; align-items:center; gap:8px; margin-left:auto; font-size:12px; color:#cccccc; white-space:nowrap}
   .dot{width:8px;height:8px;border-radius:50%;background:var(--primary);animation:pulse 1.8s infinite}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,76,0,.6)}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
@@ -116,12 +118,22 @@
   .seus{background:var(--pearl);border:1px solid var(--hairline);border-radius:14px;padding:6px 12px;margin-bottom:14px}
   .seuslbl{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--primary);padding:8px 2px 2px;display:flex;align-items:center;gap:7px}
   .seushint{color:var(--steel);font-size:12.5px;font-weight:400;letter-spacing:0;text-transform:none;padding:4px 2px 8px}
-  .alllbl{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--steel);margin:4px 2px 2px}
+  .alllbl{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--steel);margin:10px 2px 2px}
+  [hidden]{display:none!important}
+  .search{width:100%;font:inherit;font-size:14px;color:var(--ink);background:var(--canvas);
+    border:1px solid var(--hairline);border-radius:9999px;padding:9px 15px;margin:2px 0 10px;outline:none}
+  .search::placeholder{color:var(--steel)}
+  .search:focus-visible{border-color:var(--primary);box-shadow:0 0 0 2px var(--sel-tint)}
+  .nomatch{color:var(--steel);font-size:13px;padding:8px 2px}
   .scroll{max-height:380px;overflow-y:auto;padding-right:6px;margin-top:4px}
   .scroll::-webkit-scrollbar{width:8px}.scroll::-webkit-scrollbar-thumb{background:var(--hairline);border-radius:8px}
 
   footer{color:var(--steel);font-size:12px;border-top:1px solid var(--hairline);padding-block:18px;margin-top:30px;line-height:1.7}
   footer b{color:var(--graphite);font-weight:600}
+  .contact{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-bottom:14px;margin-bottom:13px;border-bottom:1px solid var(--hairline)}
+  .wabtn{display:inline-flex;align-items:center;gap:8px;background:var(--primary);color:#080808;font-weight:600;font-size:14px;letter-spacing:-.01em;text-decoration:none;border-radius:9999px;padding:10px 18px}
+  .wabtn:active{transform:scale(.97)}
+  .grlogo-foot{height:20px;color:var(--graphite);margin-left:auto;opacity:.85}
   .skl{color:var(--steel);font-size:14px;padding:12px 2px}
   .err{color:var(--neg)}
   a{color:var(--primary)}
@@ -131,9 +143,11 @@
 <body>
 
 
+<svg width="0" height="0" aria-hidden="true" style="position:absolute;overflow:hidden"><symbol id="grlogo" viewBox="0 0 1743.4 319.86"><g><g><path d="M657.86,248.74c-25.77-1.21-49.42-14.95-63.2-36.96l-13.25-23.52-33.24-6.42v-6.44l25.96-.06h122.08c22.88,0,45.6-8.76,61.21-23.13,17.43-16.02,28.35-39,28.35-64.54,0-28.82-13.9-54.38-35.37-70.35-14.6-10.88-34.59-17.32-54.19-17.32l-251.01.07v65.46s0,0,0,0v248.84h71.71l-1.04-95.41,18.71,29.87.24.39c24.2,38.63,65.72,62.8,110.97,64.98,2.18.12,4.39.17,6.59.17h125.26v-65.54h-116.06c-1.24,0-2.48-.02-3.72-.09ZM515.52,119.87v-41.93l-14.33-5.97v-6.44h177.27c5.96,0,11.45,1.91,15.92,5.16,1.17.84,2.27,1.79,3.29,2.8,4.92,4.92,7.96,11.72,7.96,19.21,0,15-12.16,27.17-27.17,27.17h-162.94Z"/><path d="M177.59,119.87h213.39v194.5h-72.97l2.3-95.41-18.71,29.87-.24.39c-25.39,40.53-69.84,65.15-117.66,65.15h-6.11v-.67l-.41.67h-17.73C72.64,314.37,0,243.99,0,157.18c0-43.41,18.16-82.7,47.17-111.14C76.18,17.59,116.05,0,159.45,0l225.16.07v65.46h-212.45c-50.62,0-91.65,41.04-91.65,91.65,0,25.31,10.26,48.22,26.85,64.81,16.58,16.58,39.49,26.84,64.8,26.84h2.34c27.2,0,52.48-14,66.92-37.05l13.79-23.66v.11l33.36-6.44v-6.44h-25.92.01s-85.07-.01-85.07-.01v-55.47Z"/></g><g opacity=".8"><path d="M900.33,1.34h114.23c94.46,0,139.27,64.14,139.27,158.16s-47.89,155.96-142.34,155.96h-111.15V1.34ZM1010.16,280.75c73.81,0,103.24-47.45,103.24-121.25s-26.36-123.89-100.17-123.89h-73.37v245.15h70.29Z"/><path d="M1330.43,283.83h-.44c-13.62,17.57-36.9,36.03-75.56,36.03-43.05,0-76.88-20.21-76.88-63.26,0-53.6,42.18-64.58,98.85-73.37,32.07-4.83,54.48-7.91,54.48-32.51s-18.45-39.98-50.96-39.98c-36.9,0-55.36,15.82-56.67,50.08h-34.27c1.32-43.93,30.31-76.88,90.5-76.88,48.33,0,83.91,18.01,83.91,72.05v108.08c0,18.45,4.39,28.56,24.16,24.16h1.32v25.92c-4.39,1.76-10.1,3.51-19.33,3.51-23.29,0-35.59-10.54-39.1-33.83ZM1331.31,231.55v-38.66c-11.86,7.47-32.51,13.18-51.84,16.69-35.59,6.59-64.14,12.74-64.14,46.13,0,30.31,23.72,36.9,47.01,36.9,47.45,0,68.97-34.71,68.97-61.07Z"/><path d="M1396.33,88.33h32.95V16.72h35.58v71.61h43.93v29h-43.93v147.62c0,15.82,8.35,21.09,22.85,21.09,7.03,0,14.94-1.76,18.89-3.08h1.32v30.75c-8.35,1.76-18.01,3.08-28.56,3.08-29,0-50.08-11.86-50.08-43.93V117.32h-32.95v-29Z"/><path d="M1684.97,283.83h-.44c-13.62,17.57-36.9,36.03-75.57,36.03-43.05,0-76.88-20.21-76.88-63.26,0-53.6,42.18-64.58,98.85-73.37,32.07-4.83,54.48-7.91,54.48-32.51s-18.45-39.98-50.96-39.98c-36.9,0-55.36,15.82-56.67,50.08h-34.27c1.32-43.93,30.31-76.88,90.5-76.88,48.33,0,83.91,18.01,83.91,72.05v108.08c0,18.45,4.39,28.56,24.16,24.16h1.32v25.92c-4.39,1.76-10.1,3.51-19.33,3.51-23.28,0-35.59-10.54-39.1-33.83ZM1685.85,231.55v-38.66c-11.86,7.47-32.51,13.18-51.84,16.69-35.59,6.59-64.14,12.74-64.14,46.13,0,30.31,23.72,36.9,47.01,36.9,47.45,0,68.97-34.71,68.97-61.07Z"/></g></g></symbol></svg>
+
 <header>
   <div class="wrap hd">
-    <div class="mark"><span class="sq"></span><span class="t">Apuração <b>SP</b> · 2026</span></div>
+    <div class="mark"><svg class="grlogo" role="img" aria-label="GR Data"><use href="#grlogo"/></svg><span class="sep"></span><span class="t">Apuração <b>SP</b> · 2026</span></div>
     <div class="live"><span class="dot"></span><span id="livetxt">conectando…</span><span class="clock" id="clock">--:--:--</span></div>
   </div>
 </header>
@@ -154,6 +168,10 @@
   <section class="grid" id="deps"></section>
 
   <footer>
+    <div class="contact">
+      <a class="wabtn" href="https://wa.me/551132807177" target="_blank" rel="noopener">💬 WhatsApp Griso — informações</a>
+      <svg class="grlogo grlogo-foot" role="img" aria-label="GR Data"><use href="#grlogo"/></svg>
+    </div>
     <div>Fonte: <b>Tribunal Superior Eleitoral</b> — Sistema de Divulgação de Resultados. Dados gerados em <b id="tsetime">—</b>. Atualização automática a cada 20s.</div>
     <div style="margin-top:4px">Percentuais sobre votos válidos. <span style="color:var(--amber)">★</span> seus destaques (salvos neste navegador) · 🏆 em vaga (majoritário) · <span style="color:var(--pos)">eleito</span> confirmado pelo TSE. Projeto independente, sem vínculo com a Justiça Eleitoral.</div>
   </footer>
@@ -166,7 +184,7 @@ const u=(pl,uf,c)=>`${BASE}/${pl}/dados/${uf}/${uf}-c${c}-e00${pl}-u.json`;
 const MAJOR=[
   {key:"PRES",ico:"🇧🇷",nm:"Presidente",sub:"Brasil",url:u("6257","br","0001")},
   {key:"GOV", ico:"🏛️",nm:"Governador",sub:"São Paulo",url:u("6259","sp","0003")},
-  {key:"SEN", ico:"🗳️",nm:"Senador",sub:"São Paulo · 3 vagas",url:u("6259","sp","0005"),vagas:3,wide:true},
+  {key:"SEN", ico:"🗳️",nm:"Senador",sub:"São Paulo · 2 vagas",url:u("6259","sp","0005"),vagas:2,wide:true},
 ];
 const DEPS=[
   {key:"DF",ico:"🟧",nm:"Deputado Federal",sub:"São Paulo",url:u("6259","sp","0006"),
@@ -191,6 +209,22 @@ const toInt=s=>parseInt(String(s==null?0:s).replace(/\./g,""),10)||0;
 const fmtV=n=>n.toLocaleString("pt-BR");
 const fmtP=s=>toNum(s).toFixed(2).replace(".",",");
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+const norm=s=>String(s==null?"":s).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+
+/* ---- busca por nome, por cargo ---- */
+const filters={};
+const searchBox=k=>`<input class="search" type="search" data-k="${k}" value="${esc(filters[k]||"")}" placeholder="🔎 buscar candidato pelo nome…" autocomplete="off" spellcheck="false">`;
+function applyFilter(k){
+  const f=norm(filters[k]||"");
+  document.querySelectorAll('[data-scope="'+k+'"]').forEach(sc=>{
+    let any=false;
+    sc.querySelectorAll(".rr").forEach(r=>{ const hit=!f||(r.dataset.nm||"").includes(f); r.hidden=!hit; if(hit)any=true; });
+    let nm=sc.querySelector(".nomatch");
+    if(f&&!any){ if(!nm){nm=document.createElement("div");nm.className="nomatch";nm.textContent="Nenhum candidato encontrado.";sc.appendChild(nm);} nm.hidden=false; }
+    else if(nm){ nm.hidden=true; }
+  });
+}
+function applyAllFilters(){ Object.keys(filters).forEach(applyFilter); }
 
 function flat(doc){
   const out=[];
@@ -213,7 +247,8 @@ function row(rk,c,rank,{lead=false,vaga=false,label=null}={}){
   const fill=(on||lead)?"var(--primary)":"var(--steel)";
   const vtag=vaga?`<span class="tagv">🏆 vaga</span>`:"";
   const etag=eleito(c)?`<span class="tage">eleito</span>`:"";
-  return `<div class="rr ${lead?'lead':''} ${on?'sel':''}" style="--fill:${fill}">
+  const dnm=norm((label||c.nmu||c.nm||"")+" "+(c.sg||"")+" "+c.n);
+  return `<div class="rr ${lead?'lead':''} ${on?'sel':''}" data-nm="${esc(dnm)}" style="--fill:${fill}">
     <span class="rk">${rank}</span>
     <div class="main">
       <div class="nmrow"><span class="nm">${esc(label||c.nmu||c.nm)}</span>${c.sg?`<span class="party">${esc(c.sg)}</span>`:""}${vtag}${etag}</div>
@@ -232,7 +267,8 @@ function majorCard(r,doc){
   return `<div class="card ${r.wide?'wide':''}">
     <div class="chead"><span class="ic">${r.ico}</span><div><h3>${r.nm}</h3><div class="sub">${r.sub}</div></div>
       <span class="pill">${ap.toFixed(2).replace(".",",")}% apurado<span class="mini"><i style="width:${ap}%"></i></span></span></div>
-    <div class="rbl">${rows||'<div class="skl">—</div>'}</div>
+    ${searchBox(r.key)}
+    <div class="rbl" data-scope="${r.key}">${rows||'<div class="skl">—</div>'}</div>
   </div>`;
 }
 
@@ -251,7 +287,8 @@ function depCard(r,doc){
       <span class="pill">${ap.toFixed(2).replace(".",",")}% apurado<span class="mini"><i style="width:${ap}%"></i></span></span></div>
     <div class="seus"><div class="seuslbl"><span style="color:var(--amber)">★</span> Seus destaques</div><div class="rbl">${seus}</div></div>
     <div class="alllbl">Todos os candidatos — ranking do estado</div>
-    <div class="scroll" data-k="${r.key}"><div class="rbl">${all}</div></div>
+    ${searchBox(r.key)}
+    <div class="scroll" data-k="${r.key}"><div class="rbl" data-scope="${r.key}">${all}</div></div>
   </div>`;
 }
 
@@ -272,6 +309,9 @@ function kpis(doc){
 let LAST=null; // {maj:[docs], dep:[docs]}
 function paint(){
   if(!LAST) return;
+  const act=document.activeElement;
+  const fkk=(act&&act.classList&&act.classList.contains("search"))?act.dataset.k:null;
+  const caret=fkk?act.selectionStart:null;
   document.getElementById("favn").textContent=favs.size;
   document.getElementById("kpis").innerHTML=kpis(LAST.maj[1]);
   document.getElementById("major").innerHTML=MAJOR.map((r,i)=>majorCard(r,LAST.maj[i])).join("");
@@ -280,8 +320,10 @@ function paint(){
   document.querySelectorAll(".scroll").forEach(el=>{if(pos[el.dataset.k])el.scrollTop=pos[el.dataset.k];});
   const g=LAST.maj[1]||{}; if(g.dg&&g.hg)document.getElementById("tsetime").textContent=`${g.dg} ${g.hg}`;
   document.getElementById("livetxt").textContent=Math.max(...LAST.maj.map(pst))>0?"ao vivo":"aguardando urnas";
+  applyAllFilters();
+  if(fkk){const ni=document.querySelector('.search[data-k="'+fkk+'"]'); if(ni){ni.focus(); try{ni.setSelectionRange(caret,caret);}catch(e){}}}
 }
-const repaint=paint; // re-render com os mesmos dados (ex.: ao marcar/desmarcar ★)
+const repaint=paint; // re-render com os mesmos dados (ex.: ao marcar/desmarcar ★ ou filtrar)
 
 async function getJSON(url){const r=await fetch(url,{cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);return r.json();}
 let firstOK=false;
@@ -302,6 +344,12 @@ document.addEventListener("click",e=>{
   toggleFav(b.dataset.fk);
 });
 document.getElementById("clrfav").addEventListener("click",()=>{ favs=new Set(); saveFavs(); repaint(); });
+
+/* busca: filtra sem rebuild (mantém foco) */
+document.addEventListener("input",e=>{
+  const i=e.target.closest(".search"); if(!i) return;
+  filters[i.dataset.k]=i.value; applyFilter(i.dataset.k);
+});
 
 function clock(){document.getElementById("clock").textContent=new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",second:"2-digit"});}
 clock();setInterval(clock,1000);
