@@ -139,7 +139,7 @@ async function init(){
   path=d3.geoPath(proj);
   svg=d3.select("#map");
   const defs=svg.append("defs");
-  defs.append("clipPath").attr("id","pclip").append("circle").attr("r",7);
+  defs.append("clipPath").attr("id","pclip").append("circle").attr("r",4.5);
   g=svg.append("g");
   gMun=g.append("g");
   gPins=g.append("g");
@@ -190,8 +190,8 @@ function drawPins(){
   const sel=gPins.selectAll("g.pin").data(feats,d=>d.properties.id);
   sel.exit().remove();
   const ent=sel.enter().append("g").attr("class","pin");
-  ent.append("image").attr("clip-path","url(#pclip)").attr("x",-7).attr("y",-7).attr("width",14).attr("height",14);
-  ent.append("circle").attr("r",8).attr("fill","none").attr("stroke-width",2).attr("vector-effect","non-scaling-stroke");
+  ent.append("image").attr("clip-path","url(#pclip)").attr("x",-4.5).attr("y",-4.5).attr("width",9).attr("height",9);
+  ent.append("circle").attr("r",5).attr("fill","none").attr("stroke-width",1).attr("vector-effect","non-scaling-stroke");
   const all=ent.merge(sel);
   all.attr("transform",d=>{const c=path.centroid(d);return `translate(${c[0]},${c[1]})`;});
   all.select("image").attr("href",d=>leaderOf(byIbge[d.properties.id])==="s"?"fotos/samuel.jpg":"fotos/dani.jpg");
