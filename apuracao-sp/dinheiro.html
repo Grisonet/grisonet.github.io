@@ -35,6 +35,14 @@
   .kpi .v{font-size:24px;font-weight:600;letter-spacing:-.025em;margin-top:5px}
   .kpi .v small{font-size:12px;color:var(--steel);font-weight:400}
   .card{background:var(--canvas);border:1px solid var(--hairline);border-radius:18px;padding:18px}
+  .dgrid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+  .dcard{background:var(--canvas);border:1px solid var(--hairline);border-radius:18px;padding:16px 18px}
+  .dcard h3{font-size:15px}
+  .dcard .dsub{font-size:12px;color:var(--steel);margin:2px 0 10px}
+  .di{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--divider)}.di:last-child{border-bottom:0}
+  .di .dnm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13.5px}
+  .di .dm{flex:none;text-align:right;font-weight:600;font-size:13.5px}
+  .di .dm small{display:block;font-size:10.5px;color:var(--steel);font-weight:400}
   /* chart */
   .chartbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
   select,input.search{font:inherit;font-size:14px;border:1px solid var(--hairline);border-radius:9999px;padding:8px 14px;background:var(--canvas);color:var(--ink);outline:none}
@@ -91,6 +99,9 @@
   <div class="disclaimer">⚠️ <b>Dados parciais.</b> A prestação de contas final das Eleições 2026 tem prazo legal de entrega até <b>03/11/2026</b> (30 dias após o 1º turno; candidatos em 2º turno têm prazo posterior). Os valores aqui vêm da versão <b>parcial</b> divulgada pelo TSE (04/10/2026) e <b>ainda sofrerão alterações</b> — inclusive após o julgamento das contas pela Justiça Eleitoral.</div>
 
   <section class="kpis" id="kpis"><div class="skl">Carregando prestação de contas…</div></section>
+
+  <div class="eyebrow">⭐ Destaques — o que salta aos olhos<span class="rule"></span></div>
+  <section class="dgrid" id="destaques"></section>
 
   <div class="eyebrow">Voto segue o dinheiro?<span class="rule"></span></div>
   <div class="card">
@@ -166,7 +177,22 @@ function init(){
   ["xmetric","xcargo","xeleitos"].forEach(id=>document.getElementById(id).addEventListener("change",drawScatter));
   document.getElementById("plcargo").addEventListener("change",drawPlacar);
   ["q","tcargo","tpartido","teleitos"].forEach(id=>document.getElementById(id).addEventListener("input",drawTable));
-  drawScatter(); drawPlacar(); drawTable();
+  drawDestaques(); drawScatter(); drawPlacar(); drawTable();
+}
+
+function drawDestaques(){
+  const card=(title,sub,items,mfn,msub,empty)=>`<div class="dcard"><h3>${title}</h3><div class="dsub">${sub}</div>${
+    items.length?items.map(r=>`<div class="di"><span class="dnm">${esc(r.nm)} <span class="party2">${esc(r.sg)}</span></span><span class="dm">${mfn(r)}<small>${msub(r)}</small></span></div>`).join(""):`<div class="dsub">${empty||"—"}</div>`}</div>`;
+  const elei=ROWS.filter(r=>r.eleito), nel=ROWS.filter(r=>!r.eleito);
+  const A=elei.filter(r=>r.desp>0).sort((a,b)=>a.desp-b.desp).slice(0,6);
+  const B=nel.slice().sort((a,b)=>b.desp-a.desp).slice(0,6);
+  const C=nel.filter(r=>r.seg).sort((a,b)=>b.seg-a.seg).slice(0,6);
+  const D=elei.filter(r=>r.seg).sort((a,b)=>a.seg-b.seg).slice(0,6);
+  document.getElementById("destaques").innerHTML=
+    card("💸 Eleitos que gastaram POUCO","Menor gasto declarado entre os eleitos — voto barato",A,r=>BRL(r.desp),r=>nf(r.votos)+" votos")+
+    card("🔥 Gastaram MUITO e NÃO elegeram","Maior gasto entre os não eleitos — dinheiro que não virou voto",B,r=>BRL(r.desp),r=>nf(r.votos)+" votos")+
+    card("🎯 Poucos seguidores, ELEITOS","Menos seguidores entre os eleitos — elegeu sem ser 'famoso'",D,r=>nf(r.seg)+" seg",r=>nf(r.votos)+" votos")+
+    card("📱 Muitos seguidores, NÃO eleitos","Mais seguidores entre os não eleitos — fama que não virou voto",C,r=>nf(r.seg)+" seg",r=>nf(r.votos)+" votos","Camada de seguidores dos não eleitos ainda não coletada (limite de buscas). Em breve.");
 }
 
 /* ====== scatter ====== */
