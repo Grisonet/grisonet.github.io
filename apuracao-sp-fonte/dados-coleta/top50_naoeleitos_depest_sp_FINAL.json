@@ -1,0 +1,502 @@
+[
+  {
+    "rank": 1,
+    "nome": "RENATO BATTISTA",
+    "partido": "MISSÃO",
+    "votos": 89489,
+    "pvap": "0,38",
+    "instagram": "@renatobattistambl",
+    "seguidores_ig": 453000,
+    "confianca": "alta"
+  },
+  {
+    "rank": 2,
+    "nome": "EDSON GIRIBONI",
+    "partido": "UNIÃO",
+    "votos": 73263,
+    "pvap": "0,31",
+    "instagram": "@edsongiriboni",
+    "seguidores_ig": 25600,
+    "confianca": "alta"
+  },
+  {
+    "rank": 3,
+    "nome": "ALEXANDRE LEITE",
+    "partido": "UNIÃO",
+    "votos": 72515,
+    "pvap": "0,31",
+    "instagram": "@alexandreleite.sp",
+    "seguidores_ig": 28000,
+    "confianca": "alta"
+  },
+  {
+    "rank": 4,
+    "nome": "ISADORA BRIZOLA",
+    "partido": "PDT",
+    "votos": 72280,
+    "pvap": "0,31",
+    "instagram": "@isadorabrizola_",
+    "seguidores_ig": 258000,
+    "confianca": "alta"
+  },
+  {
+    "rank": 5,
+    "nome": "RITA PASSOS",
+    "partido": "PSD",
+    "votos": 71917,
+    "pvap": "0,31",
+    "instagram": "@ritapassos",
+    "seguidores_ig": 26900,
+    "confianca": "alta"
+  },
+  {
+    "rank": 6,
+    "nome": "PR ANDRE BUENO",
+    "partido": "MDB",
+    "votos": 71664,
+    "pvap": "0,31",
+    "instagram": "@andrebuenooficial",
+    "seguidores_ig": 82500,
+    "confianca": "alta"
+  },
+  {
+    "rank": 7,
+    "nome": "BETH SAHAO",
+    "partido": "PT",
+    "votos": 66572,
+    "pvap": "0,29",
+    "instagram": "@bethsahao",
+    "seguidores_ig": 36400,
+    "confianca": "alta"
+  },
+  {
+    "rank": 8,
+    "nome": "RAFA ZIMBALDI",
+    "partido": "UNIÃO",
+    "votos": 66425,
+    "pvap": "0,28",
+    "instagram": "@rafazimbaldi",
+    "seguidores_ig": 41500,
+    "confianca": "alta"
+  },
+  {
+    "rank": 9,
+    "nome": "MARCELLO BARBOSA",
+    "partido": "REPUBLICANOS",
+    "votos": 66112,
+    "pvap": "0,28",
+    "instagram": "@omarcellobarbosa",
+    "seguidores_ig": 40100,
+    "confianca": "alta"
+  },
+  {
+    "rank": 10,
+    "nome": "GERSON PIRES",
+    "partido": "NOVO",
+    "votos": 66049,
+    "pvap": "0,28",
+    "instagram": "@gersonpires",
+    "seguidores_ig": 73500,
+    "confianca": "alta"
+  },
+  {
+    "rank": 11,
+    "nome": "WILLIAN SOUZA",
+    "partido": "PT",
+    "votos": 65644,
+    "pvap": "0,28",
+    "instagram": "@williansouzasumare",
+    "seguidores_ig": 35900,
+    "confianca": "alta"
+  },
+  {
+    "rank": 12,
+    "nome": "DILADOR",
+    "partido": "PSD",
+    "votos": 65589,
+    "pvap": "0,28",
+    "instagram": "@diladoraracatuba",
+    "seguidores_ig": 14100,
+    "confianca": "alta"
+  },
+  {
+    "rank": 13,
+    "nome": "LEANDRO SOARES",
+    "partido": "PT",
+    "votos": 65559,
+    "pvap": "0,28",
+    "instagram": "@leandrosoares.sp",
+    "seguidores_ig": 27000,
+    "confianca": "alta"
+  },
+  {
+    "rank": 14,
+    "nome": "DR. EDUARDO NOBREGA",
+    "partido": "MDB",
+    "votos": 65318,
+    "pvap": "0,28",
+    "instagram": "@dreduardonobrega",
+    "seguidores_ig": 32100,
+    "confianca": "alta"
+  },
+  {
+    "rank": 15,
+    "nome": "MARIA LÚCIA AMARY",
+    "partido": "PSD",
+    "votos": 64839,
+    "pvap": "0,28",
+    "instagram": "@marialuciaamary",
+    "seguidores_ig": 30200,
+    "confianca": "alta"
+  },
+  {
+    "rank": 16,
+    "nome": "MAURICI",
+    "partido": "PT",
+    "votos": 64675,
+    "pvap": "0,28",
+    "instagram": "@deputadomaurici",
+    "seguidores_ig": 106000,
+    "confianca": "alta"
+  },
+  {
+    "rank": 17,
+    "nome": "PAULO CORREA JR",
+    "partido": "REPUBLICANOS",
+    "votos": 64402,
+    "pvap": "0,28",
+    "instagram": "@dep_paulocorreajr",
+    "seguidores_ig": 52100,
+    "confianca": "alta"
+  },
+  {
+    "rank": 18,
+    "nome": "JORGE WILSON XERIFE CONSUMIDOR",
+    "partido": "REPUBLICANOS",
+    "votos": 61708,
+    "pvap": "0,26",
+    "instagram": "@xerifedoconsumidor",
+    "seguidores_ig": 1900000,
+    "confianca": "alta"
+  },
+  {
+    "rank": 19,
+    "nome": "CARLO CAUTI",
+    "partido": "NOVO",
+    "votos": 61461,
+    "pvap": "0,26",
+    "instagram": "@carlo_cauti",
+    "seguidores_ig": 69200,
+    "confianca": "alta"
+  },
+  {
+    "rank": 20,
+    "nome": "GOULART",
+    "partido": "PSD",
+    "votos": 61348,
+    "pvap": "0,26",
+    "instagram": "@goulart_oficial",
+    "seguidores_ig": 16100,
+    "confianca": "alta"
+  },
+  {
+    "rank": 21,
+    "nome": "THALES GABRIEL",
+    "partido": "PSD",
+    "votos": 60619,
+    "pvap": "0,26",
+    "instagram": "@thalesgabrielsp",
+    "seguidores_ig": 28500,
+    "confianca": "alta"
+  },
+  {
+    "rank": 22,
+    "nome": "JORGE DO CARMO",
+    "partido": "PT",
+    "votos": 60607,
+    "pvap": "0,26",
+    "instagram": "@depdrjorgedocarmo",
+    "seguidores_ig": null,
+    "confianca": "média"
+  },
+  {
+    "rank": 23,
+    "nome": "RUI ALVES",
+    "partido": "REPUBLICANOS",
+    "votos": 60544,
+    "pvap": "0,26",
+    "instagram": "@ruialves10oficial",
+    "seguidores_ig": 29100,
+    "confianca": "alta"
+  },
+  {
+    "rank": 24,
+    "nome": "MARCOS ZERBINI",
+    "partido": "MDB",
+    "votos": 59869,
+    "pvap": "0,26",
+    "instagram": "@marcos.zerbini",
+    "seguidores_ig": 26800,
+    "confianca": "alta"
+  },
+  {
+    "rank": 25,
+    "nome": "PAULO KOGOS",
+    "partido": "PL",
+    "votos": 59545,
+    "pvap": "0,26",
+    "instagram": "@opropriokogos",
+    "seguidores_ig": 113000,
+    "confianca": "alta"
+  },
+  {
+    "rank": 26,
+    "nome": "FELIPE FRANCO",
+    "partido": "UNIÃO",
+    "votos": 59518,
+    "pvap": "0,26",
+    "instagram": "@fefrancooficial",
+    "seguidores_ig": 3900000,
+    "confianca": "alta"
+  },
+  {
+    "rank": 27,
+    "nome": "JOSA",
+    "partido": "PT",
+    "votos": 59381,
+    "pvap": "0,25",
+    "instagram": "@josaqueirozpt",
+    "seguidores_ig": 15100,
+    "confianca": "alta"
+  },
+  {
+    "rank": 28,
+    "nome": "GEORGE HATO",
+    "partido": "MDB",
+    "votos": 59377,
+    "pvap": "0,25",
+    "instagram": "@georgehato15",
+    "seguidores_ig": 35800,
+    "confianca": "alta"
+  },
+  {
+    "rank": 29,
+    "nome": "SIMÃO PEDRO",
+    "partido": "PT",
+    "votos": 59185,
+    "pvap": "0,25",
+    "instagram": "@simaopedrochiovetti",
+    "seguidores_ig": 141000,
+    "confianca": "alta"
+  },
+  {
+    "rank": 30,
+    "nome": "PUGINA",
+    "partido": "PL",
+    "votos": 58337,
+    "pvap": "0,25",
+    "instagram": "@eupugina",
+    "seguidores_ig": 79200,
+    "confianca": "alta"
+  },
+  {
+    "rank": 31,
+    "nome": "DR RAFU",
+    "partido": "PP",
+    "votos": 56412,
+    "pvap": "0,24",
+    "instagram": "@drrafujr",
+    "seguidores_ig": 33400,
+    "confianca": "alta"
+  },
+  {
+    "rank": 32,
+    "nome": "DR. ISAEL",
+    "partido": "PL",
+    "votos": 55169,
+    "pvap": "0,24",
+    "instagram": "@drisaeldomingues",
+    "seguidores_ig": 26000,
+    "confianca": "alta"
+  },
+  {
+    "rank": 33,
+    "nome": "EDNA MACEDO",
+    "partido": "REPUBLICANOS",
+    "votos": 55086,
+    "pvap": "0,24",
+    "instagram": "@ednamacedo.oficial",
+    "seguidores_ig": 70700,
+    "confianca": "alta"
+  },
+  {
+    "rank": 34,
+    "nome": "DANIEL SOARES",
+    "partido": "UNIÃO",
+    "votos": 53812,
+    "pvap": "0,23",
+    "instagram": "@danielbrsoares",
+    "seguidores_ig": 26300,
+    "confianca": "alta"
+  },
+  {
+    "rank": 35,
+    "nome": "LECI BRANDÃO",
+    "partido": "PCDOB",
+    "votos": 53149,
+    "pvap": "0,23",
+    "instagram": "@deputadalecibrandao",
+    "seguidores_ig": 103000,
+    "confianca": "alta"
+  },
+  {
+    "rank": 36,
+    "nome": "CLAU CAMARGO",
+    "partido": "PSD",
+    "votos": 53119,
+    "pvap": "0,23",
+    "instagram": "@claucamargom",
+    "seguidores_ig": 21400,
+    "confianca": "alta"
+  },
+  {
+    "rank": 37,
+    "nome": "LUCAS FLORES",
+    "partido": "PL",
+    "votos": 52029,
+    "pvap": "0,22",
+    "instagram": "@eu.lucasflores",
+    "seguidores_ig": 16200,
+    "confianca": "alta"
+  },
+  {
+    "rank": 38,
+    "nome": "VALERIA BOLSONARO",
+    "partido": "PL",
+    "votos": 51274,
+    "pvap": "0,22",
+    "instagram": "@bolsonarovaleria",
+    "seguidores_ig": 129000,
+    "confianca": "alta"
+  },
+  {
+    "rank": 39,
+    "nome": "IVAN SILVA",
+    "partido": "PODE",
+    "votos": 48389,
+    "pvap": "0,21",
+    "instagram": "@ivansilvavereador",
+    "seguidores_ig": 20700,
+    "confianca": "alta"
+  },
+  {
+    "rank": 40,
+    "nome": "MARA GABRILLI",
+    "partido": "PSD",
+    "votos": 48372,
+    "pvap": "0,21",
+    "instagram": "@maragabrilli",
+    "seguidores_ig": 152000,
+    "confianca": "alta"
+  },
+  {
+    "rank": 41,
+    "nome": "JULINHO FUZARI",
+    "partido": "REPUBLICANOS",
+    "votos": 47626,
+    "pvap": "0,20",
+    "instagram": "@julinho.fuzari",
+    "seguidores_ig": 28600,
+    "confianca": "alta"
+  },
+  {
+    "rank": 42,
+    "nome": "DRA. DAMARIS MOURA",
+    "partido": "PSDB",
+    "votos": 47079,
+    "pvap": "0,20",
+    "instagram": "@dradamarismoura",
+    "seguidores_ig": 75100,
+    "confianca": "alta"
+  },
+  {
+    "rank": 43,
+    "nome": "LAZARO BARROS",
+    "partido": "REPUBLICANOS",
+    "votos": 46821,
+    "pvap": "0,20",
+    "instagram": "@lazarobarrosoficial",
+    "seguidores_ig": 14900,
+    "confianca": "média"
+  },
+  {
+    "rank": 44,
+    "nome": "FERNANDA CURTI",
+    "partido": "PT",
+    "votos": 46626,
+    "pvap": "0,20",
+    "instagram": "@fecurti13",
+    "seguidores_ig": 69300,
+    "confianca": "alta"
+  },
+  {
+    "rank": 45,
+    "nome": "FRAN SILVA",
+    "partido": "PODE",
+    "votos": 46367,
+    "pvap": "0,20",
+    "instagram": "@fransilvasbc",
+    "seguidores_ig": 28600,
+    "confianca": "alta"
+  },
+  {
+    "rank": 46,
+    "nome": "DU CAZELLATO",
+    "partido": "PODE",
+    "votos": 45569,
+    "pvap": "0,20",
+    "instagram": "@du.cazellato",
+    "seguidores_ig": 26700,
+    "confianca": "média-alta"
+  },
+  {
+    "rank": 47,
+    "nome": "ORTIZ JÚNIOR",
+    "partido": "REPUBLICANOS",
+    "votos": 45009,
+    "pvap": "0,19",
+    "instagram": "@ortizjunior",
+    "seguidores_ig": 59700,
+    "confianca": "alta"
+  },
+  {
+    "rank": 48,
+    "nome": "SUÉLEI GONÇALVES",
+    "partido": "PL",
+    "votos": 44848,
+    "pvap": "0,19",
+    "instagram": "@sueleigoncalves",
+    "seguidores_ig": 11500,
+    "confianca": "alta"
+  },
+  {
+    "rank": 49,
+    "nome": "SANDRA SANTANA",
+    "partido": "MDB",
+    "votos": 44406,
+    "pvap": "0,19",
+    "instagram": "@spsandrasantana",
+    "seguidores_ig": 31400,
+    "confianca": "alta"
+  },
+  {
+    "rank": 50,
+    "nome": "ABIDAN HENRIQUE",
+    "partido": "PSB",
+    "votos": 43620,
+    "pvap": "0,19",
+    "instagram": "@abidanhenrique",
+    "seguidores_ig": 57000,
+    "confianca": "alta"
+  }
+]
