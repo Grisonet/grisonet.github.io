@@ -1,0 +1,10 @@
+# macOS
+.DS_Store
+._*
+
+# Supabase CLI (cache local)
+supabase/.temp/
+supabase/.branches/
+
+# Dados brutos locais (não publicar no GH Pages)
+CaboSamuel_*.csv
