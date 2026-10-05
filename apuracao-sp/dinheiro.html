@@ -96,6 +96,7 @@
         <option value="imp_meta" selected>Impulsionamento na Meta</option>
         <option value="fefc">Fundo Eleitoral (FEFC) recebido</option>
         <option value="publico">Dinheiro público (FEFC + Fundo Partidário)</option>
+        <option value="seg">Seguidores no Instagram (só eleitos)</option>
       </select></label>
       <label><select id="xcargo"><option value="">Federal + Estadual</option><option value="DF">Só Federal</option><option value="DE">Só Estadual</option></select></label>
       <label class="chk"><input type="checkbox" id="xeleitos"> só eleitos</label>
@@ -127,7 +128,7 @@
       <a class="wabtn" href="https://wa.me/551132807177" target="_blank" rel="noopener">💬 WhatsApp Griso — informações</a>
       <svg class="grlogo grlogo-foot" role="img" aria-label="GR Data"><use href="#grlogo"/></svg>
     </div>
-    <div>Fontes: <b>TSE</b> — resultados oficiais + prestação de contas eleitorais 2026 (dados abertos, versão de 04/10, <b>parcial</b>; as contas finais têm prazo posterior). "Impulsionamento na Meta" = despesas na categoria <i>Impulsionamento de Conteúdos</i> pagas a Facebook/DLocal/EBANX. Valores de despesa <b>contratada</b>. Projeto independente, sem vínculo com a Justiça Eleitoral.</div>
+    <div>Fontes: <b>TSE</b> — resultados oficiais + prestação de contas eleitorais 2026 (dados abertos, versão de 04/10, <b>parcial</b>; as contas finais têm prazo posterior). "Impulsionamento na Meta" = despesas na categoria <i>Impulsionamento de Conteúdos</i> pagas a Facebook/DLocal/EBANX. Valores de despesa <b>contratada</b>. <b>Seguidores no Instagram</b>: coleta aproximada via web (out/2026), disponível para <b>116 dos 164 eleitos</b> — valores arredondados e alguns perfis não localizados; não é dado do TSE (o TSE registra só o link da rede, não o nº). Projeto independente, sem vínculo com a Justiça Eleitoral.</div>
   </footer>
 </main>
 <div class="tip" id="tip"></div>
@@ -139,7 +140,8 @@ const BRLk=n=>{n=n||0;return n>=1e6?"R$ "+(n/1e6).toFixed(1).replace(".",",")+" 
 const nf=n=>Number(n||0).toLocaleString("pt-BR");
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 const norm=s=>String(s==null?"":s).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
-const XLAB={desp:"Gasto total",imp_meta:"Impulsionamento na Meta",fefc:"Fundo Eleitoral (FEFC)",publico:"Dinheiro público"};
+const XLAB={desp:"Gasto total",imp_meta:"Impulsionamento na Meta",fefc:"Fundo Eleitoral (FEFC)",publico:"Dinheiro público",seg:"Seguidores no Instagram"};
+const fmtM=(m,v)=>m==="seg"?nf(v)+" seguidores":BRL(v);
 let DATA=null, ROWS=[];
 
 fetch("financeiro-sp.json?t="+Date.now()).then(r=>r.json()).then(d=>{DATA=d;ROWS=d.cand;init();})
@@ -176,11 +178,11 @@ function drawScatter(){
   g.append("g").attr("class","grid").selectAll("line").data(y.ticks(5)).join("line").attr("x1",M.l).attr("x2",W-M.r).attr("y1",d=>y(d)).attr("y2",d=>y(d));
   g.append("g").attr("class","axis").attr("transform",`translate(0,${H-M.b})`).call(d3.axisBottom(x).ticks(6,"~s"));
   g.append("g").attr("class","axis").attr("transform",`translate(${M.l},0)`).call(d3.axisLeft(y).ticks(5,"~s"));
-  svg.append("text").attr("x",(W)/2).attr("y",H-6).attr("text-anchor","middle").attr("fill","var(--graphite)").style("font-size","12px").text(XLAB[m]+" (R$, log)");
+  svg.append("text").attr("x",(W)/2).attr("y",H-6).attr("text-anchor","middle").attr("fill","var(--graphite)").style("font-size","12px").text(XLAB[m]+(m==="seg"?" (log)":" (R$, log)"));
   svg.append("text").attr("transform","rotate(-90)").attr("x",-(H/2)).attr("y",16).attr("text-anchor","middle").attr("fill","var(--graphite)").style("font-size","12px").text("Votos (log)");
   g.selectAll("circle").data(pts).join("circle").attr("cx",d=>x(d[m])).attr("cy",d=>y(d.votos)).attr("r",d=>d.eleito?4.5:3)
     .attr("fill",d=>d.eleito?"var(--pos)":"#9aa3b2").attr("opacity",d=>d.eleito?.9:.5).attr("stroke",d=>d.eleito?"#0b7a3b":"none").attr("stroke-width",.5)
-    .on("mousemove",(e,d)=>{tip.innerHTML=`<b>${esc(d.nm)}</b> ${esc(d.sg)}<br>${d.cargo==="DF"?"Fed.":"Est."} · ${nf(d.votos)} votos · ${d.eleito?'<span style="color:#7CFC9E">eleito</span>':'não eleito'}<br>${XLAB[m]}: ${BRL(d[m])}`;tip.style.left=Math.min(e.clientX+14,innerWidth-250)+"px";tip.style.top=(e.clientY+14)+"px";tip.style.opacity=1;})
+    .on("mousemove",(e,d)=>{tip.innerHTML=`<b>${esc(d.nm)}</b> ${esc(d.sg)}<br>${d.cargo==="DF"?"Fed.":"Est."} · ${nf(d.votos)} votos · ${d.eleito?'<span style="color:#7CFC9E">eleito</span>':'não eleito'}<br>${XLAB[m]}: ${fmtM(m,d[m])}`;tip.style.left=Math.min(e.clientX+14,innerWidth-250)+"px";tip.style.top=(e.clientY+14)+"px";tip.style.opacity=1;})
     .on("mouseleave",()=>tip.style.opacity=0);
   // correlação (log-log, Pearson)
   const lx=pts.map(d=>Math.log10(d[m])), ly=pts.map(d=>Math.log10(d.votos));
@@ -210,6 +212,7 @@ const COLS=[
   {k:"eleito",l:"Eleito",fmt:r=>r.eleito?'<b style="color:var(--pos)">sim</b>':'—'},
   {k:"desp",l:"Gasto total",fmt:r=>BRL(r.desp)},
   {k:"imp_meta",l:"Impuls. Meta",fmt:r=>BRL(r.imp_meta)},
+  {k:"seg",l:"Seguidores IG",fmt:r=>r.seg!=null?nf(r.seg):"—"},
   {k:"fefc",l:"Fundo Eleitoral",fmt:r=>BRL(r.fefc)},
   {k:"publico",l:"Dinheiro público",fmt:r=>BRL(r.publico)},
   {k:"cpv",l:"R$/voto",fmt:r=>r.cpv!=null?BRL(r.cpv):"—"},
