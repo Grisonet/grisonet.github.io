@@ -326,11 +326,12 @@ function markElected(cs,doc,r){
   const ap=toNum((doc.s||{}).pst), vv=toInt((doc.v||{}).vv)||cs.reduce((a,c)=>a+c._vap,0);
   const rem=ap>0? vv*(100-ap)/ap*1.3 : Infinity;   // estimativa conservadora dos votos que faltam
   const vagas=r.vagas||1;
+  const fin=ap>=100;             // 100% apurado: não é mais "projeção"
   if(r.tipo==="exec"){           // governador/presidente: eleito em 1º turno se >50% garantido
-    const L=cs[0]; if(L){ const cl=ap>0 && L._vap>0.5*(vv+rem); L._elt=cl||L.e==="s"; L._eltProj=cl&&L.e!=="s"; }
+    const L=cs[0]; if(L){ const cl=ap>0 && L._vap>0.5*(vv+rem); L._elt=cl||L.e==="s"; L._eltProj=cl&&L.e!=="s"&&!fin; }
   }else if(r.tipo==="plur"){     // senado: top-N com vantagem insuperável sobre o 1º de fora
     const cut=cs[vagas]?cs[vagas]._vap:0;
-    cs.forEach((c,i)=>{ const cl=i<vagas&&ap>0&&(c._vap-cut)>rem; c._elt=cl||c.e==="s"; c._eltProj=cl&&c.e!=="s"; });
+    cs.forEach((c,i)=>{ const cl=i<vagas&&ap>0&&(c._vap-cut)>rem; c._elt=cl||c.e==="s"; c._eltProj=cl&&c.e!=="s"&&!fin; });
   }
 }
 
@@ -347,7 +348,7 @@ function row(rk,c,rank,{lead=false,vaga=false,label=null}={}){
   const stx=c._eltProj?" (projeção)":((c.st&&c.st.toLowerCase()!=="eleito")?" · "+esc(c.st):"");
   const selo=elt?`<span class="selo${c._eltProj?' proj':''}">🏅 ELEITO${stx}</span>`:"";
   let seat="";
-  if(!elt&&c._seat) seat=c._contest?`<span class="selo disputa">🟨 vaga em disputa</span>`:`<span class="selo seat">🪑 vaga (proj.)</span>`;
+  if(!elt&&c._seat) seat=c._contest?`<span class="selo disputa">🟨 vaga em disputa</span>`:`<span class="selo seat">🪑 ${c._seatFinal?'eleito':'vaga (proj.)'}</span>`;
   else if(!elt&&c._contest) seat=`<span class="selo supl">🟨 1º suplente</span>`;
   const dnm=norm((label||c.nmu||c.nm||"")+" "+(c.sg||"")+" "+c.n);
   return `<div class="rr ${lead?'lead':''} ${on?'sel':''} ${elt?'eleito':''} ${c._seat?'seatwin':''} ${c._contest?'contest':''}" data-nm="${esc(dnm)}" data-sg="${esc((c._agr||c.sg||'').toLowerCase())}" style="--fill:${fill}">
@@ -409,9 +410,9 @@ function seatInfo(doc){
     cc=cc.filter(c=>c.v>=thr).sort((x,y)=>y.v-x.v);
     cc.slice(0,vag).forEach(c=>win.add(c.n));
     const lastIn=cc[vag-1], firstOut=cc[vag];
-    if(lastIn&&firstOut && (lastIn.v-firstOut.v) < (lastIn.v+firstOut.v)*rf){ contest.add(lastIn.n); contest.add(firstOut.n); }
+    if(ap<100 && lastIn&&firstOut && (lastIn.v-firstOut.v) < (lastIn.v+firstOut.v)*rf){ contest.add(lastIn.n); contest.add(firstOut.n); }
   });
-  return {win,contest};
+  return {win,contest,final:ap>=100};
 }
 function cadeirasBlock(doc,r){
   const S=seatsOf(doc); if(!S.qe) return "";
@@ -426,7 +427,7 @@ function depCard(r,doc){
   const cs=flat(doc),ap=pst(doc);
   const maxP=Math.max(0.0001,...cs.map(c=>c._pvap));
   cs.forEach(c=>c._wpct=Math.max(1.5,(c._pvap/maxP)*100));
-  const SI=seatInfo(doc); cs.forEach(c=>{c._seat=SI.win.has(c.n); c._contest=SI.contest.has(c.n);});
+  const SI=seatInfo(doc); cs.forEach(c=>{c._seat=SI.win.has(c.n); c._contest=SI.contest.has(c.n); c._seatFinal=SI.final;});
   const rankOf=new Map(); cs.forEach((c,i)=>rankOf.set(c.n,i+1));
   const sel=cs.filter(c=>isFav(fk(r.key,c.n)));
   const seus=sel.length
