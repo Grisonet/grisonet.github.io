@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aline × Cássio · Dobradinha PSD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root{
+    --canvas:#ffffff;--parchment:#f6f5f3;--pearl:#faf9f7;--ink:#080808;--graphite:#454545;--steel:#7a7a7a;
+    --hairline:#e5e5e5;--divider:#f0efed;--track:#f0efed;--primary:#FF4C00;--amber:#FFC200;
+    --aline:#16A34A;--cassio:#1E63C8;--nodata:#dcdce2;
+    color-scheme:light;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--parchment);color:var(--ink);font-family:"Inter",system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.011em;line-height:1.45;font-size:15px}
+  h1,h2,h3{margin:0;font-weight:600;letter-spacing:-.021em;text-wrap:balance}
+  .wrap{max-width:1180px;margin:0 auto;padding-inline:16px}
+  header{position:sticky;top:0;z-index:30;background:#080808;color:#fff;border-bottom:1px solid rgba(255,255,255,.08)}
+  .hd{display:flex;align-items:center;gap:11px;padding-block:11px;flex-wrap:wrap}
+  .grlogo{height:22px;width:auto;fill:#fff;display:block}
+  .sep{width:1px;height:20px;background:rgba(255,255,255,.22)}
+  .htitle{font-weight:600;font-size:clamp(13px,2.6vw,16px);white-space:nowrap}.htitle b{color:var(--primary)}
+  .live{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:#ccc;white-space:nowrap}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--primary)}
+  main{padding-block:12px 44px}
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--steel);margin:26px 2px 11px;display:flex;align-items:center;gap:10px}
+  .eyebrow .rule{flex:1;height:1px;background:var(--hairline)}
+  .nav{display:inline-flex;gap:14px;align-items:center;font-size:13px;margin-top:14px;flex-wrap:wrap}.nav a{color:var(--primary);text-decoration:none;font-weight:600}
+
+  .intro{background:var(--canvas);border:1px solid var(--hairline);border-radius:18px;padding:16px 18px;margin-top:14px;font-size:14px;color:var(--graphite);line-height:1.55}
+  .intro b{color:var(--ink);font-weight:600}
+  .tagA{color:var(--aline);font-weight:600}.tagC{color:var(--cassio);font-weight:600}
+
+  .scoreboard{display:grid;gap:12px;grid-template-columns:1fr 1fr;margin-bottom:14px}
+  .cc{display:flex;align-items:center;gap:12px;background:var(--canvas);border:1px solid var(--hairline);border-radius:16px;padding:13px 15px;min-width:0}
+  .ini{width:46px;height:46px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;color:#fff;background:var(--c)}
+  .cc .nm{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cc .meta{font-size:12.5px;color:var(--steel)}
+  .cc .big{font-size:22px;font-weight:600;letter-spacing:-.02em;margin-left:auto;text-align:right;color:var(--c)}
+  .cc .big small{display:block;font-size:11px;color:var(--steel);font-weight:400}
+
+  .toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .search{flex:1;min-width:170px;font:inherit;font-size:14px;border:1px solid var(--hairline);border-radius:9999px;padding:10px 16px;background:var(--canvas);color:var(--ink)}
+  .search:focus-visible{outline:none;border-color:var(--primary);box-shadow:0 0 0 2px rgba(255,76,0,.15)}
+  .btn{font:inherit;font-size:13px;font-weight:600;color:var(--graphite);background:var(--divider);border:0;border-radius:9999px;padding:9px 14px;cursor:pointer}
+  .seg{display:inline-flex;background:var(--divider);border-radius:9999px;padding:3px}
+  .seg button{font:inherit;font-size:12.5px;font-weight:600;color:var(--graphite);background:transparent;border:0;border-radius:9999px;padding:7px 13px;cursor:pointer}
+  .seg button.on{background:var(--canvas);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .seg button.on[data-k="a"]{color:var(--aline)}.seg button.on[data-k="c"]{color:var(--cassio)}
+  .chk{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--graphite);cursor:pointer}
+  .upd{font-size:12px;color:var(--steel);margin-left:auto;white-space:nowrap}
+  .mapcard{background:var(--canvas);border:1px solid var(--hairline);border-radius:18px;padding:10px;overflow:hidden}
+  svg.map{width:100%;height:auto;display:block;touch-action:none;cursor:grab}svg.map:active{cursor:grabbing}
+  path.mun{stroke:#fff;stroke-width:.4;vector-effect:non-scaling-stroke;transition:fill .4s ease}
+  path.mun.selected{stroke:var(--primary);stroke-width:2.2}
+  path.cityline{fill:#f3f2f0;stroke:var(--steel);stroke-width:1;vector-effect:non-scaling-stroke}
+  circle.loc{stroke:#fff;stroke-width:.5;vector-effect:non-scaling-stroke;cursor:pointer;transition:fill .3s}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--graphite);padding:8px 4px 2px}
+  .legend .sw{display:inline-flex;align-items:center;gap:6px}.legend .box{width:13px;height:13px;border-radius:4px}
+  .legend .cir{display:inline-flex;align-items:center;gap:5px}
+  .tip{position:fixed;pointer-events:none;background:#080808;color:#fff;font-size:12.5px;padding:8px 11px;border-radius:9px;z-index:60;opacity:0;transition:opacity .1s;max-width:250px;line-height:1.4}.tip b{font-weight:600}
+  .detail{background:var(--canvas);border:1px solid var(--hairline);border-radius:14px;padding:13px 16px;margin-top:12px;display:none}.detail.on{display:block}
+  .detail h3{font-size:16px;margin-bottom:4px}
+  .detail .row{display:flex;align-items:center;gap:10px;margin-top:8px}
+  .detail .bar{flex:1;height:10px;border-radius:9999px;background:var(--divider);overflow:hidden;min-width:60px}.detail .bar>i{display:block;height:100%}
+  .detail .lbl{font-size:13px;min-width:120px;display:flex;align-items:center;gap:7px}
+  .detail .v{font-weight:600;font-size:14px;min-width:92px;text-align:right}
+
+  .kpis{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:4px}
+  .kpi{background:var(--canvas);border:1px solid var(--hairline);border-radius:16px;padding:15px 16px}
+  .kpi .l{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--steel);font-weight:600}
+  .kpi .v{font-size:26px;font-weight:600;letter-spacing:-.025em;margin-top:5px}.kpi .v small{font-size:13px;color:var(--steel);font-weight:400}
+
+  .card{background:var(--canvas);border:1px solid var(--hairline);border-radius:18px;padding:18px 18px 14px;min-width:0}
+  .chead{display:flex;align-items:center;gap:10px;margin-bottom:6px}.chead h3{font-size:16px}
+  .csub{font-size:12px;color:var(--steel);margin-bottom:10px}
+  .rr{display:flex;align-items:center;gap:10px;padding:7px 2px;border-bottom:1px solid var(--divider)}.rr:last-child{border-bottom:0}
+  .rk{width:26px;text-align:center;font-size:12.5px;font-weight:600;color:var(--steel);flex:none}
+  .cmain{flex:1;min-width:0}
+  .nmrow{display:flex;align-items:center;gap:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}
+  .zbars{display:flex;height:8px;border-radius:9999px;overflow:hidden;margin-top:6px;background:var(--track)}.zbars i{display:block;height:100%}
+  .val{flex:none;text-align:right;min-width:120px;font-size:12px}
+  .val .a{color:var(--aline);font-weight:600}.val .c{color:var(--cassio);font-weight:600}
+
+  footer{color:var(--steel);font-size:12px;border-top:1px solid var(--hairline);padding-block:18px;margin-top:30px;line-height:1.7}footer b{color:var(--graphite)}
+  .contact{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-bottom:13px;margin-bottom:12px;border-bottom:1px solid var(--hairline)}
+  .wabtn{display:inline-flex;align-items:center;gap:8px;background:var(--primary);color:#080808;font-weight:600;font-size:14px;text-decoration:none;border-radius:9999px;padding:10px 18px}
+  .grlogo-foot{height:20px;fill:var(--graphite);margin-left:auto;opacity:.85}
+  .skl{color:var(--steel);font-size:13px;padding:10px 2px}
+  @media(max-width:560px){.scoreboard{grid-template-columns:1fr}.kpi .v{font-size:22px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" aria-hidden="true" style="position:absolute"><symbol id="grlogo" viewBox="0 0 1743.4 319.86"><g><g><path d="M657.86,248.74c-25.77-1.21-49.42-14.95-63.2-36.96l-13.25-23.52-33.24-6.42v-6.44l25.96-.06h122.08c22.88,0,45.6-8.76,61.21-23.13,17.43-16.02,28.35-39,28.35-64.54,0-28.82-13.9-54.38-35.37-70.35-14.6-10.88-34.59-17.32-54.19-17.32l-251.01.07v65.46s0,0,0,0v248.84h71.71l-1.04-95.41,18.71,29.87.24.39c24.2,38.63,65.72,62.8,110.97,64.98,2.18.12,4.39.17,6.59.17h125.26v-65.54h-116.06c-1.24,0-2.48-.02-3.72-.09ZM515.52,119.87v-41.93l-14.33-5.97v-6.44h177.27c5.96,0,11.45,1.91,15.92,5.16,1.17.84,2.27,1.79,3.29,2.8,4.92,4.92,7.96,11.72,7.96,19.21,0,15-12.16,27.17-27.17,27.17h-162.94Z"/><path d="M177.59,119.87h213.39v194.5h-72.97l2.3-95.41-18.71,29.87-.24.39c-25.39,40.53-69.84,65.15-117.66,65.15h-6.11v-.67l-.41.67h-17.73C72.64,314.37,0,243.99,0,157.18c0-43.41,18.16-82.7,47.17-111.14C76.18,17.59,116.05,0,159.45,0l225.16.07v65.46h-212.45c-50.62,0-91.65,41.04-91.65,91.65,0,25.31,10.26,48.22,26.85,64.81,16.58,16.58,39.49,26.84,64.8,26.84h2.34c27.2,0,52.48-14,66.92-37.05l13.79-23.66v.11l33.36-6.44v-6.44h-25.92.01s-85.07-.01-85.07-.01v-55.47Z"/></g><g opacity=".8"><path d="M900.33,1.34h114.23c94.46,0,139.27,64.14,139.27,158.16s-47.89,155.96-142.34,155.96h-111.15V1.34ZM1010.16,280.75c73.81,0,103.24-47.45,103.24-121.25s-26.36-123.89-100.17-123.89h-73.37v245.15h70.29Z"/><path d="M1330.43,283.83h-.44c-13.62,17.57-36.9,36.03-75.56,36.03-43.05,0-76.88-20.21-76.88-63.26,0-53.6,42.18-64.58,98.85-73.37,32.07-4.83,54.48-7.91,54.48-32.51s-18.45-39.98-50.96-39.98c-36.9,0-55.36,15.82-56.67,50.08h-34.27c1.32-43.93,30.31-76.88,90.5-76.88,48.33,0,83.91,18.01,83.91,72.05v108.08c0,18.45,4.39,28.56,24.16,24.16h1.32v25.92c-4.39,1.76-10.1,3.51-19.33,3.51-23.29,0-35.59-10.54-39.1-33.83ZM1331.31,231.55v-38.66c-11.86,7.47-32.51,13.18-51.84,16.69-35.59,6.59-64.14,12.74-64.14,46.13,0,30.31,23.72,36.9,47.01,36.9,47.45,0,68.97-34.71,68.97-61.07Z"/><path d="M1396.33,88.33h32.95V16.72h35.58v71.61h43.93v29h-43.93v147.62c0,15.82,8.35,21.09,22.85,21.09,7.03,0,14.94-1.76,18.89-3.08h1.32v30.75c-8.35,1.76-18.01,3.08-28.56,3.08-29,0-50.08-11.86-50.08-43.93V117.32h-32.95v-29Z"/><path d="M1684.97,283.83h-.44c-13.62,17.57-36.9,36.03-75.57,36.03-43.05,0-76.88-20.21-76.88-63.26,0-53.6,42.18-64.58,98.85-73.37,32.07-4.83,54.48-7.91,54.48-32.51s-18.45-39.98-50.96-39.98c-36.9,0-55.36,15.82-56.67,50.08h-34.27c1.32-43.93,30.31-76.88,90.5-76.88,48.33,0,83.91,18.01,83.91,72.05v108.08c0,18.45,4.39,28.56,24.16,24.16h1.32v25.92c-4.39,1.76-10.1,3.51-19.33,3.51-23.28,0-35.59-10.54-39.1-33.83ZM1685.85,231.55v-38.66c-11.86,7.47-32.51,13.18-51.84,16.69-35.59,6.59-64.14,12.74-64.14,46.13,0,30.31,23.72,36.9,47.01,36.9,47.45,0,68.97-34.71,68.97-61.07Z"/></g></g></symbol></svg>
+
+<header><div class="wrap hd">
+  <svg class="grlogo" role="img" aria-label="GR Data"><use href="#grlogo"/></svg>
+  <span class="sep"></span><span class="htitle"><b>Aline × Cássio</b> · Dobradinha PSD 2026</span>
+  <span class="live"><span class="dot"></span><span id="live">apuração 100%</span></span>
+</div></header>
+
+<main class="wrap">
+  <div class="nav">← <a href="./">painel geral de SP</a> <a href="mapa.html">Samuel × Dani</a></div>
+
+  <div class="intro">
+    <b>Aline Torres</b> (<span class="tagA">Dep. Estadual · PSD 55900</span>) e <b>Cássio Navarro</b>
+    (<span class="tagC">Dep. Federal · PSD 5550</span>) fizeram <b>dobradinha</b> — campanha casada estadual + federal.
+    Cada eleitor vota uma vez para cada cargo, então o mapa mostra <b>onde cada perna da chapa foi mais forte</b>.
+    No estado, Cássio puxou mais votos no interior; na capital, o reduto é da Aline.
+  </div>
+
+  <!-- ============ MAPA DO ESTADO ============ -->
+  <div class="eyebrow" style="margin-top:20px">🗺️ Votação no estado de SP — por cidade<span class="rule"></span></div>
+  <div class="scoreboard">
+    <div class="cc" style="--c:var(--aline)"><div class="ini">AT</div><div style="min-width:0"><div class="nm">Aline Torres</div><div class="meta">Estadual · 55900 · + votos em <b id="ca">—</b> cidades</div></div><div class="big" id="va">—<small>votos (estadual)</small></div></div>
+    <div class="cc" style="--c:var(--cassio)"><div class="ini">CN</div><div style="min-width:0"><div class="nm">Cássio Navarro</div><div class="meta">Federal · 5550 · + votos em <b id="cc">—</b> cidades</div></div><div class="big" id="vc">—<small>votos (federal)</small></div></div>
+  </div>
+  <div class="toolbar">
+    <input class="search" id="q" list="cities" placeholder="🔎 buscar cidade…" autocomplete="off">
+    <datalist id="cities"></datalist>
+    <div class="seg" id="mode1">
+      <button data-m="lead" class="on">Quem foi + forte</button>
+      <button data-m="a" data-k="a">Aline</button>
+      <button data-m="c" data-k="c">Cássio</button>
+    </div>
+    <button class="btn" id="reset">todo o estado</button>
+    <span class="upd" id="mapupd"></span>
+  </div>
+  <div class="mapcard"><svg id="stmap" class="map" viewBox="0 0 1000 820" role="img" aria-label="Mapa de SP"></svg></div>
+  <div class="legend" id="legend1"></div>
+  <div class="detail" id="detail"></div>
+
+  <!-- ============ SÃO PAULO CAPITAL — ZONAS E SEÇÕES ============ -->
+  <div class="eyebrow">📍 São Paulo (capital) — por zona e seção eleitoral<span class="rule"></span></div>
+  <section class="kpis" id="kpis"><div class="skl">Carregando…</div></section>
+
+  <div class="toolbar" style="margin-top:14px">
+    <div class="seg" id="mode2">
+      <button data-m="lead" class="on">Quem foi + forte no local</button>
+      <button data-m="a" data-k="a">Aline</button>
+      <button data-m="c" data-k="c">Cássio</button>
+    </div>
+    <label class="chk"><input type="checkbox" id="zlbl"> nº da zona</label>
+    <span class="upd">cada bolha = 1 local de votação · tamanho = nº de votos</span>
+  </div>
+  <div class="mapcard"><svg id="citymap" class="map" viewBox="0 0 1000 760" role="img" aria-label="Mapa de São Paulo capital"></svg></div>
+  <div class="legend" id="legend2"></div>
+
+  <div class="eyebrow">Zonas eleitorais da capital — ranking (57 zonas)<span class="rule"></span></div>
+  <div class="card"><div class="chead"><h3>🏙️ Votos por zona eleitoral</h3></div>
+    <div class="csub">Soma de todos os locais de cada zona · <span class="tagA">Aline</span> vs <span class="tagC">Cássio</span></div>
+    <div id="zrank"><div class="skl">—</div></div>
+  </div>
+
+  <footer>
+    <div class="contact">
+      <a class="wabtn" href="https://wa.me/551132807177" target="_blank" rel="noopener">💬 WhatsApp Griso — informações</a>
+      <svg class="grlogo grlogo-foot" role="img" aria-label="GR Data"><use href="#grlogo"/></svg>
+    </div>
+    <div>Fonte: <b>Tribunal Superior Eleitoral</b> — resultado por seção (dados abertos 2026) e apuração oficial por município.
+    Geolocalização dos locais de votação: cadastro TSE de locais (2024). Mapa da capital: <span id="ncap">—</span> locais em 57 zonas.
+    <b>Snapshot</b> da apuração concluída (100%). Projeto independente, sem vínculo com a Justiça Eleitoral.</div>
+  </footer>
+</main>
+<div class="tip" id="tip"></div>
+
+<script>
+const ALINE="#16A34A",CASSIO="#1E63C8",NODATA="#dcdce2";
+const fmtV=n=>Number(n||0).toLocaleString("pt-BR");
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+const norm=s=>String(s==null?"":s).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+const tip=document.getElementById("tip");
+function showtip(e,html){tip.innerHTML=html;tip.style.left=Math.min(e.clientX+14,innerWidth-260)+"px";tip.style.top=(e.clientY+14)+"px";tip.style.opacity=1;}
+function hidetip(){tip.style.opacity=0;}
+function segwire(id,fn){document.querySelectorAll("#"+id+" button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("#"+id+" button").forEach(x=>x.classList.remove("on"));b.classList.add("on");fn(b.dataset.m);}));}
+
+/* ============ MAPA DO ESTADO ============ */
+const W=1000,HH=820;
+let geo,data,byIbge={},path1,svg1,g1,gMun,zoom1,mode1="lead",selId=null;
+const leadOf=c=>(!c||(c.a===0&&c.c===0))?null:(c.a>c.c?"a":c.c>c.a?"c":null);
+function color1(c){
+  if(mode1==="lead"){const l=leadOf(c);return l==="a"?ALINE:l==="c"?CASSIO:NODATA;}
+  const key=mode1, v=c?c[key]:0, mx=data?data._mx[key]:1;
+  if(!v)return NODATA; const t=Math.sqrt(v/mx); const base=key==="a"?[22,163,74]:[30,99,200];
+  return `rgb(${mix(236,base[0],t)},${mix(236,base[1],t)},${mix(238,base[2],t)})`;
+}
+const mix=(a,b,t)=>Math.round(a+(b-a)*t);
+async function initState(){
+  geo=await fetch("sp-mun.geojson").then(r=>r.json());
+  const proj=d3.geoMercator().fitSize([W,HH],geo); path1=d3.geoPath(proj);
+  svg1=d3.select("#stmap"); g1=svg1.append("g"); gMun=g1.append("g");
+  gMun.selectAll("path").data(geo.features).join("path").attr("class","mun").attr("d",path1).attr("fill",NODATA)
+    .on("mousemove",hov1).on("mouseleave",hidetip).on("click",(e,d)=>selectCity(d.properties.id,true));
+  const dl=document.getElementById("cities");
+  geo.features.map(d=>d.properties.name).sort((a,b)=>a.localeCompare(b,"pt")).forEach(n=>{const o=document.createElement("option");o.value=n;dl.appendChild(o);});
+  zoom1=d3.zoom().scaleExtent([1,30]).on("zoom",e=>g1.attr("transform",e.transform)); svg1.call(zoom1);
+  document.getElementById("q").addEventListener("change",e=>{const f=geo.features.find(d=>norm(d.properties.name)===norm(e.target.value));if(f)selectCity(f.properties.id,true);});
+  document.getElementById("reset").addEventListener("click",()=>{selId=null;gMun.selectAll("path").classed("selected",false);document.getElementById("detail").className="detail";document.getElementById("q").value="";svg1.transition().duration(500).call(zoom1.transform,d3.zoomIdentity);});
+  segwire("mode1",m=>{mode1=m;paint1();});
+  data=await fetch("aline-cassio-estado.json").then(r=>r.json());
+  data._mx={a:Math.max(1,...data.cidades.map(c=>c.a)),c:Math.max(1,...data.cidades.map(c=>c.c))};
+  byIbge={}; data.cidades.forEach(c=>byIbge[c.ibge]=c);
+  let ca=0,cc=0; data.cidades.forEach(c=>{const l=leadOf(c);if(l==="a")ca++;else if(l==="c")cc++;});
+  document.getElementById("ca").textContent=ca; document.getElementById("cc").textContent=cc;
+  document.getElementById("va").innerHTML=fmtV(data.tot.a)+"<small>votos (estadual)</small>";
+  document.getElementById("vc").innerHTML=fmtV(data.tot.c)+"<small>votos (federal)</small>";
+  document.getElementById("mapupd").textContent="apuração: "+data.updated;
+  paint1();
+}
+function paint1(){
+  gMun.selectAll("path").attr("fill",d=>color1(byIbge[d.properties.id]));
+  const L=document.getElementById("legend1");
+  if(mode1==="lead")L.innerHTML=`<span class="sw"><span class="box" style="background:${ALINE}"></span> Aline + votos (estadual)</span><span class="sw"><span class="box" style="background:${CASSIO}"></span> Cássio + votos (federal)</span><span class="sw"><span class="box" style="background:${NODATA}"></span> empate / sem votos</span>`;
+  else{const nm=mode1==="a"?"Aline":"Cássio",col=mode1==="a"?ALINE:CASSIO;L.innerHTML=`<span class="sw">Intensidade de votos de <b style="color:${col}">&nbsp;${nm}</b> por cidade — mais escuro = mais votos</span>`;}
+  if(selId)detailCity(selId);
+}
+function hov1(e,d){const c=byIbge[d.properties.id];
+  showtip(e,`<b>${esc(d.properties.name)}</b>${c?`<br>🟢 Aline: ${fmtV(c.a)}<br>🔵 Cássio: ${fmtV(c.c)}`:"<br>sem dados"}`);}
+function selectCity(ibge,z){selId=ibge;gMun.selectAll("path").classed("selected",d=>d.properties.id===ibge);
+  const f=geo.features.find(d=>d.properties.id===ibge);
+  if(z&&f){const [[x0,y0],[x1,y1]]=path1.bounds(f);const k=Math.min(30,.7*Math.min(W/(x1-x0),HH/(y1-y0)));svg1.transition().duration(650).call(zoom1.transform,d3.zoomIdentity.translate(W/2-k*(x0+x1)/2,HH/2-k*(y0+y1)/2).scale(k));}
+  detailCity(ibge);}
+function detailCity(ibge){const f=geo.features.find(d=>d.properties.id===ibge);if(!f)return;const c=byIbge[ibge],el=document.getElementById("detail");
+  const tot=c?(c.a+c.c):0,pa=tot?c.a/tot*100:0,pc=tot?c.c/tot*100:0;
+  el.className="detail on";
+  el.innerHTML=`<h3>${esc(f.properties.name)}</h3>
+    <div class="row"><span class="lbl">🟢 Aline <small style="color:var(--steel)">(estadual)</small></span><span class="bar"><i style="width:${pa}%;background:${ALINE}"></i></span><span class="v" style="color:${ALINE}">${fmtV(c?c.a:0)}</span></div>
+    <div class="row"><span class="lbl">🔵 Cássio <small style="color:var(--steel)">(federal)</small></span><span class="bar"><i style="width:${pc}%;background:${CASSIO}"></i></span><span class="v" style="color:${CASSIO}">${fmtV(c?c.c:0)}</span></div>`;}
+
+/* ============ SÃO PAULO CAPITAL — ZONAS E SEÇÕES ============ */
+const CW=1000,CH=760;
+let sec,proj2,svg2,g2,gLoc,zoom2,mode2="lead",rmax=1;
+const leadLoc=l=>(l.a===0&&l.c===0)?null:(l.a>l.c?"a":l.c>l.a?"c":null);
+function colorLoc(l){ if(mode2==="lead"){const w=leadLoc(l);return w==="a"?ALINE:w==="c"?CASSIO:NODATA;} return mode2==="a"?ALINE:CASSIO;}
+const rScale=v=>v<=0?0:2+16*Math.sqrt(v/rmax);
+function rOf(l){const v=mode2==="a"?l.a:mode2==="c"?l.c:(l.a+l.c);return rScale(v);}
+async function initCity(){
+  sec=await fetch("aline-cassio-sp-secoes.json").then(r=>r.json());
+  const capgeo=await fetch("sp-capital.geojson").then(r=>r.json());
+  document.getElementById("ncap").textContent=sec.nlocais;
+  // KPIs
+  const capShare=(sec.tot.a/ (5915) *100);
+  const k=[
+    {l:"Aline na capital",v:fmtV(sec.tot.a),s:"votos (estadual)",col:ALINE},
+    {l:"Cássio na capital",v:fmtV(sec.tot.c),s:"votos (federal)",col:CASSIO},
+    {l:"Locais de votação",v:fmtV(sec.nlocais),s:sec.nzonas+" zonas eleitorais"},
+    {l:"Concentração da Aline",v:capShare.toFixed(0)+"<small>%</small>",s:"dos votos dela no estado vêm da capital"},
+  ];
+  document.getElementById("kpis").innerHTML=k.map(x=>`<div class="kpi"><div class="l">${x.l}</div><div class="v" ${x.col?`style="color:${x.col}"`:""}>${x.v}</div><div style="font-size:11.5px;color:var(--steel);margin-top:4px">${x.s}</div></div>`).join("");
+  // mapa de bolhas
+  proj2=d3.geoMercator().fitSize([CW,CH],capgeo); const path2=d3.geoPath(proj2);
+  svg2=d3.select("#citymap"); g2=svg2.append("g");
+  g2.append("path").attr("class","cityline").attr("d",path2(capgeo.features[0]));
+  gLoc=g2.append("g");
+  const pts=sec.locais.filter(l=>l.lat&&l.lon);
+  pts.forEach(l=>{const xy=proj2([l.lon,l.lat]);l._x=xy[0];l._y=xy[1];});
+  pts.sort((a,b)=>(b.a+b.c)-(a.a+a.c));  // grandes embaixo? desenha grandes primeiro
+  zoom2=d3.zoom().scaleExtent([1,20]).on("zoom",e=>g2.attr("transform",e.transform)); svg2.call(zoom2);
+  gLoc.selectAll("circle").data(pts).join("circle").attr("class","loc")
+    .attr("cx",d=>d._x).attr("cy",d=>d._y)
+    .on("mousemove",(e,d)=>{const w=leadLoc(d);showtip(e,`<b>${esc(d.nm||"Local "+d.lc)}</b><br><span style="color:#9fe6b8">zona ${d.z}</span> · ${esc(d.bairro||"")}<br>🟢 Aline: ${fmtV(d.a)}<br>🔵 Cássio: ${fmtV(d.c)}<br>${d.sec} seção(ões) · ${w==="a"?"Aline":w==="c"?"Cássio":"empate"} à frente`);})
+    .on("mouseleave",hidetip);
+  segwire("mode2",m=>{mode2=m;paint2();});
+  document.getElementById("zlbl").addEventListener("change",drawZlabels);
+  paint2(); renderZrank();
+}
+function paint2(){
+  rmax=Math.max(1,...sec.locais.map(l=>mode2==="a"?l.a:mode2==="c"?l.c:(l.a+l.c)));
+  gLoc.selectAll("circle").transition().duration(400)
+    .attr("r",d=>rOf(d)).attr("fill",d=>colorLoc(d)).attr("fill-opacity",mode2==="lead"?.82:.8);
+  const L=document.getElementById("legend2");
+  if(mode2==="lead")L.innerHTML=`<span class="cir"><span class="box" style="width:12px;height:12px;border-radius:50%;background:${ALINE}"></span> Aline à frente no local</span><span class="cir"><span class="box" style="width:12px;height:12px;border-radius:50%;background:${CASSIO}"></span> Cássio à frente</span><span style="color:var(--steel)">· tamanho = votos somados</span>`;
+  else{const nm=mode2==="a"?"Aline":"Cássio",col=mode2==="a"?ALINE:CASSIO;L.innerHTML=`<span class="cir"><span class="box" style="width:12px;height:12px;border-radius:50%;background:${col}"></span> votos de <b style="color:${col}">&nbsp;${nm}</b> por local — tamanho = nº de votos</span>`;}
+}
+let gZlab=null;
+function drawZlabels(){
+  if(gZlab){gZlab.remove();gZlab=null;}
+  if(!document.getElementById("zlbl").checked)return;
+  gZlab=g2.append("g").attr("pointer-events","none");
+  sec.zonas.filter(z=>z.lat&&z.lon).forEach(z=>{const xy=proj2([z.lon,z.lat]);
+    gZlab.append("text").attr("x",xy[0]).attr("y",xy[1]).attr("text-anchor","middle").attr("dy",".32em")
+      .attr("font-size","9").attr("font-weight","700").attr("fill","#080808").attr("stroke","#fff").attr("stroke-width","2.2").attr("paint-order","stroke").text(z.z);});
+}
+function renderZrank(){
+  const zs=sec.zonas.slice(0,20);
+  const mx=Math.max(1,...zs.map(z=>z.a+z.c));
+  document.getElementById("zrank").innerHTML=zs.map((z,i)=>{
+    const tot=z.a+z.c||1,pa=z.a/tot*100,pc=z.c/tot*100,w=(z.a+z.c)/mx*100;
+    return `<div class="rr"><span class="rk">${i+1}</span>
+      <div class="cmain"><div class="nmrow">Zona ${z.z} <span style="color:var(--steel);font-size:12px">· ${z.nl} locais</span></div>
+        <div class="zbars" style="width:${Math.max(18,w)}%"><i style="width:${pa}%;background:${ALINE}"></i><i style="width:${pc}%;background:${CASSIO}"></i></div></div>
+      <div class="val"><span class="a">${fmtV(z.a)}</span> · <span class="c">${fmtV(z.c)}</span></div></div>`;}).join("");
+}
+
+initState(); initCity();
+</script>
+</body>
+</html>
