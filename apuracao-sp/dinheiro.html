@@ -82,16 +82,36 @@
   .wabtn{display:inline-flex;align-items:center;gap:8px;background:var(--primary);color:#080808;font-weight:600;font-size:14px;text-decoration:none;border-radius:9999px;padding:10px 18px}
   .grlogo-foot{height:20px;fill:var(--graphite);margin-left:auto;opacity:.85}
   .skl{color:var(--steel);font-size:14px;padding:16px 2px}
-  /* filtros de perfil */
-  .pfgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(205px,1fr))}
-  .pf label{display:block;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--steel);font-weight:600;margin:0 6px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .pf select{width:100%;text-overflow:ellipsis}
-  .pf.on select{border-color:var(--primary);background:color-mix(in srgb,var(--primary) 7%,var(--canvas));font-weight:600}
-  .pfbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--divider)}
-  .pfsum{font-size:13.5px;color:var(--graphite);flex:1;min-width:240px}.pfsum b{color:var(--ink)}
-  .pfclear{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--primary);color:var(--primary);background:var(--canvas);border-radius:9999px;padding:7px 14px;cursor:pointer}
-  .pfclear:hover{background:var(--primary);color:#080808}
-  .pfnote{font-size:12px;color:var(--steel);margin-top:10px;line-height:1.5}
+  /* insights */
+  .ins{background:var(--canvas);border:1px solid var(--hairline);border-left:4px solid var(--primary);border-radius:14px;padding:12px 16px;margin:0 0 12px;font-size:14px;color:var(--graphite);line-height:1.55}
+  .ins b{color:var(--ink)}
+  .ins .tag{display:block;font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--primary);margin-bottom:3px}
+  .agrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(255px,1fr))}
+  .ach{background:#080808;color:#fff;border-radius:18px;padding:16px 18px}
+  .ach .big{font-size:34px;font-weight:700;letter-spacing:-.035em;color:var(--primary);line-height:1.05}
+  .ach .big small{display:block;font-size:15px;font-weight:600;color:#fff;letter-spacing:-.01em;line-height:1.3;margin-top:6px}
+  .ach p{margin:8px 0 0;font-size:13.5px;line-height:1.5;color:#d6d6d6}.ach p b{color:#fff}
+  /* cruzamentos */
+  .xlegend{font-size:12px;color:var(--steel);margin:0 2px 12px;display:flex;gap:16px;flex-wrap:wrap}
+  .xlegend i{display:inline-block;width:18px;height:6px;border-radius:3px;margin-right:6px;vertical-align:middle}
+  .xgrid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr))}
+  .xcard{background:var(--canvas);border:1px solid var(--hairline);border-radius:18px;padding:16px 18px;min-width:0}
+  .xcard h3{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--primary)}
+  .xcard .xi{font-size:14.5px;line-height:1.55;color:var(--graphite);margin:6px 0 12px}.xcard .xi b{color:var(--ink)}
+  .xscroll{overflow-x:auto}
+  .xt{width:100%;font-size:12.5px;border-collapse:collapse}
+  .xt th{position:static;background:none;cursor:default;font-size:10px;letter-spacing:.03em;text-transform:uppercase;color:var(--steel);font-weight:600;padding:4px 5px;border-bottom:1px solid var(--hairline);text-align:right;white-space:nowrap}
+  .xt th.l{text-align:left}
+  .xt td{padding:7px 5px;border-bottom:1px solid var(--divider);text-align:right;white-space:nowrap;vertical-align:middle}
+  .xt tr:last-child td{border-bottom:0}.xt tbody tr:hover{background:none}
+  .xt td.l{text-align:left;white-space:normal;min-width:104px;max-width:150px;font-weight:600}
+  .xt td.l small{display:block;font-weight:400;color:var(--steel);font-size:11px}
+  .xt td.rep{min-width:118px;max-width:none;width:34%}
+  .rep div{display:flex;align-items:center;gap:6px;height:11px}
+  .rep span{display:block;height:6px;border-radius:3px;min-width:2px}
+  .rep em{font-style:normal;font-size:10.5px;color:var(--steel)}
+  .rc span{background:#c9c7c2}.rp span{background:var(--graphite)}.re span{background:var(--primary)}.re em{color:var(--ink);font-weight:600}
+  .xnote{font-size:11.5px;color:var(--steel);margin-top:8px;line-height:1.45}
 </style>
 </head>
 <body>
@@ -108,19 +128,23 @@
 
   <div class="disclaimer">⚠️ <b>Dados parciais.</b> A prestação de contas final das Eleições 2026 tem prazo legal de entrega até <b>03/11/2026</b> (30 dias após o 1º turno; candidatos em 2º turno têm prazo posterior). Os valores aqui vêm da versão <b>parcial</b> divulgada pelo TSE (04/10/2026) e <b>ainda sofrerão alterações</b> — inclusive após o julgamento das contas pela Justiça Eleitoral.</div>
 
-  <div class="eyebrow">Filtrar por perfil do candidato<span class="rule"></span></div>
-  <div class="card">
-    <div class="pfgrid" id="pfgrid"></div>
-    <div class="pfbar"><span class="pfsum" id="pfsum"></span><button class="pfclear" id="pfclear" type="button" hidden>✕ Limpar filtros</button></div>
-    <div class="pfnote">Os filtros valem para a página inteira (números, destaques, gráfico, placar e tabela) e podem ser combinados; o número entre parênteses é quantos candidatos sobram em cada opção. <b>Identidade de gênero</b> e <b>orientação sexual</b> são autodeclaradas e só aparecem quando o candidato autorizou o TSE a divulgar — os demais ficam como "Não divulgado".</div>
-  </div>
+  <div class="eyebrow">💡 Principais achados<span class="rule"></span></div>
+  <section class="agrid" id="achados"></section>
 
+  <div class="eyebrow">Os números gerais<span class="rule"></span></div>
+  <div class="ins" id="ins-kpis"></div>
   <section class="kpis" id="kpis"><div class="skl">Carregando prestação de contas…</div></section>
 
   <div class="eyebrow">⭐ Destaques — o que salta aos olhos<span class="rule"></span></div>
+  <div class="ins" id="ins-dest"></div>
   <section class="dgrid" id="destaques"></section>
 
+  <div class="eyebrow">Quem ganha — cruzamentos de perfil × dinheiro × voto<span class="rule"></span></div>
+  <div class="xlegend"><span><i style="background:#c9c7c2"></i>% dos candidatos</span><span><i style="background:var(--graphite)"></i>% do dinheiro público (FEFC + Fundo Partidário)</span><span><i style="background:var(--primary)"></i>% dos eleitos</span></div>
+  <section class="xgrid" id="cruz"></section>
+
   <div class="eyebrow">Voto segue o dinheiro?<span class="rule"></span></div>
+  <div class="ins" id="ins-scatter"></div>
   <div class="card">
     <div class="chartbar">
       <label>Eixo X: <select id="xmetric">
@@ -140,6 +164,7 @@
   </div>
 
   <div class="eyebrow">🏆 Placar — Impulsionamento na Meta<span class="rule"></span></div>
+  <div class="ins" id="ins-placar"></div>
   <div class="card">
     <div class="chartbar"><label><select id="plcargo"><option value="">Federal + Estadual</option><option value="DF">Só Federal</option><option value="DE">Só Estadual</option></select></label>
       <span class="count" id="pltot"></span></div>
@@ -147,6 +172,7 @@
   </div>
 
   <div class="eyebrow">Tabela completa<span class="rule"></span></div>
+  <div class="ins" id="ins-tabela"></div>
   <div class="filters">
     <input class="search" id="q" placeholder="🔎 buscar candidato…" autocomplete="off">
     <select id="tcargo"><option value="">Todos os cargos</option><option value="DF">Dep. Federal</option><option value="DE">Dep. Estadual</option></select>
@@ -177,67 +203,115 @@ const XLAB={desp:"Gasto total",imp_meta:"Impulsionamento na Meta",fefc:"Fundo El
 const fmtM=(m,v)=>m==="seg"?nf(v)+" seguidores":BRL(v);
 let DATA=null, ROWS=[], VIEW=[];
 
-/* ====== filtros de perfil (valem para a página toda) ====== */
-const ND="Não divulgado", SI="Sem informação";
+/* ====== cruzamentos e insights (tudo calculado dos dados) ====== */
+const P1=x=>(100*x).toFixed(1).replace(".",",")+"%", P0=x=>Math.round(100*x)+"%";
+const BRLc=n=>"R$ "+(n||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+const X1=x=>x.toFixed(1).replace(".",",")+"×";
+const med=a=>{if(!a.length)return 0;a=a.slice().sort((x,y)=>x-y);const m=a.length>>1;return a.length%2?a[m]:(a[m-1]+a[m])/2;};
+const INS=h=>`<span class="tag">💡 Insight</span>${h}`;
+let TOT={};
+function grp(f,rows){
+  const m=new Map();
+  (rows||ROWS).forEach(r=>{const k=f(r);if(k==null)return;let g=m.get(k);if(!g){g={k,n:0,e:0,v:0,pub:0,desp:0};m.set(k,g);}
+    g.n++;g.e+=r.eleito?1:0;g.v+=r.votos||0;g.pub+=r.publico||0;g.desp+=r.desp||0;});
+  const a=[...m.values()];
+  a.forEach(g=>{g.pc=g.n/TOT.n;g.pe=g.e/TOT.e;g.pv=g.v/TOT.v;g.pp=g.pub/TOT.pub;g.suc=g.e/g.n;g.pubc=g.pub/g.n;g.cpv=g.v?g.desp/g.v:0;g.ppv=g.v?g.pub/g.v:0;});
+  a.by=Object.fromEntries(a.map(g=>[g.k,g]));
+  return a;
+}
+const sum=(gs)=>{const s={n:0,e:0,v:0,pub:0,desp:0};gs.forEach(g=>{if(g)for(const k in s)s[k]+=g[k];});s.pc=s.n/TOT.n;s.pe=s.e/TOT.e;s.pv=s.v/TOT.v;s.pp=s.pub/TOT.pub;s.suc=s.n?s.e/s.n:0;s.pubc=s.n?s.pub/s.n:0;s.cpv=s.v?s.desp/s.v:0;return s;};
 const AGES=["Até 29 anos","30 a 39 anos","40 a 49 anos","50 a 59 anos","60 a 69 anos","70 anos ou mais"];
 const AGE=a=>a==null?null:AGES[a<30?0:a<40?1:a<50?2:a<60?3:a<70?4:5];
 const PATS=["Não declarou bens","Até R$ 100 mil","R$ 100 mil a 500 mil","R$ 500 mil a 1 milhão","R$ 1 a 5 milhões","Acima de R$ 5 milhões"];
 const PAT=v=>PATS[v==null?0:v<1e5?1:v<5e5?2:v<1e6?3:v<5e6?4:5];
-const PF=[
-  {k:"cargo",l:"Cargo",f:r=>r.cargo==="DF"?"Deputado federal":"Deputado estadual"},
-  {k:"sg",l:"Partido",f:r=>r.sg,az:1},
-  {k:"res",l:"Resultado",f:r=>r.eleito?"Eleito":"Não eleito",ord:["Eleito","Não eleito"]},
-  {k:"gen",l:"Sexo",f:r=>r.gen},
-  {k:"idade",l:"Faixa etária",f:r=>AGE(r.idade),ord:AGES},
-  {k:"cor",l:"Cor/raça",f:r=>r.cor},
-  {k:"idg",l:"Identidade de gênero",f:r=>r.idg||ND},
-  {k:"ors",l:"Orientação sexual",f:r=>r.ors||ND},
-  {k:"inst",l:"Escolaridade",f:r=>r.inst,ord:["Lê e escreve","Ensino fundamental incompleto","Ensino fundamental completo","Ensino médio incompleto","Ensino médio completo","Superior incompleto","Superior completo"]},
-  {k:"ec",l:"Estado civil",f:r=>r.ec},
-  {k:"ocup",l:"Ocupação declarada",f:r=>r.ocup},
-  {k:"bens",l:"Patrimônio declarado",f:r=>PAT(r.bens),ord:PATS},
-  {k:"exp",l:"Experiência eleitoral",f:r=>r.nant==null?null:r.jaeleito?"Já foi eleito antes":r.nant?"Já disputou, nunca eleito":"Primeira candidatura",ord:["Primeira candidatura","Já disputou, nunca eleito","Já foi eleito antes"]},
-  {k:"reel22",l:"Disputou reeleição",f:r=>r.reel22==null?null:r.reel22?"Sim (eleito ao mesmo cargo em 2022)":"Não",ord:["Sim (eleito ao mesmo cargo em 2022)","Não"]},
-  {k:"ufn",l:"UF de nascimento",f:r=>r.ufn},
-  {k:"nac",l:"Nacionalidade",f:r=>r.nac},
-  {k:"quil",l:"Quilombola",f:r=>r.quil==null?null:r.quil?"Sim":"Não",ord:["Sim","Não"]},
-  {k:"fed",l:"Federação partidária",f:r=>r.fed||"Partido isolado"},
-  {k:"sitc",l:"Situação da candidatura",f:r=>r.sitc},
+const INSTS=["Superior completo","Superior incompleto","Ensino médio completo","Ensino médio incompleto","Ensino fundamental completo","Ensino fundamental incompleto","Lê e escreve"];
+const GC=r=>{const c={Branca:"branc",Parda:"pard",Preta:"pret"}[r.cor];if(!c)return null;return r.gen==="Feminino"?"Mulher "+c+"a":"Homem "+c+"o";};
+const ND="Não divulgou";
+const DIMS=[
+  {t:"Mandato",f:r=>r.reel22==null?null:r.reel22?"Disputou a reeleição":"Não tinha o mandato",ord:["Disputou a reeleição","Não tinha o mandato"],
+   ins:(g,G)=>{const a=G["Disputou a reeleição"],b=G["Não tinha o mandato"];return `Mandato é o maior ativo eleitoral: <b>${P0(a.suc)}</b> dos que disputaram a reeleição venceram, contra <b>${P1(b.suc)}</b> dos demais. Eles são só <b>${P1(a.pc)}</b> dos candidatos e ficaram com <b>${P0(a.pe)}</b> das cadeiras — e cada um recebeu, em média, <b>${BRLk(a.pubc)}</b> de dinheiro público, ${X1(a.pubc/b.pubc)} o que recebeu quem vinha de fora.`;},
+   note:"\"Disputou a reeleição\" = foi eleito para o mesmo cargo em 2022 (suplente que assumiu não entra)."},
+  {t:"Experiência eleitoral",f:r=>r.nant==null?null:r.jaeleito?"Já foi eleito antes":r.nant?"Já disputou, nunca eleito":"Primeira candidatura",ord:["Já foi eleito antes","Já disputou, nunca eleito","Primeira candidatura"],
+   ins:(g,G)=>{const v=G["Já foi eleito antes"],m=G["Já disputou, nunca eleito"],e=G["Primeira candidatura"];return `<b>${P0(v.pe)}</b> dos eleitos já tinham vencido alguma eleição antes. Estreante quase não entra: <b>${e.e}</b> de ${nf(e.n)} (${P1(e.suc)}). E insistir sem nunca ter ganho rende a mesma coisa: ${P1(m.suc)}. A porta de entrada para a Alesp e a Câmara é um mandato anterior, normalmente de vereador ou prefeito.`;}},
+  {t:"Patrimônio declarado",f:r=>PAT(r.bens),ord:PATS,
+   ins:(g,G)=>{const r=sum([G[PATS[4]],G[PATS[5]]]),z=G[PATS[0]],top=G[PATS[5]];return `Quem declarou mais de R$ 1 milhão em bens é <b>${P0(r.pc)}</b> dos candidatos e <b>${P0(r.pe)}</b> dos eleitos. Acima de R$ 5 milhões, um em cada ${Math.round(1/top.suc)} se elege. Na outra ponta, os ${nf(z.n)} que não declararam bem nenhum (${P0(z.pc)} do total) elegeram só <b>${z.e}</b> — e receberam ${BRLk(z.pubc)} de dinheiro público por cabeça, contra ${BRLk(r.pubc)} dos milionários.`;}},
+  {t:"Sexo",f:r=>r.gen,
+   ins:(g,G)=>{const f=G["Feminino"],m=G["Masculino"];return `A cota entrega candidatura e dinheiro, não cadeira: mulheres são <b>${P1(f.pc)}</b> dos candidatos e receberam <b>${P1(f.pp)}</b> do dinheiro público, mas ficaram com <b>${P1(f.pe)}</b> das cadeiras. A taxa de sucesso delas é ${P1(f.suc)}; a dos homens, ${P1(m.suc)}. Metade das candidatas teve menos de ${nf(Math.round(med(ROWS.filter(r=>r.gen==="Feminino").map(r=>r.votos))))} votos (homens: ${nf(Math.round(med(ROWS.filter(r=>r.gen==="Masculino").map(r=>r.votos))))}).`;}},
+  {t:"Cor/raça",f:r=>r.cor,
+   ins:(g,G)=>{const b=G["Branca"],pp=sum([G["Parda"],G["Preta"]]),pa=G["Parda"];return `Brancos são <b>${P0(b.pc)}</b> dos candidatos, mas <b>${P0(b.pe)}</b> dos eleitos, e ficaram com ${P0(b.pp)} do dinheiro público. Pretos e pardos somam <b>${P0(pp.pc)}</b> das candidaturas e <b>${P0(pp.pe)}</b> das cadeiras, recebendo por candidato ${P0(1-pp.pubc/b.pubc)} a menos (${BRLk(pp.pubc)} × ${BRLk(b.pubc)}). O pior desempenho é o dos pardos: ${P1(pa.suc)} de sucesso e ${BRLc(pa.cpv)} gastos por voto.`;}},
+  {t:"Sexo × cor/raça",f:GC,ord:["Homem branco","Mulher branca","Homem pardo","Mulher parda","Homem preto","Mulher preta"],
+   ins:(g,G)=>{const fp=G["Mulher preta"],hb=G["Homem branco"],hp=G["Homem preto"],fa=G["Mulher parda"],fb=G["Mulher branca"];return `Onde o dinheiro chegou, o voto veio: mulheres pretas receberam por candidata praticamente o mesmo que homens brancos (<b>${BRLk(fp.pubc)}</b> × ${BRLk(hb.pubc)}) e tiveram <b>${P1(fp.suc)}</b> de sucesso — acima das mulheres brancas (${P1(fb.suc)}) e ${X1(fp.suc/hp.suc)} os homens pretos (${P1(hp.suc)}), que receberam ${BRLk(hp.pubc)}. Mulheres pardas, as menos financiadas (${BRLk(fa.pubc)}), têm a pior taxa: ${P1(fa.suc)}. Homens brancos, ${P0(hb.pc)} dos candidatos, ocupam <b>${P0(hb.pe)}</b> das cadeiras.`;},
+   note:"Amarelos e indígenas ficam fora deste cruzamento por terem poucos candidatos."},
+  {t:"Faixa etária",f:r=>AGE(r.idade),ord:AGES,
+   ins:(g,G)=>{const j=G[AGES[0]],w=g.filter(x=>x.n>=30).sort((a,b)=>a.suc-b.suc)[0],bst=g.filter(x=>x.n>=30).sort((a,b)=>b.suc-a.suc)[0];return `Menos de 30 anos: só <b>${P1(j.pc)}</b> dos candidatos, mas <b>${P0(j.pv)}</b> de todos os votos, ao menor custo (${BRLc(j.cpv)} por voto, contra ${BRLc(TOT.desp/TOT.v)} na média) — efeito de poucos fenômenos de rede social, porque só ${j.e} se elegeram. A faixa que menos converte é a de <b>${w.k.toLowerCase()}</b> (${P1(w.suc)}); a que mais converte, ${bst.k.toLowerCase()} (${P1(bst.suc)}).`;},
+   note:"Idade na data da posse."},
+  {t:"Escolaridade",f:r=>r.inst,ord:INSTS,
+   ins:(g,G)=>{const s=G["Superior completo"],o=sum(g.filter(x=>x!==s));return `<b>${P0(s.pe)}</b> dos eleitos têm superior completo (são ${P0(s.pc)} dos candidatos). Sem diploma, a chance cai de ${P1(s.suc)} para <b>${P1(o.suc)}</b> — e o dinheiro acompanha: ${BRLk(s.pubc)} de recurso público por candidato com diploma, ${BRLk(o.pubc)} sem.`;}},
+  {t:"Orientação sexual (autodeclarada)",f:r=>r.ors||ND,ord:["Heterossexual","Bissexual","Gay","Lésbica","Pansexual",ND],
+   ins:(g,G)=>{const PL={Bissexual:"bissexuais",Gay:"gays","Lésbica":"lésbicas",Pansexual:"pansexuais"},pl=x=>PL[x.k]||x.k.toLowerCase(),l=g.filter(x=>x.k!=="Heterossexual"&&x.k!==ND),s=sum(l),w=l.filter(x=>x.e>0),z=l.filter(x=>x.e===0).sort((a,b)=>b.n-a.n),nd=G[ND],lst=a=>a.length>1?a.slice(0,-1).join(", ")+" e "+a[a.length-1]:a[0];return `<b>${nf(s.n)}</b> candidatos se declararam LGB+ e autorizaram a divulgação; <b>${s.e}</b> se elegeram${w.length?" — "+lst(w.map(x=>`${x.e} de ${x.n} ${pl(x)}`)):""}${z.length?"; nenhum dos "+lst(z.map(x=>`${x.n} ${pl(x)}`)):""}. O campo é opcional: <b>${P0(nd.pc)}</b> não divulgaram — e quem não divulgou teve sucesso menor (${P1(nd.suc)}) do que quem declarou qualquer orientação (${P1(sum(g.filter(x=>x.k!==ND)).suc)}).`;},
+   note:"Dado do DivulgaCandContas/TSE, publicado só com autorização do candidato. Grupos pequenos: leia como registro, não como tendência."},
+  {t:"Identidade de gênero (autodeclarada)",f:r=>r.idg||ND,ord:["Cisgênero","Transgênero","Prefere não informar",ND],
+   ins:(g,G)=>{const tr=G["Transgênero"],nd=G[ND];return `<b>${tr.n}</b> candidaturas trans declaradas, <b>${tr.e}</b> eleitas — e, sozinhas, somam <b>${P1(tr.pv)}</b> de todos os votos para deputado em SP com ${P1(tr.pp)} do dinheiro público: ${BRLc(tr.cpv)} gastos por voto, contra ${BRLc(TOT.desp/TOT.v)} na média geral. ${P0(nd.pc)} dos candidatos não divulgaram a identidade de gênero.`;},
+   note:"Dado do DivulgaCandContas/TSE, publicado só com autorização do candidato."},
+  {t:"Ocupação declarada",f:r=>r.ocup,top:8,
+   ins:(g,G)=>{const d=G["Deputado"],v=G["Vereador"],c=g.filter(x=>x.k!=="Outros").sort((a,b)=>b.n-a.n)[0];return `Política é profissão: quem se declara "deputado" elegeu <b>${d.e} de ${d.n}</b> (${P0(d.suc)}). Vereadores são ${P1(v.pc)} dos candidatos e levaram <b>${P0(v.pv)}</b> dos votos — a Câmara Municipal é o trampolim. A ocupação mais comum é ${c.k.toLowerCase()} (${nf(c.n)} candidatos), com ${P1(c.suc)} de sucesso, abaixo da média de ${P1(TOT.e/TOT.n)}.`;},
+   note:"As 8 ocupações que mais elegeram."},
+  {t:"Partido",f:r=>r.sg,top:10,sort:"v",
+   ins:(g,G)=>{const big=g.filter(x=>x.pv>=.02),a=big.slice().sort((x,y)=>x.ppv-y.ppv)[0],z=big.slice().sort((x,y)=>y.ppv-x.ppv)[0],s=big.slice().sort((x,y)=>y.suc-x.suc)[0];return `Partido não transforma dinheiro em voto na mesma taxa. Entre as siglas com pelo menos 2% dos votos, o <b>${esc(a.k)}</b> fez ${P1(a.pv)} dos votos com ${P1(a.pp)} do dinheiro público (<b>${BRLc(a.ppv)}</b> por voto); o <b>${esc(z.k)}</b> ficou com ${P1(z.pp)} do dinheiro e ${P1(z.pv)} dos votos (<b>${BRLc(z.ppv)}</b> por voto). A melhor taxa de sucesso é do ${esc(s.k)}: ${P1(s.suc)} dos candidatos eleitos.`;},
+   note:"Os 10 partidos com mais votos. \"Público/cand.\" e \"R$/voto\" somam federal e estadual."},
+  {t:"Naturalidade",f:r=>r.ufn==null?null:r.ufn==="SP"?"Nascido em SP":"Nascido em outro estado",
+   ins:(g,G)=>{const s=G["Nascido em SP"],o=G["Nascido em outro estado"];return `Nascer em SP ajuda: <b>${P1(s.suc)}</b> de sucesso contra <b>${P1(o.suc)}</b> dos nascidos em outros estados (${P0(o.pc)} dos candidatos), que ainda pagam mais por voto — ${BRLc(o.cpv)} × ${BRLc(s.cpv)} — recebendo quase o mesmo dinheiro público por candidato.`;}},
+  {t:"Cargo",f:r=>r.cargo==="DF"?"Deputado federal":"Deputado estadual",
+   ins:(g,G)=>{const f=G["Deputado federal"],e=G["Deputado estadual"];return `O voto para federal custa ${X1(f.cpv/e.cpv)} o do estadual: <b>${BRLc(f.cpv)}</b> contra <b>${BRLc(e.cpv)}</b>. Os federais são ${P0(f.pc)} dos candidatos e ficaram com <b>${P0(f.pp)}</b> do dinheiro público para buscar ${P0(f.pv)} dos votos.`;}},
 ];
-const PSEL={};
-function pfPass(r,skip){for(const k in PSEL){if(k!==skip&&r._p[k]!==PSEL[k])return false;}return true;}
-function renderPF(){
-  const g=document.getElementById("pfgrid");
-  if(!g.children.length){
-    g.innerHTML=PF.map(p=>`<div class="pf" data-k="${p.k}"><label for="pf-${p.k}">${p.l}</label><select id="pf-${p.k}"></select></div>`).join("");
-    PF.forEach(p=>document.getElementById("pf-"+p.k).addEventListener("change",e=>{if(e.target.value)PSEL[p.k]=e.target.value;else delete PSEL[p.k];applyAll();}));
-    document.getElementById("pfclear").addEventListener("click",()=>{for(const k in PSEL)delete PSEL[k];applyAll();});
-  }
-  PF.forEach(p=>{
-    const cnt=new Map();
-    ROWS.forEach(r=>{if(pfPass(r,p.k)){const v=r._p[p.k];cnt.set(v,(cnt.get(v)||0)+1);}});
-    if(PSEL[p.k]&&!cnt.has(PSEL[p.k]))cnt.set(PSEL[p.k],0);
-    let vals=[...cnt.keys()];
-    if(p.ord)vals.sort((a,b)=>(p.ord.indexOf(a)+1||99)-(p.ord.indexOf(b)+1||99));
-    else if(p.az)vals.sort((a,b)=>a.localeCompare(b,"pt"));
-    else vals.sort((a,b)=>(a===ND||a===SI)-(b===ND||b===SI)||cnt.get(b)-cnt.get(a)||a.localeCompare(b,"pt"));
-    const sel=document.getElementById("pf-"+p.k);
-    sel.innerHTML='<option value="">Todos</option>'+vals.map(v=>`<option value="${esc(v)}"${PSEL[p.k]===v?" selected":""}>${esc(v)} (${nf(cnt.get(v))})</option>`).join("");
-    sel.parentNode.classList.toggle("on",!!PSEL[p.k]);
-  });
-  const n=VIEW.length, el=VIEW.filter(r=>r.eleito).length, vt=VIEW.reduce((s,r)=>s+(r.votos||0),0), ds=VIEW.reduce((s,r)=>s+(r.desp||0),0);
-  const nfil=Object.keys(PSEL).length;
-  document.getElementById("pfsum").innerHTML=n?`<b>${nf(n)}</b> candidatos${nfil?" no filtro":""} · <b>${nf(el)}</b> eleitos (<b>${(100*el/n).toFixed(1).replace(".",",")}%</b> de sucesso) · <b>${nf(vt)}</b> votos · gasto médio <b>${BRLk(ds/n)}</b> · <b>${vt?BRL(ds/vt):"—"}</b> por voto`:"Nenhum candidato com essa combinação de filtros.";
-  document.getElementById("pfclear").hidden=!nfil;
+function drawCruz(){
+  document.getElementById("cruz").innerHTML=DIMS.map(d=>{
+    let g=grp(d.f); if(!g.length)return "";
+    let txt; try{txt=d.ins(g,g.by);}catch(e){const b=g.filter(x=>x.n>=20).sort((a,c)=>c.suc-a.suc)[0];txt=b?`Maior taxa de sucesso: <b>${esc(b.k)}</b>, com ${P1(b.suc)} (média geral ${P1(TOT.e/TOT.n)}).`:"";}
+    let rows=g.slice();
+    if(d.ord)rows.sort((a,b)=>(d.ord.indexOf(a.k)+1||99)-(d.ord.indexOf(b.k)+1||99));
+    else if(d.sort==="v")rows.sort((a,b)=>b.v-a.v);
+    else if(d.top)rows.sort((a,b)=>b.e-a.e||b.n-a.n);
+    else rows.sort((a,b)=>b.n-a.n);
+    if(d.top)rows=rows.slice(0,d.top);
+    const mx=Math.max(...rows.map(r=>Math.max(r.pc,r.pp,r.pe)))||1, w=x=>Math.max(1,Math.round(100*x/mx*0.72));
+    return `<div class="xcard"><h3>${d.t}</h3><div class="xi">${txt}</div><div class="xscroll"><table class="xt"><thead><tr><th class="l">Grupo</th><th class="l">Participação</th><th>Sucesso</th><th>Público/cand.</th><th>Gasto/voto</th></tr></thead><tbody>${
+      rows.map(r=>`<tr><td class="l">${esc(r.k)}<small>${nf(r.n)} cand. · ${nf(r.e)} eleito${r.e===1?"":"s"}</small></td>
+        <td class="l rep"><div class="rc"><span style="width:${w(r.pc)}%"></span><em>${P1(r.pc)}</em></div><div class="rp"><span style="width:${w(r.pp)}%"></span><em>${P1(r.pp)}</em></div><div class="re"><span style="width:${w(r.pe)}%"></span><em>${P1(r.pe)}</em></div></td>
+        <td><b>${P1(r.suc)}</b></td><td>${BRLk(r.pubc)}</td><td>${r.v?BRLc(r.cpv):"—"}</td></tr>`).join("")
+    }</tbody></table></div>${d.note?`<div class="xnote">${d.note}</div>`:""}</div>`;
+  }).join("");
 }
-function applyAll(){
-  VIEW=ROWS.filter(r=>pfPass(r));
-  const qs=new URLSearchParams(PSEL).toString();
-  history.replaceState(null,"",location.pathname+(qs?"?"+qs:""));
-  renderPF(); drawKpis(); drawDestaques(); drawScatter(); drawPlacar(); drawTable();
+function drawInsights(){
+  const el=ROWS.filter(r=>r.eleito), ne=ROWS.filter(r=>!r.eleito), S=(a,k)=>a.reduce((s,r)=>s+(r[k]||0),0);
+  const rec=S(ROWS,"rec"), zero=ROWS.filter(r=>!(r.desp>0)), byD=ROWS.slice().sort((a,b)=>(b.desp||0)-(a.desp||0)), top10=byD.slice(0,Math.round(ROWS.length/10));
+  const mE=med(el.map(r=>r.desp||0)), mN=med(ne.map(r=>r.desp||0)), cE=S(el,"desp")/S(el,"votos"), cN=S(ne,"desp")/S(ne,"votos");
+  const R=m=>{const p=ROWS.filter(r=>r.votos>0&&r[m]>0);return pearson(p.map(r=>Math.log10(r[m])),p.map(r=>Math.log10(r.votos)));};
+  const rD=R("desp"), rF=R("fefc"), rM=R("imp_meta"), rS=R("seg"), rB=R("bens");
+  const im=ROWS.filter(r=>r.imp_meta>0).sort((a,b)=>b.imp_meta-a.imp_meta), imE=im.filter(r=>r.eleito).length, t20=im.slice(0,20), big=im.filter(r=>r.imp_meta>=5e5);
+  const gM=grp(r=>r.reel22==null?null:r.reel22?"s":"n").by, gS=grp(r=>r.gen).by, gC=grp(r=>r.cor).by, rico=sum(grp(r=>r.bens>=1e6?"r":null));
+  const r2=x=>x.toFixed(2).replace(".",",");
+  const A=[
+    gM.s&&[P0(gM.s.suc),"dos que disputaram a reeleição venceram",`Entre quem não tinha o mandato, <b>${P1(gM.n.suc)}</b>. Ter a cadeira vale mais do que qualquer outra variável desta página.`],
+    [P0(S(ROWS,"publico")/rec),"da receita das campanhas é dinheiro público",`<b>${BRLk(S(ROWS,"publico"))}</b> de Fundo Eleitoral e Fundo Partidário, de ${BRLk(rec)} arrecadados. A campanha para deputado em SP é paga pelo contribuinte.`],
+    [Math.round(mE/mN)+"×","é quanto o eleito gastou a mais",`Gasto mediano de quem se elegeu: <b>${BRLk(mE)}</b>. De quem não se elegeu: <b>${BRLk(mN)}</b>.`],
+    [nf(zero.length),"candidatos sem gasto declarado — nenhum eleito",`São <b>${P0(zero.length/ROWS.length)}</b> das candidaturas. Sem dinheiro não houve um único caso de eleição.`],
+    [P0(rico.pe),"dos eleitos declararam mais de R$ 1 milhão em bens",`Eles são <b>${P0(rico.pc)}</b> dos candidatos. Patrimônio e cadeira andam juntos.`],
+    gS.Feminino&&[P1(gS.Feminino.pe),"das cadeiras ficaram com mulheres",`Elas eram <b>${P1(gS.Feminino.pc)}</b> das candidaturas e receberam <b>${P1(gS.Feminino.pp)}</b> do dinheiro público.`],
+    gC.Branca&&[P0(gC.Branca.pe),"dos eleitos são brancos",`Brancos eram <b>${P0(gC.Branca.pc)}</b> dos candidatos e ficaram com ${P0(gC.Branca.pp)} do dinheiro público.`],
+    ["r = "+r2(rS),"é a relação entre seguidores e votos",`Para gasto total é <b>${r2(rD)}</b>. Dinheiro explica o voto melhor do que fama no Instagram.`],
+  ].filter(Boolean);
+  document.getElementById("achados").innerHTML=A.map(a=>`<div class="ach"><div class="big">${a[0]} <small>${a[1]}</small></div><p>${a[2]}</p></div>`).join("");
+  document.getElementById("ins-kpis").innerHTML=INS(`De cada R$ 100 que entraram nas campanhas, <b>R$ ${Math.round(100*S(ROWS,"publico")/rec)}</b> vieram do Fundo Eleitoral ou do Fundo Partidário. O dinheiro é concentrado: os 10% que mais gastaram (${nf(top10.length)} candidatos) respondem por <b>${P0(S(top10,"desp")/S(ROWS,"desp"))}</b> de todo o gasto e ficaram com <b>${top10.filter(r=>r.eleito).length} das ${el.length} cadeiras</b>. Na outra ponta, ${nf(zero.length)} candidatos não declararam gasto nenhum e nenhum deles se elegeu.`);
+  document.getElementById("ins-dest").innerHTML=INS(`Os casos abaixo são exceções — a regra é outra. O eleito típico gastou <b>${BRLk(mE)}</b>; o não eleito típico, <b>${BRLk(mN)}</b>. Mas o voto do eleito sai mais barato: <b>${BRLc(cE)}</b> por voto, contra <b>${BRLc(cN)}</b> de quem perdeu. Dinheiro sozinho não compra voto: rende para quem já tem nome e base.`);
+  document.getElementById("ins-scatter").innerHTML=INS(`O que mais anda junto com o voto é o <b>gasto total</b> (r = ${r2(rD)}), seguido do <b>Fundo Eleitoral recebido</b> (${r2(rF)}) e do <b>impulsionamento na Meta</b> (${r2(rM)}). <b>Seguidores no Instagram</b> ficam bem atrás (${r2(rS)}) e <b>patrimônio declarado</b> também (${r2(rB)}): o que pesa é o dinheiro posto na campanha, não a fama nem a riqueza pessoal. Como o fundo é distribuído pelo partido, quem decide a aposta é a direção partidária, antes do eleitor.`);
+  document.getElementById("ins-placar").innerHTML=INS(`Impulsionar virou pré-requisito, não diferencial: <b>${imE} dos ${el.length} eleitos</b> pagaram anúncio na Meta, mas ${nf(im.length-imE)} candidatos também pagaram e perderam. No topo o retorno some: dos 20 que mais investiram, só <b>${t20.filter(r=>r.eleito).length}</b> se elegeram, e dos ${big.length} que puseram R$ 500 mil ou mais, <b>${big.filter(r=>!r.eleito).length}</b> ficaram de fora.`);
+  const lim=cg=>{const l=ROWS.filter(r=>r.cargo===cg),a=l.filter(r=>r.eleito).sort((x,y)=>x.votos-y.votos)[0],b=l.filter(r=>!r.eleito).sort((x,y)=>y.votos-x.votos)[0];return a&&b?`<b>${esc(a.nm)}</b> (${esc(a.sg)}) entrou com ${nf(a.votos)} votos, enquanto <b>${esc(b.nm)}</b> (${esc(b.sg)}) ficou de fora com ${nf(b.votos)}`:"";};
+  const byV=ROWS.slice().sort((a,b)=>b.votos-a.votos);
+  document.getElementById("ins-tabela").innerHTML=INS(`Voto próprio não basta — a cadeira depende da chapa. Para federal, ${lim("DF")}; para estadual, ${lim("DE")}. E o voto é muito concentrado: os 10 mais votados somam <b>${P0(S(byV.slice(0,10),"votos")/S(ROWS,"votos"))}</b> de todos os votos dados a deputados em SP. Clique no título de uma coluna para ordenar.`);
 }
 
-fetch("financeiro-sp.json?t="+Date.now()).then(r=>r.json()).then(d=>{DATA=d;ROWS=d.cand;ROWS.forEach(r=>{r._p={};PF.forEach(p=>{const v=p.f(r);r._p[p.k]=v==null||v===""?SI:String(v);});});init();})
+fetch("financeiro-sp.json?t="+Date.now()).then(r=>r.json()).then(d=>{DATA=d;ROWS=d.cand;VIEW=ROWS;const S=k=>ROWS.reduce((s,r)=>s+(r[k]||0),0);TOT={n:ROWS.length,e:ROWS.filter(r=>r.eleito).length,v:S("votos"),pub:S("publico"),desp:S("desp")};init();})
   .catch(e=>{document.getElementById("kpis").innerHTML='<div class="skl">Erro ao carregar dados.</div>';});
 
 function drawKpis(){
@@ -257,8 +331,7 @@ function init(){
   ["xmetric","xcargo","xeleitos"].forEach(id=>document.getElementById(id).addEventListener("change",drawScatter));
   document.getElementById("plcargo").addEventListener("change",drawPlacar);
   ["q","tcargo","tpartido","teleitos"].forEach(id=>document.getElementById(id).addEventListener("input",drawTable));
-  new URLSearchParams(location.search).forEach((v,k)=>{if(PF.some(p=>p.k===k)&&ROWS.some(r=>r._p[k]===v))PSEL[k]=v;});
-  applyAll();
+  drawKpis(); drawInsights(); drawCruz(); drawDestaques(); drawScatter(); drawPlacar(); drawTable();
 }
 
 function drawDestaques(){
@@ -273,7 +346,7 @@ function drawDestaques(){
     card("💸 Eleitos que gastaram POUCO","Menor gasto declarado entre os eleitos — voto barato",A,r=>BRL(r.desp),r=>nf(r.votos)+" votos")+
     card("🔥 Gastaram MUITO e NÃO elegeram","Maior gasto entre os não eleitos — dinheiro que não virou voto",B,r=>BRL(r.desp),r=>nf(r.votos)+" votos")+
     card("🎯 Poucos seguidores, ELEITOS","Menos seguidores entre os eleitos — elegeu sem ser 'famoso'",D,r=>nf(r.seg)+" seg",r=>nf(r.votos)+" votos")+
-    card("📱 Muitos seguidores, NÃO eleitos","Mais seguidores entre os não eleitos (amostra: os mais votados a dep. federal e estadual) — fama que não virou voto",C,r=>nf(r.seg)+" seg",r=>nf(r.votos)+" votos","Nenhum candidato com seguidores coletados neste filtro.");
+    card("📱 Muitos seguidores, NÃO eleitos","Mais seguidores entre os não eleitos (amostra: os mais votados a dep. federal e estadual) — fama que não virou voto",C,r=>nf(r.seg)+" seg",r=>nf(r.votos)+" votos","—");
 }
 
 /* ====== scatter ====== */

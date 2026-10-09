@@ -69,8 +69,10 @@ presidente.json` e dá `git push` a cada 3 min.
   - Join por `SQ_CANDIDATO` (= `sqcand` dos resultados).
 - **`proc_perfil.py`** — acrescenta ao `financeiro-sp.json` o **perfil** de cada candidato (sexo, idade, cor/raça,
   escolaridade, estado civil, ocupação, naturalidade, patrimônio, identidade de gênero, orientação sexual,
-  experiência eleitoral). Fontes e uso no cabeçalho do script; alimenta o painel "Filtrar por perfil" do
-  `dinheiro.html` (filtros combináveis e compartilháveis pela URL, ex. `dinheiro.html?gen=Feminino&res=Eleito`).
+  experiência eleitoral). Fontes e uso no cabeçalho do script; alimenta a seção "Quem ganha — cruzamentos de perfil × dinheiro × voto"
+  do `dinheiro.html` (14 cruzamentos, cada um com frase de insight calculada dos dados em `DIMS`/`drawCruz`;
+  os insights de cada seção e os "Principais achados" saem de `drawInsights`). Sem painel de filtros — o
+  usuário quer cruzamento com leitura pronta, não filtro.
   ⚠️ Rodar DEPOIS do `proc_financeiro.py` (que regrava o JSON) e recolocar `seg`.
 - **`eleitos_handles.tsv`** / **`neleitos_handles.tsv`** — sq, nome, cargo, votos, @instagram
   (links de rede social do TSE: `rede_social_candidato_2026.zip`; o TSE guarda só o LINK,
