@@ -67,6 +67,11 @@ presidente.json` e dá `git push` a cada 3 min.
   - Origem do recurso: `DS_FONTE_RECEITA` (FUNDO ESPECIAL=FEFC, FUNDO PARTIDARIO,
     OUTROS RECURSOS→próprio/pessoa física/coletivo). "Dinheiro público" = FEFC + Fundo Partidário.
   - Join por `SQ_CANDIDATO` (= `sqcand` dos resultados).
+- **`proc_perfil.py`** — acrescenta ao `financeiro-sp.json` o **perfil** de cada candidato (sexo, idade, cor/raça,
+  escolaridade, estado civil, ocupação, naturalidade, patrimônio, identidade de gênero, orientação sexual,
+  experiência eleitoral). Fontes e uso no cabeçalho do script; alimenta o painel "Filtrar por perfil" do
+  `dinheiro.html` (filtros combináveis e compartilháveis pela URL, ex. `dinheiro.html?gen=Feminino&res=Eleito`).
+  ⚠️ Rodar DEPOIS do `proc_financeiro.py` (que regrava o JSON) e recolocar `seg`.
 - **`eleitos_handles.tsv`** / **`neleitos_handles.tsv`** — sq, nome, cargo, votos, @instagram
   (links de rede social do TSE: `rede_social_candidato_2026.zip`; o TSE guarda só o LINK,
   não o nº de seguidores).

@@ -82,6 +82,16 @@
   .wabtn{display:inline-flex;align-items:center;gap:8px;background:var(--primary);color:#080808;font-weight:600;font-size:14px;text-decoration:none;border-radius:9999px;padding:10px 18px}
   .grlogo-foot{height:20px;fill:var(--graphite);margin-left:auto;opacity:.85}
   .skl{color:var(--steel);font-size:14px;padding:16px 2px}
+  /* filtros de perfil */
+  .pfgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(205px,1fr))}
+  .pf label{display:block;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--steel);font-weight:600;margin:0 6px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pf select{width:100%;text-overflow:ellipsis}
+  .pf.on select{border-color:var(--primary);background:color-mix(in srgb,var(--primary) 7%,var(--canvas));font-weight:600}
+  .pfbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--divider)}
+  .pfsum{font-size:13.5px;color:var(--graphite);flex:1;min-width:240px}.pfsum b{color:var(--ink)}
+  .pfclear{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--primary);color:var(--primary);background:var(--canvas);border-radius:9999px;padding:7px 14px;cursor:pointer}
+  .pfclear:hover{background:var(--primary);color:#080808}
+  .pfnote{font-size:12px;color:var(--steel);margin-top:10px;line-height:1.5}
 </style>
 </head>
 <body>
@@ -98,6 +108,13 @@
 
   <div class="disclaimer">⚠️ <b>Dados parciais.</b> A prestação de contas final das Eleições 2026 tem prazo legal de entrega até <b>03/11/2026</b> (30 dias após o 1º turno; candidatos em 2º turno têm prazo posterior). Os valores aqui vêm da versão <b>parcial</b> divulgada pelo TSE (04/10/2026) e <b>ainda sofrerão alterações</b> — inclusive após o julgamento das contas pela Justiça Eleitoral.</div>
 
+  <div class="eyebrow">Filtrar por perfil do candidato<span class="rule"></span></div>
+  <div class="card">
+    <div class="pfgrid" id="pfgrid"></div>
+    <div class="pfbar"><span class="pfsum" id="pfsum"></span><button class="pfclear" id="pfclear" type="button" hidden>✕ Limpar filtros</button></div>
+    <div class="pfnote">Os filtros valem para a página inteira (números, destaques, gráfico, placar e tabela) e podem ser combinados; o número entre parênteses é quantos candidatos sobram em cada opção. <b>Identidade de gênero</b> e <b>orientação sexual</b> são autodeclaradas e só aparecem quando o candidato autorizou o TSE a divulgar — os demais ficam como "Não divulgado".</div>
+  </div>
+
   <section class="kpis" id="kpis"><div class="skl">Carregando prestação de contas…</div></section>
 
   <div class="eyebrow">⭐ Destaques — o que salta aos olhos<span class="rule"></span></div>
@@ -112,6 +129,7 @@
         <option value="fefc">Fundo Eleitoral (FEFC) recebido</option>
         <option value="publico">Dinheiro público (FEFC + Fundo Partidário)</option>
         <option value="seg">Seguidores no Instagram (eleitos + não eleitos mais votados)</option>
+        <option value="bens">Patrimônio declarado</option>
       </select></label>
       <label><select id="xcargo"><option value="">Federal + Estadual</option><option value="DF">Só Federal</option><option value="DE">Só Estadual</option></select></label>
       <label class="chk"><input type="checkbox" id="xeleitos"> só eleitos</label>
@@ -143,7 +161,7 @@
       <a class="wabtn" href="https://wa.me/551132807177" target="_blank" rel="noopener">💬 WhatsApp Griso — informações</a>
       <svg class="grlogo grlogo-foot" role="img" aria-label="GR Data"><use href="#grlogo"/></svg>
     </div>
-    <div>Fontes: <b>TSE</b> — resultados oficiais + prestação de contas eleitorais 2026 (dados abertos, versão de 04/10, <b>parcial</b>; as contas finais têm prazo posterior). "Impulsionamento na Meta" = despesas na categoria <i>Impulsionamento de Conteúdos</i> pagas a Facebook/DLocal/EBANX. Valores de despesa <b>contratada</b>. <b>Seguidores no Instagram</b>: coleta aproximada via web (out/2026), disponível para <b>os 164 eleitos</b> e <b>76 não-eleitos</b> (os mais votados a dep. federal e estadual) — valores arredondados como o Instagram exibe, perfil oficial conferido quando o link do TSE apontava para conta de apoio; não é dado do TSE (o TSE registra só o link da rede, não o nº). Projeto independente, sem vínculo com a Justiça Eleitoral.</div>
+    <div>Fontes: <b>TSE</b> — resultados oficiais + prestação de contas eleitorais 2026 (dados abertos, versão de 04/10, <b>parcial</b>; as contas finais têm prazo posterior). "Impulsionamento na Meta" = despesas na categoria <i>Impulsionamento de Conteúdos</i> pagas a Facebook/DLocal/EBANX. Valores de despesa <b>contratada</b>. <b>Seguidores no Instagram</b>: coleta aproximada via web (out/2026), disponível para <b>os 164 eleitos</b> e <b>76 não-eleitos</b> (os mais votados a dep. federal e estadual) — valores arredondados como o Instagram exibe, perfil oficial conferido quando o link do TSE apontava para conta de apoio; não é dado do TSE (o TSE registra só o link da rede, não o nº). <b>Perfil dos candidatos</b> (sexo, idade na data da posse, cor/raça, escolaridade, estado civil, ocupação, naturalidade, patrimônio = soma dos bens declarados): cadastro de candidaturas do TSE, dados abertos de 08/10/2026. Identidade de gênero, orientação sexual e histórico de eleições anteriores: DivulgaCandContas/TSE — as duas primeiras são autodeclaradas e publicadas só com autorização do candidato. Projeto independente, sem vínculo com a Justiça Eleitoral.</div>
   </footer>
 </main>
 <div class="tip" id="tip"></div>
@@ -155,35 +173,98 @@ const BRLk=n=>{n=n||0;return n>=1e6?"R$ "+(n/1e6).toFixed(1).replace(".",",")+" 
 const nf=n=>Number(n||0).toLocaleString("pt-BR");
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 const norm=s=>String(s==null?"":s).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
-const XLAB={desp:"Gasto total",imp_meta:"Impulsionamento na Meta",fefc:"Fundo Eleitoral (FEFC)",publico:"Dinheiro público",seg:"Seguidores no Instagram"};
+const XLAB={desp:"Gasto total",imp_meta:"Impulsionamento na Meta",fefc:"Fundo Eleitoral (FEFC)",publico:"Dinheiro público",seg:"Seguidores no Instagram",bens:"Patrimônio declarado"};
 const fmtM=(m,v)=>m==="seg"?nf(v)+" seguidores":BRL(v);
-let DATA=null, ROWS=[];
+let DATA=null, ROWS=[], VIEW=[];
 
-fetch("financeiro-sp.json?t="+Date.now()).then(r=>r.json()).then(d=>{DATA=d;ROWS=d.cand;init();})
+/* ====== filtros de perfil (valem para a página toda) ====== */
+const ND="Não divulgado", SI="Sem informação";
+const AGES=["Até 29 anos","30 a 39 anos","40 a 49 anos","50 a 59 anos","60 a 69 anos","70 anos ou mais"];
+const AGE=a=>a==null?null:AGES[a<30?0:a<40?1:a<50?2:a<60?3:a<70?4:5];
+const PATS=["Não declarou bens","Até R$ 100 mil","R$ 100 mil a 500 mil","R$ 500 mil a 1 milhão","R$ 1 a 5 milhões","Acima de R$ 5 milhões"];
+const PAT=v=>PATS[v==null?0:v<1e5?1:v<5e5?2:v<1e6?3:v<5e6?4:5];
+const PF=[
+  {k:"cargo",l:"Cargo",f:r=>r.cargo==="DF"?"Deputado federal":"Deputado estadual"},
+  {k:"sg",l:"Partido",f:r=>r.sg,az:1},
+  {k:"res",l:"Resultado",f:r=>r.eleito?"Eleito":"Não eleito",ord:["Eleito","Não eleito"]},
+  {k:"gen",l:"Sexo",f:r=>r.gen},
+  {k:"idade",l:"Faixa etária",f:r=>AGE(r.idade),ord:AGES},
+  {k:"cor",l:"Cor/raça",f:r=>r.cor},
+  {k:"idg",l:"Identidade de gênero",f:r=>r.idg||ND},
+  {k:"ors",l:"Orientação sexual",f:r=>r.ors||ND},
+  {k:"inst",l:"Escolaridade",f:r=>r.inst,ord:["Lê e escreve","Ensino fundamental incompleto","Ensino fundamental completo","Ensino médio incompleto","Ensino médio completo","Superior incompleto","Superior completo"]},
+  {k:"ec",l:"Estado civil",f:r=>r.ec},
+  {k:"ocup",l:"Ocupação declarada",f:r=>r.ocup},
+  {k:"bens",l:"Patrimônio declarado",f:r=>PAT(r.bens),ord:PATS},
+  {k:"exp",l:"Experiência eleitoral",f:r=>r.nant==null?null:r.jaeleito?"Já foi eleito antes":r.nant?"Já disputou, nunca eleito":"Primeira candidatura",ord:["Primeira candidatura","Já disputou, nunca eleito","Já foi eleito antes"]},
+  {k:"reel22",l:"Disputou reeleição",f:r=>r.reel22==null?null:r.reel22?"Sim (eleito ao mesmo cargo em 2022)":"Não",ord:["Sim (eleito ao mesmo cargo em 2022)","Não"]},
+  {k:"ufn",l:"UF de nascimento",f:r=>r.ufn},
+  {k:"nac",l:"Nacionalidade",f:r=>r.nac},
+  {k:"quil",l:"Quilombola",f:r=>r.quil==null?null:r.quil?"Sim":"Não",ord:["Sim","Não"]},
+  {k:"fed",l:"Federação partidária",f:r=>r.fed||"Partido isolado"},
+  {k:"sitc",l:"Situação da candidatura",f:r=>r.sitc},
+];
+const PSEL={};
+function pfPass(r,skip){for(const k in PSEL){if(k!==skip&&r._p[k]!==PSEL[k])return false;}return true;}
+function renderPF(){
+  const g=document.getElementById("pfgrid");
+  if(!g.children.length){
+    g.innerHTML=PF.map(p=>`<div class="pf" data-k="${p.k}"><label for="pf-${p.k}">${p.l}</label><select id="pf-${p.k}"></select></div>`).join("");
+    PF.forEach(p=>document.getElementById("pf-"+p.k).addEventListener("change",e=>{if(e.target.value)PSEL[p.k]=e.target.value;else delete PSEL[p.k];applyAll();}));
+    document.getElementById("pfclear").addEventListener("click",()=>{for(const k in PSEL)delete PSEL[k];applyAll();});
+  }
+  PF.forEach(p=>{
+    const cnt=new Map();
+    ROWS.forEach(r=>{if(pfPass(r,p.k)){const v=r._p[p.k];cnt.set(v,(cnt.get(v)||0)+1);}});
+    if(PSEL[p.k]&&!cnt.has(PSEL[p.k]))cnt.set(PSEL[p.k],0);
+    let vals=[...cnt.keys()];
+    if(p.ord)vals.sort((a,b)=>(p.ord.indexOf(a)+1||99)-(p.ord.indexOf(b)+1||99));
+    else if(p.az)vals.sort((a,b)=>a.localeCompare(b,"pt"));
+    else vals.sort((a,b)=>(a===ND||a===SI)-(b===ND||b===SI)||cnt.get(b)-cnt.get(a)||a.localeCompare(b,"pt"));
+    const sel=document.getElementById("pf-"+p.k);
+    sel.innerHTML='<option value="">Todos</option>'+vals.map(v=>`<option value="${esc(v)}"${PSEL[p.k]===v?" selected":""}>${esc(v)} (${nf(cnt.get(v))})</option>`).join("");
+    sel.parentNode.classList.toggle("on",!!PSEL[p.k]);
+  });
+  const n=VIEW.length, el=VIEW.filter(r=>r.eleito).length, vt=VIEW.reduce((s,r)=>s+(r.votos||0),0), ds=VIEW.reduce((s,r)=>s+(r.desp||0),0);
+  const nfil=Object.keys(PSEL).length;
+  document.getElementById("pfsum").innerHTML=n?`<b>${nf(n)}</b> candidatos${nfil?" no filtro":""} · <b>${nf(el)}</b> eleitos (<b>${(100*el/n).toFixed(1).replace(".",",")}%</b> de sucesso) · <b>${nf(vt)}</b> votos · gasto médio <b>${BRLk(ds/n)}</b> · <b>${vt?BRL(ds/vt):"—"}</b> por voto`:"Nenhum candidato com essa combinação de filtros.";
+  document.getElementById("pfclear").hidden=!nfil;
+}
+function applyAll(){
+  VIEW=ROWS.filter(r=>pfPass(r));
+  const qs=new URLSearchParams(PSEL).toString();
+  history.replaceState(null,"",location.pathname+(qs?"?"+qs:""));
+  renderPF(); drawKpis(); drawDestaques(); drawScatter(); drawPlacar(); drawTable();
+}
+
+fetch("financeiro-sp.json?t="+Date.now()).then(r=>r.json()).then(d=>{DATA=d;ROWS=d.cand;ROWS.forEach(r=>{r._p={};PF.forEach(p=>{const v=p.f(r);r._p[p.k]=v==null||v===""?SI:String(v);});});init();})
   .catch(e=>{document.getElementById("kpis").innerHTML='<div class="skl">Erro ao carregar dados.</div>';});
 
-function init(){
-  const R=DATA.resumo.todos;
+function drawKpis(){
+  const S=k=>VIEW.reduce((s,r)=>s+(r[k]||0),0), el=VIEW.filter(r=>r.eleito).length;
   document.getElementById("kpis").innerHTML=[
-    {l:"Candidatos (dep.)",v:nf(R.n)+`<small> · ${nf(DATA.resumo.eleitos.n)} eleitos</small>`},
-    {l:"Gasto total declarado",v:BRLk(R.desp)},
-    {l:"Impulsionamento Meta",v:BRLk(R.imp_meta),s:"de "+BRLk(R.imp)+" em impulsionamento"},
-    {l:"Fundo Eleitoral (FEFC)",v:BRLk(R.fefc)},
-    {l:"Fundo Partidário",v:BRLk(R.fpart)},
+    {l:"Candidatos (dep.)",v:nf(VIEW.length)+`<small> · ${nf(el)} eleitos</small>`},
+    {l:"Gasto total declarado",v:BRLk(S("desp"))},
+    {l:"Impulsionamento Meta",v:BRLk(S("imp_meta")),s:"de "+BRLk(S("imp"))+" em impulsionamento"},
+    {l:"Fundo Eleitoral (FEFC)",v:BRLk(S("fefc"))},
+    {l:"Fundo Partidário",v:BRLk(S("fpart"))},
   ].map(k=>`<div class="kpi"><div class="l">${k.l}</div><div class="v">${k.v}</div>${k.s?`<div style="font-size:11.5px;color:var(--steel);margin-top:4px">${k.s}</div>`:""}</div>`).join("");
+}
+function init(){
   // partidos no filtro
   const parts=[...new Set(ROWS.map(r=>r.sg).filter(Boolean))].sort();
   document.getElementById("tpartido").innerHTML='<option value="">Todos os partidos</option>'+parts.map(p=>`<option>${esc(p)}</option>`).join("");
   ["xmetric","xcargo","xeleitos"].forEach(id=>document.getElementById(id).addEventListener("change",drawScatter));
   document.getElementById("plcargo").addEventListener("change",drawPlacar);
   ["q","tcargo","tpartido","teleitos"].forEach(id=>document.getElementById(id).addEventListener("input",drawTable));
-  drawDestaques(); drawScatter(); drawPlacar(); drawTable();
+  new URLSearchParams(location.search).forEach((v,k)=>{if(PF.some(p=>p.k===k)&&ROWS.some(r=>r._p[k]===v))PSEL[k]=v;});
+  applyAll();
 }
 
 function drawDestaques(){
   const card=(title,sub,items,mfn,msub,empty)=>`<div class="dcard"><h3>${title}</h3><div class="dsub">${sub}</div>${
     items.length?items.map(r=>`<div class="di"><span class="dnm">${esc(r.nm)} <span class="party2">${esc(r.sg)}</span></span><span class="dm">${mfn(r)}<small>${msub(r)}</small></span></div>`).join(""):`<div class="dsub">${empty||"—"}</div>`}</div>`;
-  const elei=ROWS.filter(r=>r.eleito), nel=ROWS.filter(r=>!r.eleito);
+  const elei=VIEW.filter(r=>r.eleito), nel=VIEW.filter(r=>!r.eleito);
   const A=elei.filter(r=>r.desp>0).sort((a,b)=>a.desp-b.desp).slice(0,6);
   const B=nel.slice().sort((a,b)=>b.desp-a.desp).slice(0,6);
   const C=nel.filter(r=>r.seg).sort((a,b)=>b.seg-a.seg).slice(0,6);
@@ -192,13 +273,13 @@ function drawDestaques(){
     card("💸 Eleitos que gastaram POUCO","Menor gasto declarado entre os eleitos — voto barato",A,r=>BRL(r.desp),r=>nf(r.votos)+" votos")+
     card("🔥 Gastaram MUITO e NÃO elegeram","Maior gasto entre os não eleitos — dinheiro que não virou voto",B,r=>BRL(r.desp),r=>nf(r.votos)+" votos")+
     card("🎯 Poucos seguidores, ELEITOS","Menos seguidores entre os eleitos — elegeu sem ser 'famoso'",D,r=>nf(r.seg)+" seg",r=>nf(r.votos)+" votos")+
-    card("📱 Muitos seguidores, NÃO eleitos","Mais seguidores entre os não eleitos (amostra: os mais votados a dep. federal e estadual) — fama que não virou voto",C,r=>nf(r.seg)+" seg",r=>nf(r.votos)+" votos","Em coleta.");
+    card("📱 Muitos seguidores, NÃO eleitos","Mais seguidores entre os não eleitos (amostra: os mais votados a dep. federal e estadual) — fama que não virou voto",C,r=>nf(r.seg)+" seg",r=>nf(r.votos)+" votos","Nenhum candidato com seguidores coletados neste filtro.");
 }
 
 /* ====== scatter ====== */
 function drawScatter(){
   const m=document.getElementById("xmetric").value, cg=document.getElementById("xcargo").value, onlyEl=document.getElementById("xeleitos").checked;
-  let pts=ROWS.filter(r=>(!cg||r.cargo===cg)&&(!onlyEl||r.eleito)&&r.votos>0&&r[m]>0);
+  let pts=VIEW.filter(r=>(!cg||r.cargo===cg)&&(!onlyEl||r.eleito)&&r.votos>0&&r[m]>0);
   const svg=d3.select("#scatter"); svg.selectAll("*").remove();
   const W=1000,H=480,M={t:16,r:16,b:44,l:64};
   if(!pts.length){svg.append("text").attr("x",W/2).attr("y",H/2).attr("text-anchor","middle").attr("fill","var(--steel)").text("Sem dados para este recorte");return;}
@@ -226,7 +307,7 @@ function corrTxt(r){const a=Math.abs(r);return a<.2?"praticamente sem relação"
 /* ====== placar impulsionamento ====== */
 function drawPlacar(){
   const cg=document.getElementById("plcargo").value;
-  let pts=ROWS.filter(r=>(!cg||r.cargo===cg)&&r.imp_meta>0).sort((a,b)=>b.imp_meta-a.imp_meta);
+  let pts=VIEW.filter(r=>(!cg||r.cargo===cg)&&r.imp_meta>0).sort((a,b)=>b.imp_meta-a.imp_meta);
   const tot=pts.reduce((s,r)=>s+r.imp_meta,0);
   document.getElementById("pltot").textContent="Total no recorte: "+BRLk(tot)+" · "+pts.length+" candidatos impulsionaram";
   document.getElementById("placar").innerHTML=pts.slice(0,20).map((r,i)=>`<div class="pl"><span class="rk">${i+1}</span>
@@ -246,11 +327,15 @@ const COLS=[
   {k:"fefc",l:"Fundo Eleitoral",fmt:r=>BRL(r.fefc)},
   {k:"publico",l:"Dinheiro público",fmt:r=>BRL(r.publico)},
   {k:"cpv",l:"R$/voto",fmt:r=>r.cpv!=null?BRL(r.cpv):"—"},
+  {k:"gen",l:"Sexo",fmt:r=>esc(r.gen||"—")},
+  {k:"idade",l:"Idade",fmt:r=>r.idade!=null?r.idade:"—"},
+  {k:"cor",l:"Cor/raça",fmt:r=>esc(r.cor||"—")},
+  {k:"bens",l:"Patrimônio",fmt:r=>r.bens!=null?BRL(r.bens):"—"},
 ];
 let sortK="votos", sortAsc=false;
 function drawTable(){
   const q=norm(document.getElementById("q").value),cg=document.getElementById("tcargo").value,pt=document.getElementById("tpartido").value,onlyEl=document.getElementById("teleitos").checked;
-  let rows=ROWS.filter(r=>(!cg||r.cargo===cg)&&(!pt||r.sg===pt)&&(!onlyEl||r.eleito)&&(!q||norm(r.nm).includes(q)||norm(r.sg).includes(q)));
+  let rows=VIEW.filter(r=>(!cg||r.cargo===cg)&&(!pt||r.sg===pt)&&(!onlyEl||r.eleito)&&(!q||norm(r.nm).includes(q)||norm(r.sg).includes(q)));
   rows.sort((a,b)=>{let va=a[sortK],vb=b[sortK];if(va==null)va=-1;if(vb==null)vb=-1;if(typeof va==="string")return sortAsc?va.localeCompare(vb,"pt"):vb.localeCompare(va,"pt");return sortAsc?va-vb:vb-va;});
   document.querySelector("#tbl thead").innerHTML="<tr>"+COLS.map(c=>`<th class="${c.cls==='l'?'l ':''}${sortK===c.k?(sortAsc?'asc':'sorted'):''}" data-k="${c.k}">${c.l}</th>`).join("")+"</tr>";
   const body=rows.slice(0,400).map(r=>"<tr class='"+(r.eleito?"eleito":"")+"'>"+COLS.map(c=>`<td class="${c.cls==='l'?'l':''}">${c.fmt(r)}</td>`).join("")+"</tr>").join("");
