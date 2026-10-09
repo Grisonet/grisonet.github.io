@@ -111,7 +111,7 @@
         <option value="imp_meta" selected>Impulsionamento na Meta</option>
         <option value="fefc">Fundo Eleitoral (FEFC) recebido</option>
         <option value="publico">Dinheiro público (FEFC + Fundo Partidário)</option>
-        <option value="seg">Seguidores no Instagram (só eleitos)</option>
+        <option value="seg">Seguidores no Instagram (eleitos + não eleitos mais votados)</option>
       </select></label>
       <label><select id="xcargo"><option value="">Federal + Estadual</option><option value="DF">Só Federal</option><option value="DE">Só Estadual</option></select></label>
       <label class="chk"><input type="checkbox" id="xeleitos"> só eleitos</label>
@@ -143,7 +143,7 @@
       <a class="wabtn" href="https://wa.me/551132807177" target="_blank" rel="noopener">💬 WhatsApp Griso — informações</a>
       <svg class="grlogo grlogo-foot" role="img" aria-label="GR Data"><use href="#grlogo"/></svg>
     </div>
-    <div>Fontes: <b>TSE</b> — resultados oficiais + prestação de contas eleitorais 2026 (dados abertos, versão de 04/10, <b>parcial</b>; as contas finais têm prazo posterior). "Impulsionamento na Meta" = despesas na categoria <i>Impulsionamento de Conteúdos</i> pagas a Facebook/DLocal/EBANX. Valores de despesa <b>contratada</b>. <b>Seguidores no Instagram</b>: coleta aproximada via web (out/2026), disponível para <b>116 dos 164 eleitos</b> e <b>49 não-eleitos</b> (dep. estadual mais votados) — valores arredondados e alguns perfis não localizados; não é dado do TSE (o TSE registra só o link da rede, não o nº). Projeto independente, sem vínculo com a Justiça Eleitoral.</div>
+    <div>Fontes: <b>TSE</b> — resultados oficiais + prestação de contas eleitorais 2026 (dados abertos, versão de 04/10, <b>parcial</b>; as contas finais têm prazo posterior). "Impulsionamento na Meta" = despesas na categoria <i>Impulsionamento de Conteúdos</i> pagas a Facebook/DLocal/EBANX. Valores de despesa <b>contratada</b>. <b>Seguidores no Instagram</b>: coleta aproximada via web (out/2026), disponível para <b>os 164 eleitos</b> e <b>76 não-eleitos</b> (os mais votados a dep. federal e estadual) — valores arredondados como o Instagram exibe, perfil oficial conferido quando o link do TSE apontava para conta de apoio; não é dado do TSE (o TSE registra só o link da rede, não o nº). Projeto independente, sem vínculo com a Justiça Eleitoral.</div>
   </footer>
 </main>
 <div class="tip" id="tip"></div>
@@ -192,7 +192,7 @@ function drawDestaques(){
     card("💸 Eleitos que gastaram POUCO","Menor gasto declarado entre os eleitos — voto barato",A,r=>BRL(r.desp),r=>nf(r.votos)+" votos")+
     card("🔥 Gastaram MUITO e NÃO elegeram","Maior gasto entre os não eleitos — dinheiro que não virou voto",B,r=>BRL(r.desp),r=>nf(r.votos)+" votos")+
     card("🎯 Poucos seguidores, ELEITOS","Menos seguidores entre os eleitos — elegeu sem ser 'famoso'",D,r=>nf(r.seg)+" seg",r=>nf(r.votos)+" votos")+
-    card("📱 Muitos seguidores, NÃO eleitos","Mais seguidores entre os não eleitos (amostra: dep. estadual + votados) — fama que não virou voto",C,r=>nf(r.seg)+" seg",r=>nf(r.votos)+" votos","Em coleta.");
+    card("📱 Muitos seguidores, NÃO eleitos","Mais seguidores entre os não eleitos (amostra: os mais votados a dep. federal e estadual) — fama que não virou voto",C,r=>nf(r.seg)+" seg",r=>nf(r.votos)+" votos","Em coleta.");
 }
 
 /* ====== scatter ====== */

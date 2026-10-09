@@ -70,7 +70,10 @@ presidente.json` e dá `git push` a cada 3 min.
 - **`eleitos_handles.tsv`** / **`neleitos_handles.tsv`** — sq, nome, cargo, votos, @instagram
   (links de rede social do TSE: `rede_social_candidato_2026.zip`; o TSE guarda só o LINK,
   não o nº de seguidores).
-- **`seguidores_eleitos.tsv`** — seguidores IG coletados via WebSearch (116/164 eleitos).
+- **`seguidores_eleitos.tsv`** — seguidores IG dos 164 eleitos (116 via WebSearch em 05/10 + 48 lidos do perfil em 08/10).
+- **`seguidores_lote_2026-10-08.tsv`** — lote de 08/10: 48 eleitos + 28 não-eleitos (27 dep. federal), com handle
+  oficial conferido, confiança, fonte e obs. Lido via WebFetch de `instagram.com/<handle>/` (funciona sem login;
+  `curl` na API não). Handles errados do TSE foram corrigidos nos `*_handles.tsv`. Faltou só Jorge do Carmo (PT, DE).
 - **`top50_naoeleitos_depest_sp_FINAL.{csv,json}`** — seguidores de 49 não-eleitos
   (dep. estadual mais votados), coletados em outra sessão.
 
@@ -78,7 +81,7 @@ presidente.json` e dá `git push` a cada 3 min.
 
 ## Achados da tese "voto segue o dinheiro / a fama?"
 Correlação log-log com votos (dep SP): **gasto total r=0,73**, **fundo eleitoral
-r=0,71**, **impulsionamento Meta r=0,65**, **seguidores r=0,44**. Ou seja,
+r=0,71**, **impulsionamento Meta r=0,65**, **seguidores r=0,45** (240 candidatos). Ou seja,
 **dinheiro explica o voto melhor que fama**. Impulsionamento Meta total ≈ R$ 78,8 mi;
 16 dos 28 que puseram ≥R$500k na Meta **não** se elegeram; casos como Felipe Franco
 (3,9 mi seguidores → 59k votos) e Marco Feliciano (4 mi → 122k) reforçam.
@@ -86,7 +89,7 @@ r=0,71**, **impulsionamento Meta r=0,65**, **seguidores r=0,44**. Ou seja,
 ---
 
 ## Pendências
-1. Coletar seguidores dos **~48 eleitos** que faltaram (cota de WebSearch reseta por sessão).
-2. Coletar seguidores dos **não-eleitos a dep. federal** mais votados.
+1. ~~Seguidores dos eleitos que faltavam~~ — feito em 08/10 (164/164).
+2. Seguidores de não-eleitos: 76 coletados (49 DE + 27 DF); ampliar a amostra se quiser mais base.
 3. Prestação de contas é **parcial** (versão 04/10); prazo legal final **03/11/2026** — valores mudam.
 4. Mapas congelam se o poller parar (dependem do push dos JSONs).
