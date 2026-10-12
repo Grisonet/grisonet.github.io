@@ -98,5 +98,5 @@ r=0,71**, **impulsionamento Meta r=0,65**, **seguidores r=0,45** (240 candidatos
 ## Pendências
 1. ~~Seguidores dos eleitos que faltavam~~ — feito em 08/10 (164/164).
 2. Seguidores de não-eleitos: 76 coletados (49 DE + 27 DF); ampliar a amostra se quiser mais base.
-3. Prestação de contas é **parcial** (versão 04/10); prazo legal final **03/11/2026** — valores mudam.
+3. Prestação de contas é **parcial** (dados de 11/10/2026); prazo legal final **03/11/2026** — valores mudam. Para atualizar sem perder `seg` e o perfil: `python3 dados-coleta/atualiza_financeiro.py <dir_csv> apuracao-sp/financeiro-sp.json "DD/MM"` (recalcula só os campos financeiros).
 4. Mapas congelam se o poller parar (dependem do push dos JSONs).
