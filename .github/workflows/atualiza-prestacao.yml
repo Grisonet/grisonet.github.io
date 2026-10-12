@@ -1,0 +1,35 @@
+# Atualiza todo dia os valores da página Dinheiro × Votos (apuracao-sp/dinheiro.html)
+# com a prestação de contas mais recente dos dados abertos do TSE.
+name: Atualiza prestação de contas (TSE)
+on:
+  schedule:
+    - cron: "30 11 * * *"   # 08:30 de Brasília; o TSE regera os arquivos de madrugada
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: atualiza-prestacao
+jobs:
+  atualiza:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Baixa a prestação de contas (só os dois CSV de SP)
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/tse
+          curl -fsSL --retry 5 --retry-delay 20 --max-time 1500 \
+            -A "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36" \
+            -o /tmp/tse/contas.zip \
+            "https://cdn.tse.jus.br/estatistica/sead/odsele/prestacao_contas/prestacao_de_contas_eleitorais_candidatos_2026.zip"
+          unzip -oq /tmp/tse/contas.zip despesas_contratadas_candidatos_2026_SP.csv receitas_candidatos_2026_SP.csv -d /tmp/tse
+      - name: Recalcula os campos financeiros
+        run: python3 apuracao-sp-fonte/dados-coleta/atualiza_financeiro.py /tmp/tse apuracao-sp/financeiro-sp.json
+      - name: Publica se mudou
+        run: |
+          if git diff --quiet -- apuracao-sp/financeiro-sp.json; then echo "sem mudança"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apuracao-sp/financeiro-sp.json
+          git commit -m "dinheiro x votos: prestacao de contas atualizada automaticamente ($(date -u +%d/%m))"
+          git push
