@@ -7,198 +7,250 @@
 <meta name="description" content="Apuração do 2º turno com projeção independente: cada urna comparada com ela mesma no 1º turno. Presidente e governadores. GR Data.">
 <meta property="og:title" content="Projeção do 2º turno · GR Data">
 <meta property="og:description" content="Veja para que lado o voto está andando antes do placar: cada seção do 2º turno comparada com ela mesma no 1º turno.">
+<meta name="theme-color" content="#080808">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&display=swap">
 <style>
-  /* Projeção do 2º turno (Presidente + governadores) — Design System Griso / GR Data. Light-first + dark.
-     As cores dos candidatos vêm dos dados (--ca / --cb). */
+  /* Projeção do 2º turno — paleta GR Quest: Ignition Orange #FF4C00, Amber Gold #FFC200, Carbon #080808, branco.
+     Faixa escura (.dk) = placar da noite; abaixo, cartões claros. Os candidatos usam âmbar (a) e laranja (b),
+     as duas cores da marca, para nenhum lado herdar cor partidária. */
   :root{
     --canvas:#ffffff; --parchment:#f6f5f3; --pearl:#faf9f7;
     --ink:#080808; --graphite:#454545; --steel:#7a7a7a;
-    --hairline:#e5e5e5; --divider:#f0efed; --track:#f0efed;
-    --primary:#FF4C00; --amber:#FFC200; --ok:#16A34A; --bad:#DC2626;
-    --ca:#0B57D0; --cb:#C5221F;
-    --ca-t:var(--ca); --cb-t:var(--cb);
-    --ca-bg:color-mix(in srgb, var(--ca) 13%, var(--canvas)); --cb-bg:color-mix(in srgb, var(--cb) 13%, var(--canvas));
-    --band:rgba(122,122,122,.18);
-    color-scheme:light; --maxw:1100px;
+    --hairline:#e7e5e2; --divider:#f0efed; --track:#eceae6;
+    --orange:#FF4C00; --amber:#FFC200; --carbon:#080808;
+    --primary:var(--orange); --ok:#16A34A; --bad:#DC2626;
+    --ca:#FFC200; --cb:#FF4C00;                 /* barras */
+    --ca-t:#946800; --cb-t:#D63F00;             /* texto sobre claro (contraste AA) */
+    --ca-bg:#FFF3CC; --cb-bg:#FFE6DB;
+    --band:rgba(8,8,8,.10); --proj:var(--ink); --placar:var(--steel);
+    --panel:var(--canvas); --panel-2:var(--pearl);
+    --display:"Inter Tight","Inter",system-ui,sans-serif;
+    color-scheme:light; --maxw:1160px;
   }
   @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
-    --canvas:#1b1b1b; --parchment:#121212; --pearl:#222;
-    --ink:#fff; --graphite:#ccc; --steel:#9a9a9a;
-    --hairline:rgba(255,255,255,.13); --divider:rgba(255,255,255,.08); --track:rgba(255,255,255,.09);
-    --ca-t:color-mix(in srgb, var(--ca) 62%, white); --cb-t:color-mix(in srgb, var(--cb) 62%, white);
-    --ca-bg:color-mix(in srgb, var(--ca) 24%, var(--canvas)); --cb-bg:color-mix(in srgb, var(--cb) 24%, var(--canvas));
+    --canvas:#151515; --parchment:#0d0d0d; --pearl:#1c1c1c;
+    --ink:#f5f5f5; --graphite:#c9c9c9; --steel:#8f8f8f;
+    --hairline:rgba(255,255,255,.10); --divider:rgba(255,255,255,.06); --track:rgba(255,255,255,.08);
+    --ca-t:#FFC93D; --cb-t:#FF7A40; --ca-bg:rgba(255,194,0,.14); --cb-bg:rgba(255,76,0,.16);
     --band:rgba(255,255,255,.12); --ok:#34d17f; --bad:#ff7b72;
     color-scheme:dark;
   }}
   :root[data-theme="dark"]{
-    --canvas:#1b1b1b; --parchment:#121212; --pearl:#222;
-    --ink:#fff; --graphite:#ccc; --steel:#9a9a9a;
-    --hairline:rgba(255,255,255,.13); --divider:rgba(255,255,255,.08); --track:rgba(255,255,255,.09);
-    --ca-t:color-mix(in srgb, var(--ca) 62%, white); --cb-t:color-mix(in srgb, var(--cb) 62%, white);
-    --ca-bg:color-mix(in srgb, var(--ca) 24%, var(--canvas)); --cb-bg:color-mix(in srgb, var(--cb) 24%, var(--canvas));
+    --canvas:#151515; --parchment:#0d0d0d; --pearl:#1c1c1c;
+    --ink:#f5f5f5; --graphite:#c9c9c9; --steel:#8f8f8f;
+    --hairline:rgba(255,255,255,.10); --divider:rgba(255,255,255,.06); --track:rgba(255,255,255,.08);
+    --ca-t:#FFC93D; --cb-t:#FF7A40; --ca-bg:rgba(255,194,0,.14); --cb-bg:rgba(255,76,0,.16);
     --band:rgba(255,255,255,.12); --ok:#34d17f; --bad:#ff7b72;
     color-scheme:dark;
   }
+  /* faixa escura: os mesmos componentes, tokens trocados */
+  .dk{
+    --canvas:#141414; --pearl:rgba(255,255,255,.045);
+    --ink:#ffffff; --graphite:#c4c4c4; --steel:#8a8a8a;
+    --hairline:rgba(255,255,255,.12); --divider:rgba(255,255,255,.07); --track:rgba(255,255,255,.09);
+    --ca-t:#FFC93D; --cb-t:#FF7A40; --ca-bg:rgba(255,194,0,.10); --cb-bg:rgba(255,76,0,.12);
+    --band:rgba(255,255,255,.13); --proj:#ffffff; --placar:#7d7d7d;
+    --panel:rgba(255,255,255,.04); --panel-2:rgba(255,255,255,.06);
+    --ok:#34d17f; --bad:#ff7b72;
+    color-scheme:dark; background:var(--carbon); color:var(--ink);
+  }
   *{box-sizing:border-box}
   body{background:var(--parchment);color:var(--ink);font-family:"Inter",system-ui,-apple-system,sans-serif;
-    font-variant-numeric:tabular-nums;margin:0;letter-spacing:-.011em;line-height:1.47;font-size:15px}
-  h1,h2,h3{margin:0;font-weight:600;letter-spacing:-.021em;text-wrap:balance}
+    font-variant-numeric:tabular-nums;margin:0;letter-spacing:-.011em;line-height:1.5;font-size:15px}
+  h1,h2,h3{margin:0;font-family:var(--display);font-weight:700;letter-spacing:-.018em;text-wrap:balance}
   a{color:inherit}
   .wrap{max-width:var(--maxw);margin:0 auto;padding-inline:16px}
-  header{position:sticky;top:0;z-index:30;background:#080808;color:#fff;border-bottom:1px solid rgba(255,255,255,.08)}
-  .hd{display:flex;align-items:center;gap:14px;padding-block:11px;flex-wrap:wrap}
-  .mark{display:flex;align-items:center;gap:11px;min-width:0;text-decoration:none;color:#fff}
-  .grlogo{height:23px;width:auto;fill:currentColor;display:block}
-  .mark .sep{width:1px;height:20px;background:rgba(255,255,255,.22);flex:none}
-  .mark .t{font-weight:600;font-size:clamp(13px,2.6vw,17px);letter-spacing:-.022em;white-space:nowrap}
-  .mark .t b{color:var(--primary);font-weight:600}
-  .live{display:flex;align-items:center;gap:8px;margin-left:auto;font-size:12px;color:#ccc;white-space:nowrap}
-  .dot{width:8px;height:8px;border-radius:50%;background:#666}
-  .dot.on{background:var(--primary);animation:pulse 1.8s infinite}
-  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,76,0,.6)}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
-  @media(prefers-reduced-motion:reduce){.dot.on{animation:none}}
-  main{padding-block:18px 48px}
-  .pagenav{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 18px}
-  .pagenav a{font-size:13px;font-weight:600;text-decoration:none;color:var(--ink);background:var(--canvas);border:1px solid var(--hairline);border-radius:9999px;padding:8px 14px}
-  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--steel);margin:30px 2px 11px;display:flex;align-items:center;gap:10px}
-  .eyebrow .rule{flex:1;height:1px;background:var(--hairline)}
-  .card{background:var(--canvas);border:1px solid var(--hairline);border-radius:18px;padding:20px 22px;margin-bottom:14px}
-  .card h3{font-size:18px}
-  .sub{color:var(--steel);font-size:13.5px;margin-top:3px}
-  .insight{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--pearl);border:1px solid var(--divider);font-size:14px;color:var(--graphite)}
-  .insight b{color:var(--ink);font-weight:600}
-  .grid2{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
   .muted{color:var(--steel)}
   .ca{color:var(--ca-t)} .cb{color:var(--cb-t)}
-  button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+  button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 
-  /* hero + seletores */
-  .hero h1{font-size:clamp(26px,5vw,40px);letter-spacing:-.03em;line-height:1.1}
-  .hero p{color:var(--graphite);max-width:720px;margin:10px 0 0;font-size:16px}
-  .disputas{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:18px}
-  .disputas .lbl{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--steel);margin:0 4px 0 10px}
-  .chip{font:inherit;font-size:13.5px;font-weight:600;border:1px solid var(--hairline);background:var(--canvas);color:var(--graphite);padding:7px 13px;border-radius:9999px;cursor:pointer}
-  .chip[aria-pressed="true"]{background:var(--ink);color:var(--canvas);border-color:var(--ink)}
-  .tabs{display:inline-flex;gap:4px;background:var(--divider);border-radius:9999px;padding:4px;margin-top:12px;flex-wrap:wrap}
-  .tabs button{font:inherit;font-size:13.5px;font-weight:600;border:0;background:transparent;color:var(--graphite);padding:8px 16px;border-radius:9999px;cursor:pointer}
-  .tabs button[aria-pressed="true"]{background:var(--canvas);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  /* ---------------- faixa escura: topo + placar */
+  .stage{position:relative;overflow:hidden;padding-bottom:36px}
+  .stage::before{content:"";position:absolute;inset:-40% -10% auto auto;width:720px;height:720px;pointer-events:none;
+    background:radial-gradient(closest-side,rgba(255,76,0,.20),rgba(255,194,0,.06) 55%,transparent);}
+  .stage::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+    background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1px);background-size:22px 22px;
+    mask-image:linear-gradient(180deg,#000 0,transparent 70%);-webkit-mask-image:linear-gradient(180deg,#000 0,transparent 70%)}
+  .stage > *{position:relative;z-index:1}
+  header{position:sticky;top:0;z-index:30;background:rgba(8,8,8,.82);backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid rgba(255,255,255,.07)}
+  .hd{display:flex;align-items:center;gap:14px;padding-block:12px;flex-wrap:wrap}
+  .mark{display:flex;align-items:center;gap:12px;min-width:0;text-decoration:none;color:#fff}
+  .grlogo{height:22px;width:auto;fill:currentColor;display:block}
+  .mark .t{font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.02em;text-transform:uppercase;white-space:nowrap;
+    background:var(--amber);color:var(--carbon);padding:4px 9px;border-radius:7px}
+  .nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+  .nav a{font-size:13px;font-weight:500;color:#bdbdbd;text-decoration:none;padding:6px 10px;border-radius:8px}
+  .nav a:hover{color:#fff;background:rgba(255,255,255,.07)}
+  .live{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#e9e9e9;white-space:nowrap;
+    border:1px solid rgba(255,255,255,.14);border-radius:9999px;padding:5px 11px}
+  .dot{width:8px;height:8px;border-radius:50%;background:#5c5c5c}
+  .dot.on{background:var(--orange);animation:pulse 1.8s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,76,0,.65)}70%{box-shadow:0 0 0 9px transparent}100%{box-shadow:0 0 0 0 transparent}}
+  @media(prefers-reduced-motion:reduce){.dot.on{animation:none}}
+
+  .hero{padding-top:34px}
+  .tagrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .tag{font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:var(--orange);color:var(--carbon);padding:5px 10px;border-radius:6px}
+  .tagrow .ctx{font-size:12.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--graphite)}
+  .hero h1{font-size:clamp(32px,6.4vw,64px);font-weight:800;letter-spacing:-.03em;line-height:1;margin-top:16px;max-width:900px}
+  .hl{background:var(--amber);color:var(--carbon);padding:0 .14em;border-radius:.12em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+  .hero p.lead{color:var(--graphite);max-width:680px;margin:16px 0 0;font-size:16.5px}
+
+  .controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:24px}
+  .controls > *{min-width:0;max-width:100%}
+  .disputas{display:flex;align-items:center;gap:4px;padding:4px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--hairline);
+    overflow-x:auto;max-width:100%;scrollbar-width:none}
+  .disputas::-webkit-scrollbar{display:none}
+  .disputas .lbl{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--steel);margin:0 4px 0 10px;white-space:nowrap}
+  .chip{font:inherit;font-size:13.5px;font-weight:600;border:0;background:transparent;color:var(--graphite);padding:8px 12px;border-radius:10px;cursor:pointer;white-space:nowrap}
+  .chip:hover{color:var(--ink)}
+  .chip[aria-pressed="true"]{background:var(--amber);color:var(--carbon)}
+  .tabs{display:inline-flex;gap:4px;padding:4px;border-radius:14px;border:1px solid var(--hairline);flex-wrap:wrap}
+  .tabs button{font:inherit;font-size:13.5px;font-weight:600;border:0;background:transparent;color:var(--graphite);padding:8px 13px;border-radius:10px;cursor:pointer}
+  .tabs button:hover{color:var(--ink)}
+  .tabs button[aria-pressed="true"]{background:#fff;color:var(--carbon)}
   .tabs button[hidden]{display:none}
-  .countdown{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
-  .countdown div{background:var(--canvas);border:1px solid var(--hairline);border-radius:14px;padding:10px 14px;min-width:78px;text-align:center}
-  .countdown b{display:block;font-size:26px;font-weight:600;letter-spacing:-.02em}
-  .countdown span{font-size:11.5px;color:var(--steel);text-transform:uppercase;letter-spacing:.08em}
+  .nota-ordem{margin:12px 0 0;font-size:13px;color:var(--steel);max-width:720px}
+  .countdown{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap}
+  .countdown div{border:1px solid var(--hairline);background:var(--panel);border-radius:14px;padding:12px 16px;min-width:84px}
+  .countdown b{display:block;font-family:var(--display);font-size:34px;font-weight:800;letter-spacing:-.03em;line-height:1}
+  .countdown span{font-size:11px;color:var(--steel);text-transform:uppercase;letter-spacing:.12em;font-weight:600}
   .aviso{margin-top:14px;font-size:14px;color:var(--graphite);max-width:720px}
-  .nota-ordem{margin-top:10px;font-size:13px;color:var(--steel);max-width:720px}
+  .aviso a{color:var(--amber)}
 
-  /* projeção */
-  .badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-radius:9999px;padding:5px 11px;background:var(--divider);color:var(--graphite)}
-  .badge.wina{background:var(--ca-bg);color:var(--ca-t)} .badge.winb{background:var(--cb-bg);color:var(--cb-t)}
-  .status h2{font-size:clamp(22px,4vw,30px);margin-top:10px;letter-spacing:-.025em}
+  /* placar */
+  .board{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:14px;margin-top:26px}
+  @media (max-width:880px){.board{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--hairline);border-radius:22px;padding:22px}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border-radius:7px;padding:5px 10px;background:var(--track);color:var(--graphite)}
+  .badge.wina{background:var(--ca);color:var(--carbon)} .badge.winb{background:var(--cb);color:var(--carbon)}
+  .status h2{font-size:clamp(24px,3.6vw,34px);font-weight:800;margin-top:12px;letter-spacing:-.022em}
   .status p{margin:6px 0 0;color:var(--graphite);font-size:14px;max-width:560px}
-  .duo{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
-  .cand{border-radius:14px;padding:14px 16px}
-  .cand .nm{font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
-  .cand .pc{font-size:clamp(34px,7vw,52px);font-weight:600;letter-spacing:-.035em;line-height:1.05;margin-top:4px}
-  .cand .fx{font-size:13px;color:var(--steel)}
-  .cand.ka{background:var(--ca-bg)} .cand.ka .nm,.cand.ka .pc{color:var(--ca-t)}
-  .cand.kb{background:var(--cb-bg)} .cand.kb .nm,.cand.kb .pc{color:var(--cb-t)}
-  .meter{position:relative;height:30px;margin-top:18px}
-  .meter .bar{position:absolute;inset:9px 0;border-radius:9999px;overflow:hidden;display:flex}
-  .meter .bar i{display:block;height:100%}
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}
+  .cand{border-radius:16px;padding:16px 18px;position:relative;overflow:hidden}
+  .cand::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px}
+  .cand .nm{font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+  .cand .pc{font-family:var(--display);font-size:clamp(40px,7.4vw,68px);font-weight:800;letter-spacing:-.045em;line-height:1;margin-top:8px}
+  .cand .fx{font-size:12.5px;color:var(--steel);margin-top:6px}
+  .cand.ka{background:var(--ca-bg)} .cand.ka::before{background:var(--ca)} .cand.ka .nm,.cand.ka .pc{color:var(--ca-t)}
+  .cand.kb{background:var(--cb-bg)} .cand.kb::before{background:var(--cb)} .cand.kb .nm,.cand.kb .pc{color:var(--cb-t)}
+  .meter{position:relative;height:34px;margin-top:20px}
+  .meter .bar{position:absolute;inset:8px 0;border-radius:6px;overflow:hidden;display:flex;gap:3px}
+  .meter .bar i{display:block;height:100%;border-radius:3px}
   .meter .mid{position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--ink);transform:translateX(-1px)}
-  .meter .fx{position:absolute;top:4px;bottom:4px;border:2px solid var(--ink);border-radius:6px;background:rgba(255,255,255,.25)}
+  .meter .fx{position:absolute;top:2px;bottom:2px;border:2px solid var(--ink);border-radius:8px;background:rgba(255,255,255,.18)}
   .meter-l{display:flex;justify-content:space-between;font-size:12px;color:var(--steel);margin-top:4px}
-  .contado{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:18px}
-  .mini{background:var(--pearl);border:1px solid var(--divider);border-radius:12px;padding:10px 12px}
-  .mini .l{font-size:11.5px;color:var(--steel);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
-  .mini .v{font-size:19px;font-weight:600;margin-top:2px;letter-spacing:-.015em}
-  .mini .v small{font-size:12.5px;color:var(--steel);font-weight:400}
+  .side{display:grid;gap:10px;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;align-content:stretch}
+  .side .mini{padding:16px;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
+  .side .mini .v{font-size:clamp(22px,2.6vw,30px)}
+  .side .selo{grid-auto-rows:auto}
+  .mini{background:var(--panel-2);border:1px solid var(--divider);border-radius:16px;padding:12px 14px}
+  .mini .l{font-size:11px;color:var(--steel);text-transform:uppercase;letter-spacing:.1em;font-weight:700}
+  .mini .v{font-family:var(--display);font-size:21px;font-weight:700;margin-top:4px;letter-spacing:-.02em;line-height:1.15}
+  .mini .v small{display:block;font-family:"Inter",sans-serif;font-size:12px;color:var(--steel);font-weight:500;letter-spacing:0;margin-top:2px}
   .selo[hidden]{display:none}
-  .selo{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:var(--graphite)}
-  .selo .ic{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:color-mix(in srgb, var(--ok) 18%, transparent);color:var(--ok);font-size:12px;font-weight:700;flex:none}
-  .selo.alerta .ic{background:color-mix(in srgb, var(--bad) 18%, transparent);color:var(--bad)}
-
-  /* replay */
-  .player{display:none;align-items:center;gap:12px;margin-top:18px;padding:12px 14px;border-radius:14px;background:var(--pearl);border:1px solid var(--divider);flex-wrap:wrap}
+  .selo{display:flex;align-items:center;gap:10px;grid-column:1/-1;font-size:13px;color:var(--graphite);padding:12px 14px;border-radius:14px;border:1px solid var(--divider);background:var(--panel-2)}
+  .selo .ic{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:7px;background:color-mix(in srgb, var(--ok) 20%, transparent);color:var(--ok);font-size:12px;font-weight:800;flex:none}
+  .selo.alerta .ic{background:color-mix(in srgb, var(--bad) 20%, transparent);color:var(--bad)}
+  .player{display:none;align-items:center;gap:12px;margin-top:14px;padding:12px 14px;border-radius:16px;background:var(--panel);border:1px solid var(--hairline);flex-wrap:wrap}
   .player.on{display:flex}
-  .player button{font:inherit;font-size:14px;font-weight:600;border:0;border-radius:9999px;background:var(--ink);color:var(--canvas);width:38px;height:38px;cursor:pointer;flex:none}
-  .player input[type=range]{flex:1;min-width:160px;accent-color:var(--primary)}
-  .player .t{font-size:13px;color:var(--graphite);min-width:150px}
-  .speed{font:inherit;font-size:12.5px;border:1px solid var(--hairline);border-radius:9999px;background:var(--canvas);color:var(--ink);padding:5px 8px}
+  .player button{font:inherit;font-size:14px;font-weight:700;border:0;border-radius:12px;background:var(--amber);color:var(--carbon);width:42px;height:42px;cursor:pointer;flex:none}
+  .player input[type=range]{flex:1;min-width:160px;accent-color:var(--amber)}
+  .player .t{font-size:13px;color:var(--graphite);min-width:150px;font-weight:500}
+  .speed{font:inherit;font-size:12.5px;border:1px solid var(--hairline);border-radius:10px;background:transparent;color:var(--ink);padding:6px 8px}
+  .speed option{color:#080808}
+  .insight{margin-top:14px;padding:13px 16px;border-radius:14px;background:var(--panel-2);border:1px solid var(--divider);border-left:3px solid var(--amber);font-size:14px;color:var(--graphite)}
+  .insight b{color:var(--ink);font-weight:600}
 
   /* gráfico */
-  .chart{width:100%;height:auto;display:block;margin-top:10px;overflow:visible}
+  .chart-panel{margin-top:14px}
+  .chart-panel h3{font-size:20px}
+  .chart{width:100%;height:auto;display:block;margin-top:12px;overflow:visible}
   .chart text{font-size:11px;fill:var(--steel);font-family:inherit}
-  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--graphite);margin-top:8px}
-  .legend i{display:inline-block;width:18px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--graphite);margin-top:10px}
+  .legend i{display:inline-block;width:18px;height:3px;border-radius:2px;vertical-align:middle;margin-right:7px}
 
-  /* números */
-  .kpis{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:14px}
-  .stack{display:flex;height:12px;border-radius:9999px;overflow:hidden;margin-top:12px;background:var(--track)}
-  .stack i{display:block;height:100%}
-  .stack-l{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--graphite);margin-top:8px}
-  .sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
-
-  /* tabelas */
-  .tblwrap{overflow-x:auto;margin-top:12px;-webkit-overflow-scrolling:touch}
+  /* ---------------- conteúdo claro */
+  main{padding-block:12px 48px}
+  .sec-h{display:flex;align-items:baseline;gap:14px;margin:44px 2px 16px}
+  .sec-h .n{font-family:var(--display);font-size:13px;font-weight:800;color:var(--orange);letter-spacing:.04em}
+  .sec-h h2{font-size:clamp(22px,3.2vw,30px);font-weight:800;letter-spacing:-.022em}
+  .sec-h .rule{flex:1;height:1px;background:var(--hairline);align-self:center}
+  .card{background:var(--canvas);border:1px solid var(--hairline);border-radius:22px;padding:22px 24px;margin-bottom:14px}
+  .card h3{font-size:19px}
+  .sub{color:var(--steel);font-size:13.5px;margin-top:4px}
+  .grid2{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+  .grid2 .card{margin-bottom:0}
+  .kpis{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin-top:16px}
+  .stack{display:flex;gap:3px;height:16px;margin-top:16px}
+  .stack i{display:block;height:100%;border-radius:4px}
+  .stack-l{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--graphite);margin-top:9px}
+  .sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+  .tblwrap{overflow-x:auto;margin-top:14px;-webkit-overflow-scrolling:touch}
   table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px}
-  th{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--steel);font-weight:600;text-align:right;padding:8px 8px;border-bottom:1px solid var(--hairline);white-space:nowrap}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--steel);font-weight:700;text-align:right;padding:9px 10px;border-bottom:1px solid var(--hairline);white-space:nowrap}
   th:first-child,td:first-child{text-align:left}
-  td{padding:9px 8px;border-bottom:1px solid var(--divider);text-align:right;white-space:nowrap}
+  td{padding:11px 10px;border-bottom:1px solid var(--divider);text-align:right;white-space:nowrap}
+  tbody tr:hover td{background:var(--pearl)}
   tr:last-child td{border-bottom:0}
-  .pbar{display:inline-flex;width:90px;height:8px;border-radius:9999px;overflow:hidden;vertical-align:middle;margin-left:8px;background:var(--track)}
-  .pbar i{display:block;height:100%}
-  .seg{display:inline-flex;gap:4px;background:var(--divider);border-radius:9999px;padding:3px;margin-top:12px}
-  .seg button{font:inherit;font-size:12.5px;font-weight:600;border:0;background:transparent;color:var(--graphite);padding:6px 12px;border-radius:9999px;cursor:pointer}
-  .seg button[aria-pressed="true"]{background:var(--canvas);color:var(--ink)}
+  .pbar{display:inline-flex;gap:2px;width:96px;height:8px;vertical-align:middle;margin-left:10px}
+  .pbar i{display:block;height:100%;border-radius:2px}
+  .seg{display:inline-flex;gap:4px;background:var(--divider);border-radius:12px;padding:4px;margin-top:14px}
+  .seg button{font:inherit;font-size:12.5px;font-weight:600;border:0;background:transparent;color:var(--graphite);padding:7px 13px;border-radius:9px;cursor:pointer}
+  .seg button[aria-pressed="true"]{background:var(--ink);color:var(--canvas)}
   .seg[hidden]{display:none}
-
-  /* sua seção */
-  .form{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:14px}
-  .form label{font-size:12px;color:var(--steel);font-weight:600;display:block;margin-bottom:4px}
-  .form select{width:100%;font:inherit;font-size:14px;padding:9px 10px;border-radius:10px;border:1px solid var(--hairline);background:var(--canvas);color:var(--ink)}
+  .form{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:16px}
+  .form label{font-size:11px;color:var(--steel);font-weight:700;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:5px}
+  .form select{width:100%;font:inherit;font-size:14px;padding:10px 11px;border-radius:12px;border:1px solid var(--hairline);background:var(--pearl);color:var(--ink)}
   .sec-out{margin-top:14px}
   .sec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
-  .sec-col{border:1px solid var(--hairline);border-radius:14px;padding:12px 14px}
-  .sec-col h4{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--steel)}
+  .sec-col{border:1px solid var(--hairline);background:var(--pearl);border-radius:16px;padding:14px 16px}
+  .sec-col h4{margin:0 0 8px;font-size:11.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--steel)}
   .row{display:flex;justify-content:space-between;font-size:14px;padding:3px 0}
-
+  .metodo{display:grid;gap:22px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+  .metodo h4{margin:0;font-family:var(--display);font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
+  .metodo h4::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--orange)}
   .metodo p{color:var(--graphite);font-size:14.5px;margin:8px 0 0}
-  .metodo h4{margin:16px 0 0;font-size:15px}
-  footer{color:var(--steel);font-size:12.5px;padding:20px 0 40px;border-top:1px solid var(--hairline);margin-top:30px}
-  @media (max-width:520px){.card{padding:16px}.duo{gap:8px}.cand{padding:12px}}
+  .links{margin:18px 0 0;font-size:14px;display:flex;gap:10px;flex-wrap:wrap}
+  .links a{font-weight:600;text-decoration:none;border:1px solid var(--hairline);border-radius:10px;padding:8px 13px;background:var(--pearl)}
+  .links a.pri{background:var(--orange);border-color:var(--orange);color:var(--carbon)}
+  footer{background:var(--carbon);color:#9a9a9a;font-size:12.5px;margin-top:40px}
+  footer .wrap{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding-block:24px 36px}
+  footer .grlogo{height:16px;color:#fff}
+  footer b{color:#fff}
+  @media (max-width:520px){.chart text{font-size:22px}.hd{gap:10px}.live{margin-left:auto}.controls > *{flex:1 1 100%}.tabs{justify-content:space-between}.card,.panel{padding:16px}.duo{gap:8px}.cand{padding:12px 14px}.side{grid-template-columns:1fr 1fr}.nav{display:none}}
 </style>
 </head>
 <body>
 <svg width="0" height="0" aria-hidden="true" style="position:absolute;overflow:hidden"><symbol id="grlogo" viewBox="0 0 1743.4 319.86"><g><g><path d="M657.86,248.74c-25.77-1.21-49.42-14.95-63.2-36.96l-13.25-23.52-33.24-6.42v-6.44l25.96-.06h122.08c22.88,0,45.6-8.76,61.21-23.13,17.43-16.02,28.35-39,28.35-64.54,0-28.82-13.9-54.38-35.37-70.35-14.6-10.88-34.59-17.32-54.19-17.32l-251.01.07v65.46s0,0,0,0v248.84h71.71l-1.04-95.41,18.71,29.87.24.39c24.2,38.63,65.72,62.8,110.97,64.98,2.18.12,4.39.17,6.59.17h125.26v-65.54h-116.06c-1.24,0-2.48-.02-3.72-.09ZM515.52,119.87v-41.93l-14.33-5.97v-6.44h177.27c5.96,0,11.45,1.91,15.92,5.16,1.17.84,2.27,1.79,3.29,2.8,4.92,4.92,7.96,11.72,7.96,19.21,0,15-12.16,27.17-27.17,27.17h-162.94Z"/><path d="M177.59,119.87h213.39v194.5h-72.97l2.3-95.41-18.71,29.87-.24.39c-25.39,40.53-69.84,65.15-117.66,65.15h-6.11v-.67l-.41.67h-17.73C72.64,314.37,0,243.99,0,157.18c0-43.41,18.16-82.7,47.17-111.14C76.18,17.59,116.05,0,159.45,0l225.16.07v65.46h-212.45c-50.62,0-91.65,41.04-91.65,91.65,0,25.31,10.26,48.22,26.85,64.81,16.58,16.58,39.49,26.84,64.8,26.84h2.34c27.2,0,52.48-14,66.92-37.05l13.79-23.66v.11l33.36-6.44v-6.44h-25.92.01s-85.07-.01-85.07-.01v-55.47Z"/></g><g opacity=".8"><path d="M900.33,1.34h114.23c94.46,0,139.27,64.14,139.27,158.16s-47.89,155.96-142.34,155.96h-111.15V1.34ZM1010.16,280.75c73.81,0,103.24-47.45,103.24-121.25s-26.36-123.89-100.17-123.89h-73.37v245.15h70.29Z"/><path d="M1330.43,283.83h-.44c-13.62,17.57-36.9,36.03-75.56,36.03-43.05,0-76.88-20.21-76.88-63.26,0-53.6,42.18-64.58,98.85-73.37,32.07-4.83,54.48-7.91,54.48-32.51s-18.45-39.98-50.96-39.98c-36.9,0-55.36,15.82-56.67,50.08h-34.27c1.32-43.93,30.31-76.88,90.5-76.88,48.33,0,83.91,18.01,83.91,72.05v108.08c0,18.45,4.39,28.56,24.16,24.16h1.32v25.92c-4.39,1.76-10.1,3.51-19.33,3.51-23.29,0-35.59-10.54-39.1-33.83ZM1331.31,231.55v-38.66c-11.86,7.47-32.51,13.18-51.84,16.69-35.59,6.59-64.14,12.74-64.14,46.13,0,30.31,23.72,36.9,47.01,36.9,47.45,0,68.97-34.71,68.97-61.07Z"/><path d="M1396.33,88.33h32.95V16.72h35.58v71.61h43.93v29h-43.93v147.62c0,15.82,8.35,21.09,22.85,21.09,7.03,0,14.94-1.76,18.89-3.08h1.32v30.75c-8.35,1.76-18.01,3.08-28.56,3.08-29,0-50.08-11.86-50.08-43.93V117.32h-32.95v-29Z"/><path d="M1684.97,283.83h-.44c-13.62,17.57-36.9,36.03-75.57,36.03-43.05,0-76.88-20.21-76.88-63.26,0-53.6,42.18-64.58,98.85-73.37,32.07-4.83,54.48-7.91,54.48-32.51s-18.45-39.98-50.96-39.98c-36.9,0-55.36,15.82-56.67,50.08h-34.27c1.32-43.93,30.31-76.88,90.5-76.88,48.33,0,83.91,18.01,83.91,72.05v108.08c0,18.45,4.39,28.56,24.16,24.16h1.32v25.92c-4.39,1.76-10.1,3.51-19.33,3.51-23.28,0-35.59-10.54-39.1-33.83ZM1685.85,231.55v-38.66c-11.86,7.47-32.51,13.18-51.84,16.69-35.59,6.59-64.14,12.74-64.14,46.13,0,30.31,23.72,36.9,47.01,36.9,47.45,0,68.97-34.71,68.97-61.07Z"/></g></g></symbol></svg>
 
-<header>
-  <div class="wrap hd">
-    <a class="mark" href="./"><svg class="grlogo" role="img" aria-label="GR Data"><use href="#grlogo"/></svg><span class="sep"></span><span class="t">Projeção <b>2º turno</b> · 2026</span></a>
-    <div class="live"><span class="dot" id="dot"></span><span id="livetxt">carregando…</span></div>
-  </div>
-</header>
+<div class="stage dk">
+  <header>
+    <div class="wrap hd">
+      <a class="mark" href="./"><svg class="grlogo" role="img" aria-label="GR Data"><use href="#grlogo"/></svg><span class="t">2º turno · 2026</span></a>
+      <nav class="nav" aria-label="Páginas">
+        <a href="./">Apuração SP</a>
+        <a href="mapa.html">Mapas</a>
+        <a href="dinheiro.html">Dinheiro × Votos</a>
+      </nav>
+      <div class="live"><span class="dot" id="dot"></span><span id="livetxt">carregando…</span></div>
+    </div>
+  </header>
 
-<main class="wrap">
-  <nav class="pagenav" aria-label="Páginas">
-    <a href="./">← Apuração SP</a>
-    <a href="mapa.html">🗺️ Mapas</a>
-    <a href="dinheiro.html">💰 Dinheiro × Votos</a>
-  </nav>
-
-  <section class="hero">
-    <div class="eyebrow" style="margin-top:6px"><span id="eyebrow">Presidente · domingo, 25 de outubro</span><span class="rule"></span></div>
-    <h1>O resultado do 2º turno antes do placar</h1>
-    <p>As urnas não chegam todas ao mesmo tempo, então o placar do começo da noite mostra só uma parte dos votos. Aqui, cada seção apurada é comparada com ela mesma no 1º turno: como votam as mesmas pessoas, dá para ver para que lado o voto está andando.</p>
-    <div class="disputas" role="group" aria-label="Disputa" id="disputas"></div>
-    <div class="tabs" role="group" aria-label="Modo" id="modos">
-      <button data-modo="live" aria-pressed="true">Ao vivo 2026</button>
-      <button data-modo="2022" aria-pressed="false">Rever 2022</button>
-      <button data-modo="2018" aria-pressed="false">Rever 2018</button>
-      <button data-modo="2014" aria-pressed="false">Rever 2014</button>
+  <section class="wrap hero">
+    <div class="tagrow"><span class="tag">Projeção</span><span class="ctx" id="eyebrow">Presidente · domingo, 25 de outubro</span></div>
+    <h1>O resultado do 2º turno <span class="hl">antes do placar</span></h1>
+    <p class="lead">As urnas não chegam todas ao mesmo tempo, então o placar do começo da noite mostra só uma parte dos votos. Aqui, cada seção apurada é comparada com ela mesma no 1º turno: como votam as mesmas pessoas, dá para ver para que lado o voto está andando.</p>
+    <div class="controls">
+      <div class="disputas" role="group" aria-label="Disputa" id="disputas"></div>
+      <div class="tabs" role="group" aria-label="Modo" id="modos">
+        <button data-modo="live" aria-pressed="true">Ao vivo 2026</button>
+        <button data-modo="2022" aria-pressed="false">2022</button>
+        <button data-modo="2018" aria-pressed="false">2018</button>
+        <button data-modo="2014" aria-pressed="false">2014</button>
+      </div>
     </div>
     <p class="nota-ordem" id="nota-ordem" hidden></p>
     <div id="espera" hidden>
@@ -208,31 +260,32 @@
       </div>
       <p class="aviso">A apuração começa domingo, 25 de outubro, às 17h (Brasília). A partir daí esta página passa a mostrar sozinha o placar e a projeção, atualizados a cada 30 segundos. Enquanto isso, <a href="#" id="go-replay">reveja a noite de 2022</a> com o mesmo método.</p>
     </div>
-  </section>
 
-  <div class="eyebrow">Projeção do resultado final<span class="rule"></span></div>
-  <section class="card" id="card-proj">
-    <div class="status">
-      <span class="badge" id="badge">Aguardando</span>
-      <h2 id="st-titulo">—</h2>
-      <p id="st-detalhe">Projeção independente, não é resultado oficial.</p>
+    <div class="board">
+      <section class="panel" id="card-proj" aria-label="Projeção do resultado final">
+        <div class="status">
+          <span class="badge" id="badge">Aguardando</span>
+          <h2 id="st-titulo">—</h2>
+          <p id="st-detalhe">Projeção independente, não é resultado oficial.</p>
+        </div>
+        <div class="duo">
+          <div class="cand ka"><div class="nm" id="nma">—</div><div class="pc" id="pca">—</div><div class="fx" id="fxa">&nbsp;</div></div>
+          <div class="cand kb"><div class="nm" id="nmb">—</div><div class="pc" id="pcb">—</div><div class="fx" id="fxb">&nbsp;</div></div>
+        </div>
+        <div class="meter" aria-hidden="true">
+          <div class="bar"><i id="ma" style="background:var(--ca);width:50%"></i><i id="mb" style="background:var(--cb);width:50%"></i></div>
+          <div class="mid"></div><div class="fx" id="mfx" style="display:none"></div>
+        </div>
+        <div class="meter-l"><span>← <span id="mla">—</span></span><span>empate</span><span><span id="mlb">—</span> →</span></div>
+      </section>
+      <div class="side">
+        <div class="mini"><div class="l">Seções apuradas</div><div class="v" id="k-secoes">—</div></div>
+        <div class="mini"><div class="l">Horário (TSE)</div><div class="v" id="k-hora">—</div></div>
+        <div class="mini"><div class="l">Placar contado</div><div class="v" id="k-placar">—</div></div>
+        <div class="mini"><div class="l">Placar oficial TSE</div><div class="v" id="k-oficial">—</div></div>
+        <div class="selo" id="selo" hidden><span class="ic">✓</span><span id="selo-txt"></span></div>
+      </div>
     </div>
-    <div class="duo">
-      <div class="cand ka"><div class="nm" id="nma">—</div><div class="pc" id="pca">—</div><div class="fx" id="fxa">&nbsp;</div></div>
-      <div class="cand kb"><div class="nm" id="nmb">—</div><div class="pc" id="pcb">—</div><div class="fx" id="fxb">&nbsp;</div></div>
-    </div>
-    <div class="meter" aria-hidden="true">
-      <div class="bar"><i id="ma" style="background:var(--ca);width:50%"></i><i id="mb" style="background:var(--cb);width:50%"></i></div>
-      <div class="mid"></div><div class="fx" id="mfx" style="display:none"></div>
-    </div>
-    <div class="meter-l"><span>← <span id="mla">—</span></span><span>empate</span><span><span id="mlb">—</span> →</span></div>
-    <div class="contado">
-      <div class="mini"><div class="l">Seções apuradas</div><div class="v" id="k-secoes">—</div></div>
-      <div class="mini"><div class="l">Placar contado</div><div class="v" id="k-placar">—</div></div>
-      <div class="mini"><div class="l">Placar oficial TSE</div><div class="v" id="k-oficial">—</div></div>
-      <div class="mini"><div class="l">Horário (TSE)</div><div class="v" id="k-hora">—</div></div>
-    </div>
-    <div class="selo" id="selo" hidden><span class="ic">✓</span><span id="selo-txt"></span></div>
     <div class="player" id="player">
       <button id="play" aria-label="Tocar">▶</button>
       <input type="range" id="slider" min="0" max="0" value="0" aria-label="Ponto da apuração">
@@ -240,21 +293,23 @@
       <span class="t" id="ptxt">—</span>
     </div>
     <div class="insight" id="ins-proj">Projeção independente, não é resultado oficial: o resultado oficial é o do TSE.</div>
-  </section>
 
-  <section class="card">
-    <h3>A noite em um gráfico</h3>
-    <div class="sub">Fatia <span id="g-nome">—</span> nos votos válidos (eixo vertical) conforme as seções chegam (eixo horizontal, % das seções apuradas)</div>
-    <svg class="chart" id="chart" viewBox="0 0 900 320" role="img" aria-label="Placar contado e projeção ao longo da apuração"></svg>
-    <div class="legend">
-      <span><i style="background:var(--graphite)"></i>Placar contado (igual ao do TSE)</span>
-      <span><i style="background:var(--primary)"></i>Projeção do resultado final</span>
-      <span><i style="background:var(--band);height:10px"></i>Faixa provável</span>
-    </div>
-    <div class="insight" id="ins-chart">—</div>
+    <section class="panel chart-panel">
+      <h3>A noite em um gráfico</h3>
+      <div class="sub">Fatia <span id="g-nome">—</span> nos votos válidos (eixo vertical) conforme as seções chegam (eixo horizontal, % das seções apuradas)</div>
+      <svg class="chart" id="chart" viewBox="0 0 900 320" role="img" aria-label="Placar contado e projeção ao longo da apuração"></svg>
+      <div class="legend">
+        <span><i style="background:var(--placar)"></i>Placar contado (igual ao do TSE)</span>
+        <span><i style="background:var(--proj)"></i>Projeção do resultado final</span>
+        <span><i style="background:var(--band);height:10px"></i>Faixa provável</span>
+      </div>
+      <div class="insight" id="ins-chart">—</div>
+    </section>
   </section>
+</div>
 
-  <div class="eyebrow">O que está movendo o resultado<span class="rule"></span></div>
+<main class="wrap">
+  <div class="sec-h"><span class="n">01</span><h2>O que está movendo o resultado</h2><span class="rule"></span></div>
   <div class="grid2">
     <section class="card">
       <h3>Diferença comparada ao 1º turno</h3>
@@ -282,7 +337,7 @@
     </section>
   </div>
 
-  <div class="eyebrow"><span id="tbl-eyebrow">Por região e estado</span><span class="rule"></span></div>
+  <div class="sec-h"><span class="n">02</span><h2 id="tbl-eyebrow">Por região e estado</h2><span class="rule"></span></div>
   <section class="card">
     <h3>Onde a diferença está andando</h3>
     <div class="sub" id="tbl-sub">Placar contado, quanto a diferença mudou contra o 1º turno e a projeção de cada lugar</div>
@@ -291,7 +346,7 @@
     <div class="insight" id="ins-tbl">—</div>
   </section>
 
-  <div class="eyebrow">Sua seção<span class="rule"></span></div>
+  <div class="sec-h"><span class="n">03</span><h2>Sua seção</h2><span class="rule"></span></div>
   <section class="card">
     <h3>Compare a sua urna nos dois turnos</h3>
     <div class="sub">A zona e a seção estão no título de eleitor e no app e-Título. Os boletins vêm direto do TSE.</div>
@@ -304,7 +359,7 @@
     <div class="sec-out" id="sec-out"></div>
   </section>
 
-  <div class="eyebrow">O método nas eleições anteriores<span class="rule"></span></div>
+  <div class="sec-h"><span class="n">04</span><h2>O método nas eleições anteriores</h2><span class="rule"></span></div>
   <section class="card">
     <h3>Como a projeção se saiu em 2014, 2018 e 2022</h3>
     <div class="sub">Mesma conta e mesmo código deste painel, refeitos com os boletins de urna reais do TSE</div>
@@ -313,21 +368,24 @@
     <div class="insight" id="ins-val">—</div>
   </section>
 
-  <div class="eyebrow">Como calculamos<span class="rule"></span></div>
-  <section class="card metodo">
-    <h4>O modelo</h4>
-    <p>Cada seção apurada no 2º turno é comparada com ela mesma no 1º. Por município, o modelo mede quanto dos votos de cada bloco do 1º turno (os dois finalistas, os demais candidatos, brancos e nulos) foi para cada lado, e aplica essa mesma "matriz de transferência" ao 1º turno das seções que ainda faltam. Município com poucas seções apuradas usa o comportamento do seu grupo — capital, interior grande ou interior pequeno do mesmo estado — até ter dados próprios.</p>
-    <h4>A faixa provável</h4>
-    <p>Combina a variação entre seções com uma margem extra para o fato de os municípios que chegam primeiro não serem iguais aos que faltam, calibrada refazendo as apurações de 2014, 2018 e 2022. A projeção só indica um vencedor quando a faixa inteira fica de um lado do empate, pela mesma regra para os dois candidatos, e nunca antes de 1% das seções. Nas três eleições refeitas, ela nunca apontou o vencedor errado.</p>
-    <h4>Os dados e a conferência</h4>
-    <p>Tudo sai dos arquivos públicos do TSE: o boletim de urna de cada seção (resultados.tse.jus.br) e os dados abertos do 1º turno. Antes de usar um boletim, o painel confere a cadeia de integridade publicada pelo próprio TSE: o hash divulgado confere o arquivo de assinaturas da urna, o certificado da urna foi emitido por uma autoridade certificadora das urnas do TSE, e a assinatura digital da urna sobre o boletim é válida (Ed521 nas urnas UE2020 e UE2022, ECDSA P-521 nas anteriores). Boletim que não confere fica de fora e aparece listado. Seções agregadas de outro jeito no 2º turno entram no placar, mas ficam fora do cálculo de transferência.</p>
-    <p><a href="#" id="csv">Baixar dados (CSV)</a> · <a href="https://resultados.tse.jus.br" target="_blank" rel="noopener">Resultado oficial no TSE ↗</a></p>
+  <div class="sec-h"><span class="n">05</span><h2>Como calculamos</h2><span class="rule"></span></div>
+  <section class="card">
+    <div class="metodo">
+      <div><h4>O modelo</h4>
+      <p>Cada seção apurada no 2º turno é comparada com ela mesma no 1º. Por município, o modelo mede quanto dos votos de cada bloco do 1º turno (os dois finalistas, os demais candidatos, brancos e nulos) foi para cada lado, e aplica essa mesma "matriz de transferência" ao 1º turno das seções que ainda faltam. Município com poucas seções apuradas usa o comportamento do seu grupo — capital, interior grande ou interior pequeno do mesmo estado — até ter dados próprios.</p></div>
+      <div><h4>A faixa provável</h4>
+      <p>Combina a variação entre seções com uma margem extra para o fato de os municípios que chegam primeiro não serem iguais aos que faltam, calibrada refazendo as apurações de 2014, 2018 e 2022. A projeção só indica um vencedor quando a faixa inteira fica de um lado do empate, pela mesma regra para os dois candidatos, e nunca antes de 1% das seções. Nas três eleições refeitas, ela nunca apontou o vencedor errado.</p></div>
+      <div><h4>Os dados e a conferência</h4>
+      <p>Tudo sai dos arquivos públicos do TSE: o boletim de urna de cada seção (resultados.tse.jus.br) e os dados abertos do 1º turno. Antes de usar um boletim, o painel confere a cadeia de integridade publicada pelo próprio TSE: o hash divulgado confere o arquivo de assinaturas da urna, o certificado da urna foi emitido por uma autoridade certificadora das urnas do TSE, e a assinatura digital da urna sobre o boletim é válida (Ed521 nas urnas UE2020 e UE2022, ECDSA P-521 nas anteriores). Boletim que não confere fica de fora e aparece listado. Seções agregadas de outro jeito no 2º turno entram no placar, mas ficam fora do cálculo de transferência.</p></div>
+    </div>
+    <p class="links"><a href="#" id="csv" class="pri">Baixar dados (CSV)</a><a href="https://resultados.tse.jus.br" target="_blank" rel="noopener">Resultado oficial no TSE ↗</a></p>
   </section>
-
-  <footer>
-    <b>GR Data</b> · Projeção independente, sem ligação com partidos ou campanhas. Não é resultado oficial: o resultado oficial é o do TSE.
-  </footer>
 </main>
+
+<footer>
+  <div class="wrap"><svg class="grlogo" role="img" aria-label="GR Data"><use href="#grlogo"/></svg>
+  <span><b>GR Data</b> · Projeção independente, sem ligação com partidos ou campanhas. Não é resultado oficial: o resultado oficial é o do TSE.</span></div>
+</footer>
 
 <script>
 (() => {
@@ -375,8 +433,6 @@
   // ------------------------------------------------------------------ candidatos e cores
   function aplicaCandidatos(cand) {
     N = { a: cand.a.nome, b: cand.b.nome, ca: cand.a.completo, cb: cand.b.completo };
-    document.documentElement.style.setProperty("--ca", cand.a.cor);
-    document.documentElement.style.setProperty("--cb", cand.b.cor);
     $("nma").textContent = N.ca; $("nmb").textContent = N.cb; $("mla").textContent = N.a; $("mlb").textContent = N.b;
     $("g-nome").textContent = "de " + N.a;
   }
@@ -472,13 +528,13 @@
     if (fx.length > 1) {
       const top = fx.map((d) => `${x(d.pct)},${y(d.faixa[1])}`).join(" "), bot = fx.slice().reverse().map((d) => `${x(d.pct)},${y(d.faixa[0])}`).join(" ");
       g += `<polygon points="${top} ${bot}" fill="var(--band)"/>`;
-      g += `<polyline points="${fx.map((d) => `${x(d.pct)},${y(d.proj)}`).join(" ")}" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linejoin="round"/>`;
+      g += `<polyline points="${fx.map((d) => `${x(d.pct)},${y(d.proj)}`).join(" ")}" fill="none" stroke="var(--proj)" stroke-width="2.8" stroke-linejoin="round"/>`;
     }
-    if (pts.length > 1) g += `<polyline points="${pts.map((d) => `${x(d.pct)},${y(d.placara)}`).join(" ")}" fill="none" stroke="var(--graphite)" stroke-width="1.6" stroke-linejoin="round"/>`;
+    if (pts.length > 1) g += `<polyline points="${pts.map((d) => `${x(d.pct)},${y(d.placara)}`).join(" ")}" fill="none" stroke="var(--placar)" stroke-width="1.8" stroke-linejoin="round"/>`;
     const last = pts[pts.length - 1];
     if (last) {
-      g += `<circle cx="${x(last.pct)}" cy="${y(last.placara)}" r="4" fill="var(--graphite)"/>`;
-      if (last.proj != null) g += `<circle cx="${x(last.pct)}" cy="${y(last.proj)}" r="5" fill="var(--primary)"/>`;
+      g += `<circle cx="${x(last.pct)}" cy="${y(last.placara)}" r="4" fill="var(--placar)"/>`;
+      if (last.proj != null) g += `<circle cx="${x(last.pct)}" cy="${y(last.proj)}" r="5.5" fill="var(--proj)" stroke="var(--amber)" stroke-width="2.5"/>`;
     }
     svg.innerHTML = g;
     if (!last) { $("ins-chart").textContent = "O gráfico começa com as primeiras seções."; return; }
@@ -486,7 +542,7 @@
     const lp = pico.placara > 50 ? "a" : "b";
     let txt = `No pico, com ${pc(pico.pct, 1)} das seções, o placar dava <b>${N[lp]} com ${pc(lp === "a" ? pico.placara : 100 - pico.placara)}</b>`;
     txt += pico.proj != null ? `; a projeção, no mesmo momento, já dizia <b>${pc(pico.proj > 50 ? pico.proj : 100 - pico.proj)} para ${N[pico.proj > 50 ? "a" : "b"]}</b>.` : ".";
-    $("ins-chart").innerHTML = txt + " A linha laranja quase não se mexe enquanto o placar oscila: é isso que a comparação com o 1º turno resolve.";
+    $("ins-chart").innerHTML = txt + " A linha da projeção quase não se mexe enquanto o placar oscila: é isso que a comparação com o 1º turno resolve.";
   }
 
   function renderDif(s) {
@@ -775,8 +831,8 @@
       if (!r) return `<div class="sec-col"><h4>${tit}</h4><p class="muted" style="margin:0">Boletim ainda não divulgado.</p></div>`;
       const v = r.votos, va = v[na.numero] || 0, vb = v[nb.numero] || 0, ot = Object.values(v).reduce((a, x) => a + x, 0) - va - vb;
       return `<div class="sec-col"><h4>${tit}</h4>
-        <div class="row"><span style="color:${na.cor}">${na.nome} (${na.numero})</span><b>${int(va)}</b></div>
-        <div class="row"><span style="color:${nb.cor}">${nb.nome} (${nb.numero})</span><b>${int(vb)}</b></div>
+        <div class="row"><span class="ca">${na.nome} (${na.numero})</span><b>${int(va)}</b></div>
+        <div class="row"><span class="cb">${nb.nome} (${nb.numero})</span><b>${int(vb)}</b></div>
         ${outros ? `<div class="row"><span>Demais candidatos</span><b>${int(ot)}</b></div>` : ""}
         <div class="row"><span>Brancos e nulos</span><b>${int(r.brancos + r.nulos)}</b></div>
         <div class="row muted"><span>Votaram / aptos</span><span>${int(r.comp)} / ${int(r.aptos)}</span></div></div>`;
