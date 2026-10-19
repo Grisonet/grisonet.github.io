@@ -156,6 +156,7 @@ class Disputa:
         va, vb, _, br, nu, comp, aptos = confronto(r, ca, cb)
         if self.modelo.adiciona(chave, va, vb, br + nu, comp, aptos):
             self.lote[0] += 1; self.lote[1] += va; self.lote[2] += vb
+        return va, vb
 
     def fecha_lote(self):
         n, va, vb = self.lote
@@ -204,6 +205,10 @@ class Coletor:
         self.gerado_tse = None
         self.integ = {"verificadas": 0, "rejeitadas": 0, "por_ac": {}, "lista": [], "ativa": VERIFICAR}
         self.pool = concurrent.futures.ProcessPoolExecutor(PROCESSOS)
+        # mapa de Presidente por cidade de SP (página inicial): votos somados por município
+        self.sp_ibge = json.load(open(os.path.join(here, "base", "sp_ibge.json")))
+        self.mapa_sp = {}       # município TSE -> [votos a, votos b, seções apuradas]
+        self.sp_total = {}      # município TSE -> seções no total
         self._carrega_cache()
 
     def _carrega_cache(self):
@@ -224,7 +229,10 @@ class Coletor:
             self.integ["por_ac"][info] = self.integ["por_ac"].get(info, 0) + 1
         for d in self.disputas:
             if d.aceita(k):
-                d.adiciona(k, res, do_cache)
+                v = d.adiciona(k, res, do_cache)
+                if v and d.cfg["id"] == "presidente" and k.startswith("SP|"):
+                    m = self.mapa_sp.setdefault(int(k.split("|")[1]), [0, 0, 0])
+                    m[0] += v[0]; m[1] += v[1]; m[2] += 1
         if grava_cache:
             grava_cache.write(json.dumps({"k": k, "info": info, "res": {f"{e}:{c}": v for (e, c), v in res.items()
                                                                        if (e, c) in self._interessa}}) + "\n")
@@ -250,6 +258,8 @@ class Coletor:
                 for ab in cfg.get("abr", []):
                     UF = ab["cd"].upper()
                     for mu in ab.get("mu", []):
+                        if UF == "SP":
+                            self.sp_total[int(mu["cd"])] = sum(len(zo.get("sec", [])) for zo in mu.get("zon", []))
                         for zo in mu.get("zon", []):
                             for se in zo.get("sec", []):
                                 if "da" not in se:
@@ -323,6 +333,10 @@ class Coletor:
         snaps = []
         for d in self.disputas:
             snap = d.snapshot(self.gerado_tse, integ)
+            if d.cfg["id"] == "presidente" and self.sp_total:
+                # [IBGE, votos a, votos b, seções apuradas, seções no total] por cidade de SP
+                snap["mapa_sp"] = [[self.sp_ibge.get(str(m), ""), *self.mapa_sp.get(m, [0, 0, 0]), t]
+                                   for m, t in sorted(self.sp_total.items())]
             pre = d.cfg["saida"]
             self._grava(pre + "snapshot.json", json.dumps(snap, ensure_ascii=False, separators=(",", ":")))
             buf = io.StringIO()
