@@ -16,7 +16,7 @@ vivia só no Mac/scratchpad temporário.
   (oficial TSE `e='s'`, ou projeção matemática nos majoritários), **projeção de
   cadeiras por partido** e **como cada eleito pegou a vaga** (votação própria /
   quociente / média). Gerado de `web-src/sp2026.html` por `build_index.py`.
-- **`projecao.html`** — **Projeção do 2º turno · Presidente** (estilo Apuração Aberta): cada seção do
+- **`projecao.html`** — **Projeção do 2º turno · Presidente**: cada seção do
   2º turno comparada com ela mesma no 1º, matriz de transferência por município, faixa provável,
   replay da noite de 2022 (`projecao/replay2022/`, estático) e "Sua seção" (lê o boletim direto do TSE).
   Dados ao vivo vêm do relay `https://grdata-apuracao-production.up.railway.app/snapshot.json`,

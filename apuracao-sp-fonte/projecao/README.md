@@ -3,7 +3,7 @@
 Painel público: **https://grisonet.github.io/apuracao-sp/projecao.html**
 (fonte da página: `GR Data/apuracao-sp/projecao.html`; replay estático em `apuracao-sp/projecao/replay2022/`).
 
-Engenharia reversa do *Apuração Aberta* (Diogo Machado): cada seção do 2º turno é
+Cada seção do 2º turno é
 comparada com ela mesma no 1º turno, e uma matriz de transferência por município
 (encolhida para capital/interior → UF → Brasil) projeta as seções que faltam.
 
