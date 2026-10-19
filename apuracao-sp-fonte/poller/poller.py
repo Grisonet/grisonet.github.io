@@ -232,7 +232,8 @@ REPO_ESTADO     = os.path.join(_REPO_AP, "estado.json")
 GOV_LOCAL       = os.path.join(_HERE, "gov-sp.json")
 PRES_LOCAL      = os.path.join(_HERE, "presidente.json")
 # arquivos a publicar (local -> nome no repo)
-PUSH_FILES = {ESTADO_LOCAL: "estado.json", GOV_LOCAL: "gov-sp.json", PRES_LOCAL: "presidente.json"}
+# estado.json (Samuel x Dani) é estudo sob demanda: não é mais gerado nem publicado.
+PUSH_FILES = {GOV_LOCAL: "gov-sp.json", PRES_LOCAL: "presidente.json"}
 ESTADO_INTERVAL = int(os.environ.get("ESTADO_INTERVAL", "180"))     # 3 min
 ESTADO_PUSH     = os.environ.get("ESTADO_PUSH", "1") == "1"
 UFS = ["ac","al","am","ap","ba","ce","df","es","go","ma","mg","ms","mt","pa","pb",
@@ -368,7 +369,7 @@ def _git_push_all():
         if not rel:
             return
         subprocess.run(["git", "-C", REPO_DIR, "add"] + rel, capture_output=True, timeout=60)
-        subprocess.run(["git", "-C", REPO_DIR, "commit", "-m", "apuracao-sp: atualiza dados dos mapas (estado/gov/presidente)"], capture_output=True, timeout=60)
+        subprocess.run(["git", "-C", REPO_DIR, "commit", "-m", "apuracao-sp: atualiza dados dos mapas (gov/presidente)"], capture_output=True, timeout=60)
         subprocess.run(["git", "-C", REPO_DIR, "push", "origin", "main"], capture_output=True, timeout=90)
     except Exception as e:
         print(f"  ! git push: {e}", file=sys.stderr)
@@ -377,16 +378,12 @@ def estado_loop():
     while True:
         t0 = time.time()
         try:
-            est = build_estado();  _write_json(ESTADO_LOCAL, est)
             gov = build_govsp();   _write_json(GOV_LOCAL, gov)
             pres = build_presidente(); _write_json(PRES_LOCAL, pres)
-            done = sum(1 for c in est["cidades"] if c["p"] > 0)
-            ls = sum(1 for c in est["cidades"] if c["s"] > c["d"] and c["p"] > 0)
-            ld = sum(1 for c in est["cidades"] if c["d"] > c["s"] and c["p"] > 0)
             gv_t = sum(1 for c in gov["cidades"] if c["lead"] == "10")
             gv_h = sum(1 for c in gov["cidades"] if c["lead"] == "13")
             pr_u = sum(1 for u in pres["ufs"] if u["lead"])
-            print(f"[{datetime.now():%H:%M:%S}] MAPAS — dep:{done}cid (Samuel {ls}x{ld} Dani) | gov:(Tarcísio {gv_t}x{gv_h} Haddad) | pres:{pr_u}/27 UFs | {time.time()-t0:.0f}s")
+            print(f"[{datetime.now():%H:%M:%S}] MAPAS — gov:(Tarcísio {gv_t}x{gv_h} Haddad) | pres:{pr_u}/27 UFs | {time.time()-t0:.0f}s")
             if ESTADO_PUSH:
                 _git_push_all()
         except Exception as e:
@@ -483,9 +480,9 @@ def main():
     print(f"   destino cargos={WHATSAPP_TO or '(não setado)'}  comparativo={CMP_RECIPIENTS}  intervalo={POLL_INTERVAL}s  gap_min={MIN_MSG_GAP}s  passo={PROGRESS_STEP}%  dry_run={DRY_RUN}")
     keys = [r["key"] for r in RACES] + [sc["key"] for sc in CMP_SCOPES]
     state = {k: {"sig": None, "pst": -1.0, "sent": 0.0} for k in keys}
-    # mapa estadual Samuel x Dani em thread separada (a cada ESTADO_INTERVAL s)
+    # mapas de governador e presidente em thread separada (a cada ESTADO_INTERVAL s)
     threading.Thread(target=estado_loop, daemon=True).start()
-    print(f"   mapa estadual: estado.json a cada {ESTADO_INTERVAL}s (push={ESTADO_PUSH})")
+    print(f"   mapas gov/presidente a cada {ESTADO_INTERVAL}s (push={ESTADO_PUSH})")
     while True:
         try:
             now = time.time()

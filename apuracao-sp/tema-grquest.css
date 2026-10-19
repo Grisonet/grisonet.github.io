@@ -2,19 +2,15 @@
    Paleta: Ignition Orange #FF4C00, Amber Gold #FFC200, Carbon #080808, branco.
    Topo = faixa escura (.gq-stage) com navegação e título; conteúdo em cartões claros.
    Mesma linguagem visual de projecao.html. Classes novas usam o prefixo gq- para não colidir com as da página. */
-:root{
-  --canvas:#ffffff; --parchment:#f6f5f3; --pearl:#faf9f7;
-  --hairline:#e7e5e2; --divider:#f0efed; --track:#eceae6;
+:root:root:not([data-x]){
+  /* conteúdo sempre claro (só a faixa do topo é escura): o seletor é mais forte que o modo escuro do index */
+  --canvas:#ffffff; --parchment:#f4f3f0; --pearl:#faf9f7;
+  --ink:#0b0b0b; --graphite:#3a3a3a; --steel:#636363;
+  --hairline:#e2dfda; --divider:#eeece8; --track:#ebe8e3;
   --primary:#FF4C00; --amber:#FFC200; --carbon:#080808;
+  --pos:#15803D; --pos-bg:#E8F7EE; --neg:#DC2626; --sel-tint:rgba(255,76,0,.07);
   --display:"Inter Tight","Inter",system-ui,sans-serif;
-}
-@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
-  --canvas:#151515; --parchment:#0d0d0d; --pearl:#1c1c1c;
-  --hairline:rgba(255,255,255,.10); --divider:rgba(255,255,255,.06); --track:rgba(255,255,255,.08);
-}}
-:root[data-theme="dark"]{
-  --canvas:#151515; --parchment:#0d0d0d; --pearl:#1c1c1c;
-  --hairline:rgba(255,255,255,.10); --divider:rgba(255,255,255,.06); --track:rgba(255,255,255,.08);
+  color-scheme:light;
 }
 body{line-height:1.5}
 h1,h2,h3{font-family:var(--display);font-weight:700;letter-spacing:-.018em}
@@ -79,12 +75,10 @@ main{padding-top:6px}
 .ins{border-left:3px solid var(--amber)!important}
 .disclaimer{border-radius:16px!important}
 .search{border-radius:12px!important}
-footer{background:var(--carbon);color:#9a9a9a!important;border:0!important;border-radius:22px;padding:22px 24px!important;margin-top:40px!important}
-footer b{color:#fff!important}
-footer a{color:#fff}
+footer{margin-top:40px!important;padding-top:20px!important;border-top:1px solid var(--hairline)!important;color:var(--steel)!important}
+footer b{color:var(--graphite)!important}
 @media (max-width:520px){
   .gq-nav{order:3;width:100%;margin-left:0;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
   .gq-nav::-webkit-scrollbar{display:none}
   .gq-live{margin-left:auto}
-  footer{padding:18px!important}
 }
