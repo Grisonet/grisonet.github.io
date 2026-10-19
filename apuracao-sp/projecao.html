@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Projeção 2º Turno · GR Data</title>
+<meta name="description" content="Apuração do 2º turno para Presidente com projeção independente: cada urna comparada com ela mesma no 1º turno. GR Data.">
+<meta property="og:title" content="Projeção do 2º turno · GR Data">
+<meta property="og:description" content="Veja para que lado o voto está andando antes do placar: cada seção do 2º turno comparada com ela mesma no 1º turno.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+  /* Projeção do 2º turno (Presidente) — Design System Griso / GR Data. Light-first + dark. */
+  :root{
+    --canvas:#ffffff; --parchment:#f6f5f3; --pearl:#faf9f7;
+    --ink:#080808; --graphite:#454545; --steel:#7a7a7a;
+    --hairline:#e5e5e5; --divider:#f0efed; --track:#f0efed;
+    --primary:#FF4C00; --primary-tint:rgba(255,76,0,.12); --amber:#FFC200;
+    --c22:#0B57D0; --c22-bg:#DCE7FA; --c13:#C5221F; --c13-bg:#F9DEDB;
+    --band:rgba(122,122,122,.18);
+    color-scheme:light; --maxw:1100px;
+  }
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+    --canvas:#1b1b1b; --parchment:#121212; --pearl:#222;
+    --ink:#fff; --graphite:#ccc; --steel:#9a9a9a;
+    --hairline:rgba(255,255,255,.13); --divider:rgba(255,255,255,.08); --track:rgba(255,255,255,.09);
+    --c22:#7AA7FF; --c22-bg:rgba(122,167,255,.16); --c13:#FF7B72; --c13-bg:rgba(255,123,114,.16);
+    --band:rgba(255,255,255,.12); --primary-tint:rgba(255,76,0,.2);
+    color-scheme:dark;
+  }}
+  :root[data-theme="dark"]{
+    --canvas:#1b1b1b; --parchment:#121212; --pearl:#222;
+    --ink:#fff; --graphite:#ccc; --steel:#9a9a9a;
+    --hairline:rgba(255,255,255,.13); --divider:rgba(255,255,255,.08); --track:rgba(255,255,255,.09);
+    --c22:#7AA7FF; --c22-bg:rgba(122,167,255,.16); --c13:#FF7B72; --c13-bg:rgba(255,123,114,.16);
+    --band:rgba(255,255,255,.12); --primary-tint:rgba(255,76,0,.2);
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--parchment);color:var(--ink);font-family:"Inter",system-ui,-apple-system,sans-serif;
+    font-variant-numeric:tabular-nums;margin:0;letter-spacing:-.011em;line-height:1.47;font-size:15px}
+  h1,h2,h3{margin:0;font-weight:600;letter-spacing:-.021em;text-wrap:balance}
+  a{color:inherit}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding-inline:16px}
+  header{position:sticky;top:0;z-index:30;background:#080808;color:#fff;border-bottom:1px solid rgba(255,255,255,.08)}
+  .hd{display:flex;align-items:center;gap:14px;padding-block:11px;flex-wrap:wrap}
+  .mark{display:flex;align-items:center;gap:11px;min-width:0;text-decoration:none;color:#fff}
+  .grlogo{height:23px;width:auto;fill:currentColor;display:block}
+  .mark .sep{width:1px;height:20px;background:rgba(255,255,255,.22);flex:none}
+  .mark .t{font-weight:600;font-size:clamp(13px,2.6vw,17px);letter-spacing:-.022em;white-space:nowrap}
+  .mark .t b{color:var(--primary);font-weight:600}
+  .live{display:flex;align-items:center;gap:8px;margin-left:auto;font-size:12px;color:#ccc;white-space:nowrap}
+  .dot{width:8px;height:8px;border-radius:50%;background:#666}
+  .dot.on{background:var(--primary);animation:pulse 1.8s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,76,0,.6)}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
+  @media(prefers-reduced-motion:reduce){.dot.on{animation:none}}
+  main{padding-block:18px 48px}
+  .pagenav{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 18px}
+  .pagenav a{font-size:13px;font-weight:600;text-decoration:none;color:var(--ink);background:var(--canvas);border:1px solid var(--hairline);border-radius:9999px;padding:8px 14px}
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--steel);margin:30px 2px 11px;display:flex;align-items:center;gap:10px}
+  .eyebrow .rule{flex:1;height:1px;background:var(--hairline)}
+  .card{background:var(--canvas);border:1px solid var(--hairline);border-radius:18px;padding:20px 22px;margin-bottom:14px}
+  .card h3{font-size:18px}
+  .sub{color:var(--steel);font-size:13.5px;margin-top:3px}
+  .insight{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--pearl);border:1px solid var(--divider);font-size:14px;color:var(--graphite)}
+  .insight b{color:var(--ink);font-weight:600}
+  .grid2{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+  .muted{color:var(--steel)}
+  .c22{color:var(--c22)} .c13{color:var(--c13)}
+
+  /* hero */
+  .hero h1{font-size:clamp(26px,5vw,40px);letter-spacing:-.03em;line-height:1.1}
+  .hero p{color:var(--graphite);max-width:720px;margin:10px 0 0;font-size:16px}
+  .tabs{display:inline-flex;gap:4px;background:var(--divider);border-radius:9999px;padding:4px;margin-top:18px}
+  .tabs button{font:inherit;font-size:13.5px;font-weight:600;border:0;background:transparent;color:var(--graphite);padding:8px 16px;border-radius:9999px;cursor:pointer}
+  .tabs button[aria-pressed="true"]{background:var(--canvas);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+  .countdown{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+  .countdown div{background:var(--canvas);border:1px solid var(--hairline);border-radius:14px;padding:10px 14px;min-width:78px;text-align:center}
+  .countdown b{display:block;font-size:26px;font-weight:600;letter-spacing:-.02em}
+  .countdown span{font-size:11.5px;color:var(--steel);text-transform:uppercase;letter-spacing:.08em}
+  .aviso{margin-top:14px;font-size:14px;color:var(--graphite);max-width:720px}
+
+  /* projeção */
+  .proj-top{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-radius:9999px;padding:5px 11px;background:var(--divider);color:var(--graphite)}
+  .badge.win22{background:var(--c22-bg);color:var(--c22)} .badge.win13{background:var(--c13-bg);color:var(--c13)}
+  .status h2{font-size:clamp(22px,4vw,30px);margin-top:10px;letter-spacing:-.025em}
+  .status p{margin:6px 0 0;color:var(--graphite);font-size:14px;max-width:560px}
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+  .cand{border-radius:14px;padding:14px 16px;border:1px solid var(--hairline)}
+  .cand .nm{font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+  .cand .pc{font-size:clamp(34px,7vw,52px);font-weight:600;letter-spacing:-.035em;line-height:1.05;margin-top:4px}
+  .cand .fx{font-size:13px;color:var(--steel)}
+  .cand.k22{background:var(--c22-bg);border-color:transparent} .cand.k22 .nm,.cand.k22 .pc{color:var(--c22)}
+  .cand.k13{background:var(--c13-bg);border-color:transparent} .cand.k13 .nm,.cand.k13 .pc{color:var(--c13)}
+  .meter{position:relative;height:30px;margin-top:18px}
+  .meter .bar{position:absolute;inset:9px 0;border-radius:9999px;overflow:hidden;display:flex}
+  .meter .bar i{display:block;height:100%}
+  .meter .mid{position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--ink);transform:translateX(-1px)}
+  .meter .fx{position:absolute;top:4px;bottom:4px;border:2px solid var(--ink);border-radius:6px;background:rgba(255,255,255,.25)}
+  .meter-l{display:flex;justify-content:space-between;font-size:12px;color:var(--steel);margin-top:4px}
+  .contado{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:18px}
+  .mini{background:var(--pearl);border:1px solid var(--divider);border-radius:12px;padding:10px 12px}
+  .mini .l{font-size:11.5px;color:var(--steel);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+  .mini .v{font-size:19px;font-weight:600;margin-top:2px;letter-spacing:-.015em}
+  .mini .v small{font-size:12.5px;color:var(--steel);font-weight:400}
+
+  /* replay */
+  .player{display:none;align-items:center;gap:12px;margin-top:18px;padding:12px 14px;border-radius:14px;background:var(--pearl);border:1px solid var(--divider);flex-wrap:wrap}
+  .player.on{display:flex}
+  .player button{font:inherit;font-size:14px;font-weight:600;border:0;border-radius:9999px;background:var(--ink);color:var(--canvas);width:38px;height:38px;cursor:pointer;flex:none}
+  .player input[type=range]{flex:1;min-width:160px;accent-color:var(--primary)}
+  .player .t{font-size:13px;color:var(--graphite);min-width:150px}
+  .speed{font:inherit;font-size:12.5px;border:1px solid var(--hairline);border-radius:9999px;background:var(--canvas);color:var(--ink);padding:5px 8px}
+
+  /* gráfico */
+  .chart{width:100%;height:auto;display:block;margin-top:10px;overflow:visible}
+  .chart text{font-size:11px;fill:var(--steel);font-family:inherit}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--graphite);margin-top:8px}
+  .legend i{display:inline-block;width:18px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+
+  /* números */
+  .kpis{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:14px}
+  .stack{display:flex;height:12px;border-radius:9999px;overflow:hidden;margin-top:12px;background:var(--track)}
+  .stack i{display:block;height:100%}
+  .stack-l{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--graphite);margin-top:8px}
+  .sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+  /* tabela */
+  .tblwrap{overflow-x:auto;margin-top:12px;-webkit-overflow-scrolling:touch}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px}
+  th{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--steel);font-weight:600;text-align:right;padding:8px 8px;border-bottom:1px solid var(--hairline);white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  td{padding:9px 8px;border-bottom:1px solid var(--divider);text-align:right;white-space:nowrap}
+  tr:last-child td{border-bottom:0}
+  .pbar{display:inline-flex;width:90px;height:8px;border-radius:9999px;overflow:hidden;vertical-align:middle;margin-left:8px;background:var(--track)}
+  .pbar i{display:block;height:100%}
+  .seg{display:inline-flex;gap:4px;background:var(--divider);border-radius:9999px;padding:3px;margin-top:12px}
+  .seg button{font:inherit;font-size:12.5px;font-weight:600;border:0;background:transparent;color:var(--graphite);padding:6px 12px;border-radius:9999px;cursor:pointer}
+  .seg button[aria-pressed="true"]{background:var(--canvas);color:var(--ink)}
+
+  /* sua seção */
+  .form{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:14px}
+  .form label{font-size:12px;color:var(--steel);font-weight:600;display:block;margin-bottom:4px}
+  .form select{width:100%;font:inherit;font-size:14px;padding:9px 10px;border-radius:10px;border:1px solid var(--hairline);background:var(--canvas);color:var(--ink)}
+  .sec-out{margin-top:14px}
+  .sec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+  .sec-col{border:1px solid var(--hairline);border-radius:14px;padding:12px 14px}
+  .sec-col h4{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--steel)}
+  .row{display:flex;justify-content:space-between;font-size:14px;padding:3px 0}
+
+  .metodo p{color:var(--graphite);font-size:14.5px;margin:8px 0 0}
+  .metodo h4{margin:16px 0 0;font-size:15px}
+  footer{color:var(--steel);font-size:12.5px;padding:20px 0 40px;border-top:1px solid var(--hairline);margin-top:30px}
+  @media (max-width:520px){.card{padding:16px}.duo{grid-template-columns:1fr 1fr;gap:8px}.cand{padding:12px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" aria-hidden="true" style="position:absolute;overflow:hidden"><symbol id="grlogo" viewBox="0 0 1743.4 319.86"><g><g><path d="M657.86,248.74c-25.77-1.21-49.42-14.95-63.2-36.96l-13.25-23.52-33.24-6.42v-6.44l25.96-.06h122.08c22.88,0,45.6-8.76,61.21-23.13,17.43-16.02,28.35-39,28.35-64.54,0-28.82-13.9-54.38-35.37-70.35-14.6-10.88-34.59-17.32-54.19-17.32l-251.01.07v65.46s0,0,0,0v248.84h71.71l-1.04-95.41,18.71,29.87.24.39c24.2,38.63,65.72,62.8,110.97,64.98,2.18.12,4.39.17,6.59.17h125.26v-65.54h-116.06c-1.24,0-2.48-.02-3.72-.09ZM515.52,119.87v-41.93l-14.33-5.97v-6.44h177.27c5.96,0,11.45,1.91,15.92,5.16,1.17.84,2.27,1.79,3.29,2.8,4.92,4.92,7.96,11.72,7.96,19.21,0,15-12.16,27.17-27.17,27.17h-162.94Z"/><path d="M177.59,119.87h213.39v194.5h-72.97l2.3-95.41-18.71,29.87-.24.39c-25.39,40.53-69.84,65.15-117.66,65.15h-6.11v-.67l-.41.67h-17.73C72.64,314.37,0,243.99,0,157.18c0-43.41,18.16-82.7,47.17-111.14C76.18,17.59,116.05,0,159.45,0l225.16.07v65.46h-212.45c-50.62,0-91.65,41.04-91.65,91.65,0,25.31,10.26,48.22,26.85,64.81,16.58,16.58,39.49,26.84,64.8,26.84h2.34c27.2,0,52.48-14,66.92-37.05l13.79-23.66v.11l33.36-6.44v-6.44h-25.92.01s-85.07-.01-85.07-.01v-55.47Z"/></g><g opacity=".8"><path d="M900.33,1.34h114.23c94.46,0,139.27,64.14,139.27,158.16s-47.89,155.96-142.34,155.96h-111.15V1.34ZM1010.16,280.75c73.81,0,103.24-47.45,103.24-121.25s-26.36-123.89-100.17-123.89h-73.37v245.15h70.29Z"/><path d="M1330.43,283.83h-.44c-13.62,17.57-36.9,36.03-75.56,36.03-43.05,0-76.88-20.21-76.88-63.26,0-53.6,42.18-64.58,98.85-73.37,32.07-4.83,54.48-7.91,54.48-32.51s-18.45-39.98-50.96-39.98c-36.9,0-55.36,15.82-56.67,50.08h-34.27c1.32-43.93,30.31-76.88,90.5-76.88,48.33,0,83.91,18.01,83.91,72.05v108.08c0,18.45,4.39,28.56,24.16,24.16h1.32v25.92c-4.39,1.76-10.1,3.51-19.33,3.51-23.29,0-35.59-10.54-39.1-33.83ZM1331.31,231.55v-38.66c-11.86,7.47-32.51,13.18-51.84,16.69-35.59,6.59-64.14,12.74-64.14,46.13,0,30.31,23.72,36.9,47.01,36.9,47.45,0,68.97-34.71,68.97-61.07Z"/><path d="M1396.33,88.33h32.95V16.72h35.58v71.61h43.93v29h-43.93v147.62c0,15.82,8.35,21.09,22.85,21.09,7.03,0,14.94-1.76,18.89-3.08h1.32v30.75c-8.35,1.76-18.01,3.08-28.56,3.08-29,0-50.08-11.86-50.08-43.93V117.32h-32.95v-29Z"/><path d="M1684.97,283.83h-.44c-13.62,17.57-36.9,36.03-75.57,36.03-43.05,0-76.88-20.21-76.88-63.26,0-53.6,42.18-64.58,98.85-73.37,32.07-4.83,54.48-7.91,54.48-32.51s-18.45-39.98-50.96-39.98c-36.9,0-55.36,15.82-56.67,50.08h-34.27c1.32-43.93,30.31-76.88,90.5-76.88,48.33,0,83.91,18.01,83.91,72.05v108.08c0,18.45,4.39,28.56,24.16,24.16h1.32v25.92c-4.39,1.76-10.1,3.51-19.33,3.51-23.28,0-35.59-10.54-39.1-33.83ZM1685.85,231.55v-38.66c-11.86,7.47-32.51,13.18-51.84,16.69-35.59,6.59-64.14,12.74-64.14,46.13,0,30.31,23.72,36.9,47.01,36.9,47.45,0,68.97-34.71,68.97-61.07Z"/></g></g></symbol></svg>
+
+<header>
+  <div class="wrap hd">
+    <a class="mark" href="./"><svg class="grlogo" role="img" aria-label="GR Data"><use href="#grlogo"/></svg><span class="sep"></span><span class="t">Projeção <b>2º turno</b> · 2026</span></a>
+    <div class="live"><span class="dot" id="dot"></span><span id="livetxt">carregando…</span></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="pagenav" aria-label="Páginas">
+    <a href="./">← Apuração SP</a>
+    <a href="mapa.html">🗺️ Mapas</a>
+    <a href="dinheiro.html">💰 Dinheiro × Votos</a>
+  </nav>
+
+  <section class="hero">
+    <div class="eyebrow" style="margin-top:6px">Presidente · domingo, 25 de outubro<span class="rule"></span></div>
+    <h1>O resultado do 2º turno antes do placar</h1>
+    <p>As urnas não chegam todas ao mesmo tempo, então o placar do começo da noite mostra só uma parte do Brasil. Aqui, cada seção apurada é comparada com ela mesma no 1º turno: como votam as mesmas pessoas, dá para ver para que lado o voto está andando.</p>
+    <div class="tabs" role="group" aria-label="Modo">
+      <button id="tab-live" aria-pressed="true">Ao vivo 2026</button>
+      <button id="tab-replay" aria-pressed="false">Rever 2022</button>
+    </div>
+    <div id="espera" hidden>
+      <div class="countdown" aria-live="polite">
+        <div><b id="cd-d">—</b><span>dias</span></div><div><b id="cd-h">—</b><span>horas</span></div>
+        <div><b id="cd-m">—</b><span>min</span></div><div><b id="cd-s">—</b><span>seg</span></div>
+      </div>
+      <p class="aviso">A apuração começa domingo, 25 de outubro, às 17h (Brasília). A partir daí esta página passa a mostrar sozinha o placar e a projeção, atualizados a cada 30 segundos. Enquanto isso, <a href="#" id="go-replay">reveja a noite de 2022</a> com o mesmo método.</p>
+    </div>
+  </section>
+
+  <div class="eyebrow">Projeção do resultado final<span class="rule"></span></div>
+  <section class="card" id="card-proj">
+    <div class="proj-top">
+      <div class="status">
+        <span class="badge" id="badge">Aguardando</span>
+        <h2 id="st-titulo">—</h2>
+        <p id="st-detalhe">Projeção independente, não é resultado oficial.</p>
+      </div>
+    </div>
+    <div class="duo">
+      <div class="cand k22"><div class="nm" id="nm22">Flávio (PL)</div><div class="pc" id="pc22">—</div><div class="fx" id="fx22">&nbsp;</div></div>
+      <div class="cand k13"><div class="nm" id="nm13">Lula (PT)</div><div class="pc" id="pc13">—</div><div class="fx" id="fx13">&nbsp;</div></div>
+    </div>
+    <div class="meter" aria-hidden="true">
+      <div class="bar"><i id="m22" style="background:var(--c22);width:50%"></i><i id="m13" style="background:var(--c13);width:50%"></i></div>
+      <div class="mid"></div><div class="fx" id="mfx" style="display:none"></div>
+    </div>
+    <div class="meter-l"><span>← <span id="ml22">Flávio</span></span><span>empate</span><span><span id="ml13">Lula</span> →</span></div>
+    <div class="contado">
+      <div class="mini"><div class="l">Seções apuradas</div><div class="v" id="k-secoes">—</div></div>
+      <div class="mini"><div class="l">Placar contado</div><div class="v" id="k-placar">—</div></div>
+      <div class="mini"><div class="l">Placar oficial TSE</div><div class="v" id="k-oficial">—</div></div>
+      <div class="mini"><div class="l">Horário (TSE)</div><div class="v" id="k-hora">—</div></div>
+    </div>
+    <div class="player" id="player">
+      <button id="play" aria-label="Tocar">▶</button>
+      <input type="range" id="slider" min="0" max="0" value="0" aria-label="Ponto da apuração">
+      <select class="speed" id="speed" aria-label="Velocidade"><option value="700">1×</option><option value="250" selected>3×</option><option value="80">10×</option></select>
+      <span class="t" id="ptxt">—</span>
+    </div>
+    <div class="insight" id="ins-proj">Projeção independente, não é resultado oficial: o resultado oficial é o do TSE.</div>
+  </section>
+
+  <section class="card">
+    <h3>A noite em um gráfico</h3>
+    <div class="sub">Fatia <span id="g-nome">do Flávio</span> nos votos válidos (eixo vertical) conforme as seções chegam (eixo horizontal, % das seções apuradas)</div>
+    <svg class="chart" id="chart" viewBox="0 0 900 320" role="img" aria-label="Placar contado e projeção ao longo da apuração"></svg>
+    <div class="legend">
+      <span><i style="background:var(--graphite)"></i>Placar contado (igual ao do TSE)</span>
+      <span><i style="background:var(--primary)"></i>Projeção do resultado final</span>
+      <span><i style="background:var(--band);height:10px"></i>Faixa provável</span>
+    </div>
+    <div class="insight" id="ins-chart">—</div>
+  </section>
+
+  <div class="eyebrow">O que está movendo o resultado<span class="rule"></span></div>
+  <div class="grid2">
+    <section class="card">
+      <h3>Diferença comparada ao 1º turno</h3>
+      <div class="sub">Mesmas seções, nos dois turnos</div>
+      <div class="kpis">
+        <div class="mini"><div class="l">1º turno terminou</div><div class="v" id="d-1t">—</div></div>
+        <div class="mini"><div class="l">Mudança nas apuradas</div><div class="v" id="d-saldo">—</div></div>
+        <div class="mini"><div class="l">Diferença hoje*</div><div class="v" id="d-atual">—</div></div>
+      </div>
+      <div class="stack" id="d-stack"></div>
+      <div class="stack-l" id="d-stack-l"></div>
+      <div class="insight" id="ins-dif">—</div>
+      <p class="sub">* Considerando que as seções que faltam votem como no 1º turno.</p>
+    </section>
+    <section class="card">
+      <h3>Para onde foram os outros votos</h3>
+      <div class="sub">Eleitores dos demais candidatos do 1º turno, no 2º turno</div>
+      <div class="stack" id="t-stack"></div>
+      <div class="stack-l" id="t-stack-l"></div>
+      <div class="kpis">
+        <div class="mini"><div class="l">Comparecimento vs 1º turno</div><div class="v" id="t-comp">—</div></div>
+        <div class="mini"><div class="l">Último lote</div><div class="v" id="t-lote">—</div></div>
+      </div>
+      <div class="insight" id="ins-transf">—</div>
+    </section>
+  </div>
+
+  <div class="eyebrow">Por região e estado<span class="rule"></span></div>
+  <section class="card">
+    <h3>Onde a diferença está andando</h3>
+    <div class="sub">Placar contado, quanto a diferença mudou contra o 1º turno e a projeção de cada lugar</div>
+    <div class="seg" role="group" aria-label="Agrupar por"><button id="seg-r" aria-pressed="true">Regiões</button><button id="seg-u" aria-pressed="false">Estados</button></div>
+    <div class="tblwrap"><table id="tbl"></table></div>
+    <div class="insight" id="ins-tbl">—</div>
+  </section>
+
+  <div class="eyebrow">Sua seção<span class="rule"></span></div>
+  <section class="card">
+    <h3>Compare a sua urna nos dois turnos</h3>
+    <div class="sub">A zona e a seção estão no título de eleitor e no app e-Título. Os boletins vêm direto do TSE.</div>
+    <div class="form">
+      <div><label for="f-uf">Estado</label><select id="f-uf"><option value="">Escolha</option></select></div>
+      <div><label for="f-mu">Município</label><select id="f-mu" disabled><option>—</option></select></div>
+      <div><label for="f-zo">Zona</label><select id="f-zo" disabled><option>—</option></select></div>
+      <div><label for="f-se">Seção</label><select id="f-se" disabled><option>—</option></select></div>
+    </div>
+    <div class="sec-out" id="sec-out"></div>
+  </section>
+
+  <div class="eyebrow">O método em 2022<span class="rule"></span></div>
+  <section class="card">
+    <h3>Como a projeção se saiu na noite de 2022</h3>
+    <div class="sub">Mesma conta e mesmo código deste painel, refeitos com os boletins reais do TSE na ordem em que chegaram</div>
+    <div class="tblwrap"><table id="tbl-val"></table></div>
+    <div class="insight" id="ins-val">—</div>
+  </section>
+
+  <div class="eyebrow">Como calculamos<span class="rule"></span></div>
+  <section class="card metodo">
+    <h4>O modelo</h4>
+    <p>Cada seção apurada no 2º turno é comparada com ela mesma no 1º. Por município, e agrupando em capital e interior de cada estado, o modelo mede quanto dos votos de cada bloco do 1º turno (Flávio, Lula, demais candidatos, brancos e nulos) foi para cada lado. Depois aplica essa mesma "matriz de transferência" ao 1º turno das seções que ainda faltam. Município com poucas seções apuradas usa o comportamento do seu estado até ter dados próprios.</p>
+    <h4>A faixa provável</h4>
+    <p>Combina a variação entre seções com uma margem extra para o fato de as urnas não chegarem em ordem aleatória, calibrada refazendo a apuração de 2022. A projeção só indica um vencedor quando a faixa inteira fica de um lado do empate, pela mesma regra para os dois candidatos, e nunca antes de 1% das seções.</p>
+    <h4>Os dados</h4>
+    <p>Tudo sai dos arquivos públicos do TSE: o boletim de urna de cada seção (resultados.tse.jus.br) e os dados abertos do 1º turno. Seções agregadas de outro jeito no 2º turno entram no placar, mas ficam fora do cálculo de transferência. O botão abaixo baixa a série da noite em CSV.</p>
+    <p><a href="#" id="csv">Baixar dados (CSV)</a> · <a href="https://resultados.tse.jus.br" target="_blank" rel="noopener">Resultado oficial no TSE ↗</a></p>
+  </section>
+
+  <footer>
+    <b>GR Data</b> · Projeção independente, sem ligação com partidos ou campanhas. Não é resultado oficial: o resultado oficial é o do TSE. Inspirado no Apuração Aberta, de Diogo Machado.
+  </footer>
+</main>
+
+<script>
+(() => {
+  // ------------------------------------------------------------------ config
+  const qs = new URLSearchParams(location.search);
+  const LIVE = qs.get("fonte") || (location.hostname === "localhost" || location.hostname === "127.0.0.1"
+    ? "http://localhost:8787" : "https://grdata-apuracao-production.up.railway.app");
+  const REPLAY = "projecao/replay2022";
+  const INICIO = new Date("2026-10-25T17:00:00-03:00");
+  const TSE = "https://resultados.tse.jus.br/oficial/ele2026/arquivo-urna";
+  const NOMES = {
+    live: { "22": "Flávio", "13": "Lula", c22: "Flávio (PL)", c13: "Lula (PT)" },
+    replay: { "22": "Bolsonaro", "13": "Lula", c22: "Bolsonaro (PL)", c13: "Lula (PT)" },
+  };
+  const $ = (id) => document.getElementById(id);
+  const nf = (d) => new Intl.NumberFormat("pt-BR", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const pc = (v, d = 1) => v == null ? "—" : nf(d).format(v) + "%";
+  const int = (v) => nf(0).format(Math.round(v));
+  const votos = (v) => { const a = Math.abs(v); return a >= 1e6 ? nf(1).format(a / 1e6) + (a >= 2e6 ? " milhões" : " milhão") : a >= 1e3 ? nf(0).format(a / 1e3) + " mil" : nf(0).format(a); };
+  const votosC = (v) => { const a = Math.abs(v); return a >= 1e6 ? nf(1).format(a / 1e6) + " mi" : a >= 1e3 ? nf(0).format(a / 1e3) + " mil" : nf(0).format(a); };
+  const hora = (iso) => { const m = iso && iso.match(/T(\d\d):(\d\d)/); return m ? `${m[1]}:${m[2]}` : "—"; };
+  const pontos = (v) => v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "") + nf(1).format(Math.abs(v)) + (Math.abs(v) >= 2 ? " pontos" : " ponto");
+
+  let modo = "live", N = NOMES.live, liveTimer = null, ultimoLive = null;
+  let replay = null, rIdx = +(qs.get("p") || 0), rTimer = null, tabela = "r";
+  const cacheP = new Map();
+
+  // ------------------------------------------------------------------ render
+  function lado(m) { return m > 0 ? N["22"] : m < 0 ? N["13"] : null; }
+  function aFavor(m) { const l = lado(m); return l ? `${votos(m)} a favor do ${l}` : "empate"; }
+
+  function render(s, historico) {
+    const p = s.projecao, sec = s.secoes || {};
+    // status
+    const badge = $("badge");
+    badge.className = "badge";
+    if (!p || !sec.apuradas) {
+      badge.textContent = s.modo === "replay" ? "17h · início" : "Aguardando";
+      $("st-titulo").textContent = s.modo === "replay" ? "A apuração vai começar" : "Aguardando as primeiras urnas";
+      $("st-detalhe").textContent = "A projeção aparece com as primeiras seções. Projeção independente, não é resultado oficial.";
+    } else if (p.status === "indefinido") {
+      badge.textContent = "Ainda indefinido";
+      $("st-titulo").textContent = "Ainda indefinido";
+      $("st-detalhe").textContent = "A faixa provável ainda cruza o empate. A projeção só indica um vencedor quando a faixa inteira fica de um lado.";
+    } else {
+      badge.className = "badge win" + p.status;
+      badge.textContent = s.modo === "final" ? "Resultado" : "Projeção";
+      $("st-titulo").innerHTML = `Projeção: <span class="c${p.status}">${N[p.status]} vence</span>`;
+      $("st-detalhe").textContent = `A faixa provável inteira está do lado do ${N[p.status]}` +
+        (p.desde_pct != null ? ` desde ${nf(1).format(p.desde_pct)}% das seções apuradas` : "") + ". O resultado oficial é o do TSE.";
+    }
+    // números
+    const p22 = p ? p.pct22 : null;
+    $("pc22").textContent = pc(p22, 1); $("pc13").textContent = p22 == null ? "—" : pc(100 - p22, 1);
+    if (p) {
+      const [a, b] = p.faixa, d = Math.abs(b - a) < 0.2 ? 2 : 1;
+      $("fx22").textContent = `faixa ${nf(d).format(a)}% a ${nf(d).format(b)}%`;
+      $("fx13").textContent = `faixa ${nf(d).format(100 - b)}% a ${nf(d).format(100 - a)}%`;
+      $("m22").style.width = p22 + "%"; $("m13").style.width = (100 - p22) + "%";
+      const lo = Math.max(a, 35), hi = Math.min(b, 65);
+      const mfx = $("mfx"); mfx.style.display = "block";
+      // a régua mostra de 35% a 65% para a faixa ser visível
+      const pos = (v) => (Math.min(Math.max(v, 35), 65) - 35) / 30 * 100;
+      $("m22").style.width = pos(p22) + "%"; $("m13").style.width = (100 - pos(p22)) + "%";
+      mfx.style.left = pos(lo) + "%"; mfx.style.width = Math.max(pos(hi) - pos(lo), 0.6) + "%";
+    } else {
+      $("fx22").innerHTML = "&nbsp;"; $("fx13").innerHTML = "&nbsp;"; $("mfx").style.display = "none";
+      $("m22").style.width = "50%"; $("m13").style.width = "50%";
+    }
+    $("k-secoes").innerHTML = sec.total ? `${pc(sec.pct, 1)} <small>${int(sec.apuradas)} de ${int(sec.total)}</small>` : "—";
+    const pl = s.placar;
+    $("k-placar").innerHTML = pl && pl.pct22 != null ? `<span class="c22">${pc(pl.pct22)}</span> × <span class="c13">${pc(100 - pl.pct22)}</span>` : "—";
+    const of = s.oficial;
+    $("k-oficial").innerHTML = of && of.pct22 != null ? `<span class="c22">${pc(of.pct22)}</span> × <span class="c13">${pc(100 - of.pct22)}</span> <small>${pc(of.pst, 1)} urnas</small>` : (s.modo === "replay" ? "<small>igual ao placar contado</small>" : "—");
+    $("k-hora").textContent = sec.apuradas || s.modo === "replay" ? hora(s.gerado_tse) : "—";
+    // insight principal
+    if (p && pl && pl.pct22 != null) {
+      const lid = pl.pct22 > 50 ? "22" : "13", proj = p.pct22 > 50 ? "22" : "13";
+      $("ins-proj").innerHTML = lid !== proj
+        ? `O placar mostra <b>${N[lid]} na frente com ${pc(lid === "22" ? pl.pct22 : 100 - pl.pct22)}</b>, mas as seções já apuradas, comparadas com o 1º turno, apontam <b>${N[proj]} com ${pc(proj === "22" ? p.pct22 : 100 - p.pct22)}</b> no final. A diferença vem da ordem em que as urnas chegam.`
+        : `Placar e projeção apontam para o mesmo lado: <b>${N[proj]}</b>, com ${pc(proj === "22" ? p.pct22 : 100 - p.pct22)} projetados no final (placar agora: ${pc(lid === "22" ? pl.pct22 : 100 - pl.pct22)}).`;
+    } else {
+      $("ins-proj").textContent = "Projeção independente, não é resultado oficial: o resultado oficial é o do TSE.";
+    }
+    renderChart(historico || s.historico || []);
+    renderDif(s); renderTransf(s); renderTabela(s);
+  }
+
+  function renderChart(h) {
+    const svg = $("chart"), W = 900, H = 320, m = { l: 44, r: 16, t: 14, b: 30 };
+    const pts = h.filter((d) => d.pct > 0 && d.placar22 != null);
+    let lo = 45, hi = 55;
+    for (const d of pts) {
+      lo = Math.min(lo, d.placar22, d.faixa ? d.faixa[0] : 99); hi = Math.max(hi, d.placar22, d.faixa ? d.faixa[1] : 0);
+    }
+    lo = Math.floor(lo - 0.5); hi = Math.ceil(hi + 0.5);
+    const x = (v) => m.l + (v / 100) * (W - m.l - m.r), y = (v) => m.t + (hi - v) / (hi - lo) * (H - m.t - m.b);
+    let g = "";
+    const step = hi - lo > 12 ? 4 : hi - lo > 6 ? 2 : 1;
+    for (let v = Math.ceil(lo / step) * step; v <= hi; v += step)
+      g += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--divider)"/><text x="${m.l - 8}" y="${y(v) + 4}" text-anchor="end">${v}%</text>`;
+    for (const v of [0, 25, 50, 75, 100]) g += `<text x="${x(v)}" y="${H - 8}" text-anchor="middle">${v}%</text>`;
+    g += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(50)}" y2="${y(50)}" stroke="var(--ink)" stroke-width="1.2" stroke-dasharray="4 4"/>`;
+    g += `<text x="${W - m.r}" y="${y(50) - 6}" text-anchor="end">empate</text>`;
+    const fx = pts.filter((d) => d.faixa);
+    if (fx.length > 1) {
+      const top = fx.map((d) => `${x(d.pct)},${y(d.faixa[1])}`).join(" "), bot = fx.slice().reverse().map((d) => `${x(d.pct)},${y(d.faixa[0])}`).join(" ");
+      g += `<polygon points="${top} ${bot}" fill="var(--band)"/>`;
+      g += `<polyline points="${fx.map((d) => `${x(d.pct)},${y(d.proj)}`).join(" ")}" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linejoin="round"/>`;
+    }
+    if (pts.length > 1) g += `<polyline points="${pts.map((d) => `${x(d.pct)},${y(d.placar22)}`).join(" ")}" fill="none" stroke="var(--graphite)" stroke-width="1.6" stroke-linejoin="round"/>`;
+    const last = pts[pts.length - 1];
+    if (last) {
+      g += `<circle cx="${x(last.pct)}" cy="${y(last.placar22)}" r="4" fill="var(--graphite)"/>`;
+      if (last.proj != null) g += `<circle cx="${x(last.pct)}" cy="${y(last.proj)}" r="5" fill="var(--primary)"/>`;
+    }
+    svg.innerHTML = g;
+    $("g-nome").textContent = "do " + N["22"];
+    // insight
+    if (!last) { $("ins-chart").textContent = "O gráfico começa com as primeiras seções."; return; }
+    const pico = pts.reduce((a, d) => (Math.abs(d.placar22 - 50) > Math.abs(a.placar22 - 50) ? d : a), pts[0]);
+    const lp = pico.placar22 > 50 ? "22" : "13";
+    let txt = `No pico, com ${pc(pico.pct, 1)} das seções, o placar dava <b>${N[lp]} com ${pc(lp === "22" ? pico.placar22 : 100 - pico.placar22)}</b>`;
+    txt += pico.proj != null ? `; a projeção, no mesmo momento, já dizia <b>${pc(pico.proj > 50 ? pico.proj : 100 - pico.proj)} para o ${N[pico.proj > 50 ? "22" : "13"]}</b>.` : ".";
+    $("ins-chart").innerHTML = txt + " A linha laranja quase não se mexe enquanto o placar oscila: é isso que a comparação com o 1º turno resolve.";
+  }
+
+  function renderDif(s) {
+    const d = s.diferenca;
+    if (!d) { ["d-1t", "d-saldo", "d-atual"].forEach((i) => ($(i).textContent = "—")); $("ins-dif").textContent = "Aparece com as primeiras seções."; $("d-stack").innerHTML = ""; $("d-stack-l").innerHTML = ""; return; }
+    const tag = (m) => m > 0 ? `<span class="c22">${N["22"]} +${votosC(m)}</span>` : m < 0 ? `<span class="c13">${N["13"]} +${votosC(m)}</span>` : "empate";
+    $("d-1t").innerHTML = tag(d.primeiro_turno); $("d-saldo").innerHTML = tag(d.saldo); $("d-atual").innerHTML = tag(d.atual);
+    const sem = Math.max(0, 100 - d.a22_pct - d.a13_pct);
+    $("d-stack").innerHTML = `<i style="width:${d.a22_pct}%;background:var(--c22)"></i><i style="width:${sem}%;background:var(--track)"></i><i style="width:${d.a13_pct}%;background:var(--c13)"></i>`;
+    $("d-stack-l").innerHTML = `<span><span class="sw" style="background:var(--c22)"></span>${pc(d.a22_pct, 0)} das seções andaram para o ${N["22"]}</span><span><span class="sw" style="background:var(--c13)"></span>${pc(d.a13_pct, 0)} para o ${N["13"]}</span>`;
+    const virou = d.primeiro_turno * d.atual < 0;
+    $("ins-dif").innerHTML = `O 1º turno terminou com <b>${aFavor(d.primeiro_turno)}</b> no confronto direto. Nas seções já apuradas a diferença mudou <b>${aFavor(d.saldo)}</b>` +
+      (virou ? `, o que <b>já inverte o resultado do 1º turno</b>.` : d.saldo * d.primeiro_turno < 0 ? `, encolhendo a vantagem do ${lado(d.primeiro_turno)}.` : `, ampliando a vantagem do ${lado(d.primeiro_turno) || "líder"}.`) +
+      ` ${int(d.viraram22 + d.viraram13)} urnas trocaram de vencedor (${int(d.viraram22)} para o ${N["22"]}, ${int(d.viraram13)} para o ${N["13"]}).`;
+  }
+
+  function renderTransf(s) {
+    const t = s.transferencia;
+    if (!t) { $("t-stack").innerHTML = ""; $("t-stack-l").innerHTML = ""; $("t-comp").textContent = "—"; $("t-lote").textContent = "—"; $("ins-transf").textContent = "Aparece com as primeiras seções."; return; }
+    const a = Math.max(t.outros22, 0), b = Math.max(t.outros13, 0), c = Math.max(100 - a - b, 0);
+    $("t-stack").innerHTML = `<i style="width:${a}%;background:var(--c22)"></i><i style="width:${c}%;background:var(--steel);opacity:.45"></i><i style="width:${b}%;background:var(--c13)"></i>`;
+    $("t-stack-l").innerHTML = `<span><span class="sw" style="background:var(--c22)"></span>${pc(a, 0)} ${N["22"]}</span><span><span class="sw" style="background:var(--steel);opacity:.45"></span>${pc(c, 0)} não votou, branco ou nulo</span><span><span class="sw" style="background:var(--c13)"></span>${pc(b, 0)} ${N["13"]}</span>`;
+    $("t-comp").textContent = pontos(s.comparecimento_delta);
+    const ul = s.ultimo_lote;
+    $("t-lote").innerHTML = ul && ul.pct22 != null ? `<span class="c${ul.pct22 > 50 ? "22" : "13"}">${N[ul.pct22 > 50 ? "22" : "13"]} ${pc(ul.pct22 > 50 ? ul.pct22 : 100 - ul.pct22, 0)}</span> <small>${int(ul.secoes)} seções</small>` : "—";
+    const quem = a > b ? "22" : "13";
+    $("ins-transf").innerHTML = `De cada 100 eleitores dos demais candidatos do 1º turno, <b>${int(a)} foram para o ${N["22"]} e ${int(b)} para o ${N["13"]}</b>. ` +
+      (Math.abs(a - b) >= 3 ? `É por aqui que o ${N[quem]} ganha terreno no 2º turno.` : "Esses votos se dividiram quase meio a meio.") +
+      (s.comparecimento_delta != null ? ` O comparecimento nas seções apuradas variou ${pontos(s.comparecimento_delta)} em relação ao 1º turno.` : "");
+  }
+
+  function renderTabela(s) {
+    const rows = (tabela === "r" ? s.regioes : s.estados) || [];
+    const t = $("tbl");
+    if (!rows.length) { t.innerHTML = "<tr><td class='muted'>Aparece com as primeiras seções.</td></tr>"; $("ins-tbl").textContent = "—"; return; }
+    const tag = (m) => m > 0 ? `<span class="c22">${N["22"]} +${votosC(m)}</span>` : m < 0 ? `<span class="c13">${N["13"]} +${votosC(m)}</span>` : "—";
+    let h = `<thead><tr><th>${tabela === "r" ? "Região" : "Estado"}</th><th>Apurado</th><th>Placar ${N["22"]}</th><th>Vs. 1º turno</th><th>Projeção ${N["22"]}</th><th>Comparecimento</th></tr></thead><tbody>`;
+    for (const r of rows) {
+      const p = r.pct22, pr = r.proj22;
+      h += `<tr><td><b>${r.nome}</b></td><td>${pc(r.apurado_pct, 0)}</td>
+        <td>${p == null ? "—" : pc(p)}<span class="pbar"><i style="width:${p || 0}%;background:var(--c22)"></i><i style="width:${p == null ? 0 : 100 - p}%;background:var(--c13)"></i></span></td>
+        <td>${tag(r.saldo)}</td><td>${pr == null ? "—" : pc(pr)}</td><td>${pontos(r.comp_delta)}</td></tr>`;
+    }
+    t.innerHTML = h + "</tbody>";
+    const com = rows.filter((r) => r.apurado_pct > 0);
+    if (com.length) {
+      const m22 = com.reduce((a, r) => (r.saldo > a.saldo ? r : a)), m13 = com.reduce((a, r) => (r.saldo < a.saldo ? r : a));
+      const onde = (r, k, ok) => ok ? `Onde o ${N[k]} mais ganhou terreno contra o 1º turno: <b>${r.nome}</b> (+${votos(r.saldo)}).` : `O ${N[k]} não ganhou terreno contra o 1º turno em nenhum${tabela === "r" ? "a região" : " estado"} até aqui.`;
+      $("ins-tbl").innerHTML = `${onde(m22, "22", m22.saldo > 0)} ${onde(m13, "13", m13.saldo < 0)}` +
+        (s.secoes && s.secoes.pct < 100 ? " Regiões que totalizam mais rápido pesam mais no placar do começo da noite." : "");
+    }
+  }
+
+  // ------------------------------------------------------------------ modos
+  function setModo(m) {
+    modo = m; N = NOMES[m];
+    $("tab-live").setAttribute("aria-pressed", m === "live"); $("tab-replay").setAttribute("aria-pressed", m === "replay");
+    $("nm22").textContent = N.c22; $("nm13").textContent = N.c13; $("ml22").textContent = N["22"]; $("ml13").textContent = N["13"];
+    $("player").classList.toggle("on", m === "replay");
+    clearInterval(liveTimer); pause();
+    if (m === "live") { $("espera").hidden = true; carregaLive(); liveTimer = setInterval(carregaLive, 30000); }
+    else { $("espera").hidden = true; carregaReplay(); }
+  }
+
+  async function carregaLive() {
+    try {
+      const r = await fetch(`${LIVE}/snapshot.json?t=${Date.now()}`, { cache: "no-store" });
+      if (!r.ok) throw new Error(r.status);
+      const s = await r.json(); ultimoLive = s;
+      if (modo !== "live") return;
+      const esperando = s.modo === "aguardando";
+      $("espera").hidden = !esperando;
+      $("dot").classList.toggle("on", !esperando && s.modo !== "final");
+      $("livetxt").textContent = esperando ? "começa domingo, 17h" : s.modo === "final" ? "apuração encerrada" : `ao vivo · ${hora(s.gerado_painel)}`;
+      render(s);
+    } catch (e) {
+      if (modo !== "live") return;
+      const antes = Date.now() < INICIO.getTime();
+      $("espera").hidden = !antes;
+      $("dot").classList.remove("on");
+      $("livetxt").textContent = antes ? "começa domingo, 17h" : "reconectando…";
+      if (!ultimoLive) render({ modo: "aguardando", historico: [] });
+    }
+  }
+
+  async function carregaReplay() {
+    $("livetxt").textContent = "rever 2022"; $("dot").classList.remove("on");
+    if (!replay) {
+      replay = await (await fetch(`${REPLAY}/indice.json`)).json();
+      $("slider").max = replay.pontos.length - 1;
+      renderValidacao();
+    }
+    vaiPara(rIdx);
+  }
+
+  async function ponto(i) {
+    const p = replay.pontos[i];
+    if (!cacheP.has(i)) cacheP.set(i, fetch(`${REPLAY}/${p.arquivo}`).then((r) => r.json()));
+    return cacheP.get(i);
+  }
+
+  async function vaiPara(i) {
+    rIdx = i; $("slider").value = i;
+    const p = replay.pontos[i];
+    $("ptxt").textContent = `${hora(p.t)} · ${pc(p.pct, 1)} das seções`;
+    const s = await ponto(i);
+    if (rIdx !== i || modo !== "replay") return;
+    const hist = replay.pontos.slice(0, i + 1).map((q) => ({ pct: q.pct, placar22: q.placar22, proj: q.proj, faixa: q.faixa, dif: q.dif }));
+    render(s, hist);
+    ponto(Math.min(i + 1, replay.pontos.length - 1)); ponto(Math.min(i + 2, replay.pontos.length - 1));
+  }
+
+  function play() {
+    if (rIdx >= replay.pontos.length - 1) rIdx = 0;
+    $("play").textContent = "❚❚"; $("play").setAttribute("aria-label", "Pausar");
+    const tick = async () => {
+      if (rIdx >= replay.pontos.length - 1) return pause();
+      await vaiPara(rIdx + 1);
+      rTimer = setTimeout(tick, +$("speed").value);
+    };
+    rTimer = setTimeout(tick, 50);
+  }
+  function pause() { clearTimeout(rTimer); rTimer = null; $("play").textContent = "▶"; $("play").setAttribute("aria-label", "Tocar"); }
+
+  function renderValidacao() {
+    const v = replay.validacao, f = replay.final;
+    let h = `<thead><tr><th>Seções apuradas</th><th>Horário</th><th>Projeção Bolsonaro</th><th>Faixa provável</th><th>Erro</th></tr></thead><tbody>`;
+    for (const r of v) h += `<tr><td>${pc(r.pct, 0)}</td><td>${hora(r.t)}</td><td>${pc(r.proj22, 2)}</td><td>${nf(2).format(r.faixa[0])}% a ${nf(2).format(r.faixa[1])}%</td><td>${nf(2).format(Math.abs(r.erro))} ponto</td></tr>`;
+    h += `<tr><td><b>Final</b></td><td>${hora(replay.fim)}</td><td><b>${pc(f.pct22, 2)}</b></td><td colspan="2" class="muted">resultado oficial</td></tr>`;
+    $("tbl-val").innerHTML = h + "</tbody>";
+    const ini = replay.pontos.find((p) => p.pct >= 3) || replay.pontos[1];
+    $("ins-val").innerHTML = `Em 2022 o placar chegou a mostrar Bolsonaro com mais de 56% no começo da noite. A projeção indicou <b>Lula vencedor às ${hora(replay.selo.t)}, com ${pc(replay.selo.pct, 1)} das seções</b>, e não mudou mais. Com 20% apurado, errou o resultado final por ${nf(2).format(Math.abs(v.find((r) => r.alvo === 20).erro))} ponto.`;
+  }
+
+  // ------------------------------------------------------------------ contagem
+  function contagem() {
+    const ms = INICIO - Date.now();
+    if (ms <= 0) { ["d", "h", "m", "s"].forEach((k) => ($("cd-" + k).textContent = "0")); return; }
+    const d = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5) % 24, m = Math.floor(ms / 6e4) % 60, s = Math.floor(ms / 1e3) % 60;
+    $("cd-d").textContent = d; $("cd-h").textContent = h; $("cd-m").textContent = m; $("cd-s").textContent = String(s).padStart(2, "0");
+  }
+
+  // ------------------------------------------------------------------ CSV
+  $("csv").addEventListener("click", (e) => {
+    e.preventDefault();
+    let linhas;
+    if (modo === "live" && ultimoLive && ultimoLive.historico && ultimoLive.historico.length) {
+      window.open(`${LIVE}/dados.csv`, "_blank"); return;
+    }
+    if (!replay) return;
+    linhas = [["horario", "secoes_apuradas_pct", "placar_pct_22", "projecao_pct_22", "faixa_min", "faixa_max", "diferenca_votos_22_menos_13"]];
+    for (const p of replay.pontos) linhas.push([p.t, p.pct, p.placar22 ?? "", p.proj ?? "", p.faixa ? p.faixa[0] : "", p.faixa ? p.faixa[1] : "", p.dif ?? ""]);
+    const blob = new Blob([linhas.map((l) => l.join(",")).join("\n")], { type: "text/csv" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "projecao-2turno-2022.csv"; a.click();
+  });
+
+  // ------------------------------------------------------------------ sua seção (boletins direto do TSE)
+  function der(b, i = 0, end = b.length) {
+    const out = [];
+    while (i < end) {
+      const t = b[i++]; const cls = t >> 6, cons = !!(t & 0x20); let num = t & 0x1f;
+      if (num === 0x1f) { num = 0; let x; do { x = b[i++]; num = num * 128 + (x & 0x7f); } while (x & 0x80); }
+      let l = b[i++];
+      if (l & 0x80) { const n = l & 0x7f; l = 0; for (let k = 0; k < n; k++) l = l * 256 + b[i++]; }
+      out.push([cls, num, cons ? der(b, i, i + l) : b.subarray(i, i + l)]);
+      i += l;
+    }
+    return out;
+  }
+  const asInt = (v) => { let n = v[0] & 0x80 ? -1 : 0; for (const x of v) n = n * 256 + x; return v[0] & 0x80 ? n - 0 : n; };
+  function presidente(buf, eleicao) {
+    const env = der(new Uint8Array(buf))[0][2];
+    const conteudo = env.find(([c, n, v]) => c === 0 && n === 4 && !Array.isArray(v) && v.length > 200)[2];
+    const bu = der(conteudo)[0][2];
+    for (const [, , v] of bu) {
+      if (!Array.isArray(v) || !v.length || !v.every(([, , x]) => Array.isArray(x) && x.length >= 5)) continue;
+      for (const [, , pe] of v) {
+        if (asInt(pe[0][2]) !== eleicao) continue;
+        const aptos = asInt(pe[1][2]);
+        const res = pe.find(([, , x]) => Array.isArray(x))[2];
+        for (const [, , rv] of res) {
+          const comp = asInt(rv[1][2]);
+          for (const [, , tvc] of rv[2][2]) {
+            if (asInt(tvc[0][2]) !== 1) continue;
+            const r = { v22: 0, v13: 0, outros: 0, brancos: 0, nulos: 0, comp, aptos };
+            for (const [, , vv] of tvc[2][2]) {
+              const f = {}; for (const [c, n, val] of vv) f[c + ":" + n] = val;
+              const tipo = asInt(f["2:1"]), q = asInt(f["2:2"]);
+              if (tipo === 2) r.brancos += q; else if (tipo === 3) r.nulos += q;
+              else { const cod = f["2:3"] ? asInt(f["2:3"][1][2]) : 0; r[cod === 22 ? "v22" : cod === 13 ? "v13" : "outros"] += q; }
+            }
+            return r;
+          }
+        }
+      }
+    }
+    return null;
+  }
+  const cfgCache = {};
+  async function cfg(uf, pleito) {
+    const k = uf + pleito;
+    if (!cfgCache[k]) cfgCache[k] = fetch(`${TSE}/${pleito}/config/${uf}/${uf}-p${String(pleito).padStart(6, "0")}-cs.json`).then((r) => r.ok ? r.json() : null);
+    return cfgCache[k];
+  }
+  async function boletim(pleito, eleicao, uf, mu, zo, se) {
+    const d = `${TSE}/${pleito}/dados/${uf}/${mu}/${zo}/${se}`;
+    const r = await fetch(`${d}/p${String(pleito).padStart(6, "0")}-${uf}-m${mu}-z${zo}-s${se}-aux.json`);
+    if (!r.ok) return null;
+    const aux = await r.json();
+    for (const h of (aux.hashes || []).slice().reverse()) {
+      const a = (h.arq || []).find((x) => x.tp === "bu");
+      if (!a) continue;
+      const b = await fetch(`${d}/${h.hash}/${a.nm}`);
+      if (b.ok) return presidente(await b.arrayBuffer(), eleicao);
+    }
+    return null;
+  }
+  const UFS = "AC AL AM AP BA CE DF ES GO MA MG MS MT PA PB PE PI PR RJ RN RO RR RS SC SE SP TO".split(" ");
+  const fuf = $("f-uf"), fmu = $("f-mu"), fzo = $("f-zo"), fse = $("f-se");
+  fuf.innerHTML = `<option value="">Escolha</option>` + UFS.map((u) => `<option>${u}</option>`).join("") + `<option value="ZZ">Exterior</option>`;
+  const opt = (sel, arr, ph) => { sel.innerHTML = `<option value="">${ph}</option>` + arr.map(([v, t]) => `<option value="${v}">${t}</option>`).join(""); sel.disabled = !arr.length; };
+  let cfgUF = null;
+  fuf.onchange = async () => {
+    opt(fmu, [], "Carregando…"); opt(fzo, [], "—"); opt(fse, [], "—"); $("sec-out").innerHTML = "";
+    if (!fuf.value) return opt(fmu, [], "Escolha o estado");
+    cfgUF = await cfg(fuf.value.toLowerCase(), 3220);
+    const mus = cfgUF.abr[0].mu.map((m) => [m.cd, m.nm]).sort((a, b) => a[1].localeCompare(b[1], "pt"));
+    opt(fmu, mus, "Escolha");
+  };
+  fmu.onchange = () => {
+    const m = cfgUF.abr[0].mu.find((x) => x.cd === fmu.value);
+    opt(fzo, m ? m.zon.map((z) => [z.cd, String(+z.cd)]) : [], "Escolha"); opt(fse, [], "—"); $("sec-out").innerHTML = "";
+  };
+  fzo.onchange = () => {
+    const m = cfgUF.abr[0].mu.find((x) => x.cd === fmu.value), z = m && m.zon.find((x) => x.cd === fzo.value);
+    opt(fse, z ? z.sec.map((s) => [s.ns, String(+s.ns)]) : [], "Escolha"); $("sec-out").innerHTML = "";
+  };
+  fse.onchange = async () => {
+    if (!fse.value) return;
+    const out = $("sec-out"); out.innerHTML = `<p class="muted">Buscando os boletins no TSE…</p>`;
+    const uf = fuf.value.toLowerCase(), a = [uf, fmu.value, fzo.value, fse.value];
+    try {
+      const [t1, t2] = await Promise.all([boletim(3220, 6257, ...a), boletim(3221, 6258, ...a).catch(() => null)]);
+      const col = (tit, r, nomes) => {
+        if (!r) return `<div class="sec-col"><h4>${tit}</h4><p class="muted" style="margin:0">Boletim ainda não divulgado.</p></div>`;
+        const v = r.v22 + r.v13 + r.outros;
+        return `<div class="sec-col"><h4>${tit}</h4>
+          <div class="row"><span class="c22">Flávio (22)</span><b>${int(r.v22)}</b></div>
+          <div class="row"><span class="c13">Lula (13)</span><b>${int(r.v13)}</b></div>
+          ${nomes ? `<div class="row"><span>Demais candidatos</span><b>${int(r.outros)}</b></div>` : ""}
+          <div class="row"><span>Brancos e nulos</span><b>${int(r.brancos + r.nulos)}</b></div>
+          <div class="row muted"><span>Votaram / aptos</span><span>${int(r.comp)} / ${int(r.aptos)}</span></div></div>`;
+      };
+      let ins = "";
+      if (t1 && t2) {
+        const m1 = t1.v22 - t1.v13, m2 = t2.v22 - t2.v13, dm = m2 - m1;
+        ins = `<div class="insight">Na sua seção, a diferença entre os dois era <b>${m1 === 0 ? "zero" : `${int(Math.abs(m1))} votos a favor do ${m1 > 0 ? "Flávio" : "Lula"}`}</b> no 1º turno e ficou <b>${m2 === 0 ? "zero" : `${int(Math.abs(m2))} a favor do ${m2 > 0 ? "Flávio" : "Lula"}`}</b> no 2º: andou ${dm === 0 ? "nada" : `${int(Math.abs(dm))} votos para o ${dm > 0 ? "Flávio" : "Lula"}`}. Dos ${int(t1.outros)} votos dos demais candidatos no 1º turno, o Flávio ganhou ${int(Math.max(t2.v22 - t1.v22, 0))} e o Lula ${int(Math.max(t2.v13 - t1.v13, 0))} (saldo aproximado).</div>`;
+      } else if (t1) {
+        const v = t1.v22 + t1.v13 + t1.outros;
+        ins = `<div class="insight">No 1º turno, sua seção deu <b>${pc(100 * t1.v22 / v)} ao Flávio e ${pc(100 * t1.v13 / v)} ao Lula</b>, e ${pc(100 * t1.outros / v)} aos demais. O boletim do 2º turno aparece aqui assim que a urna for apurada, no dia 25.</div>`;
+      }
+      out.innerHTML = `<div class="sec-grid">${col("1º turno · 4/out", t1, true)}${col("2º turno · 25/out", t2, false)}</div>${ins}`;
+    } catch (e) {
+      out.innerHTML = `<p class="muted">Não deu para ler o boletim agora. Tente de novo em instantes.</p>`;
+    }
+  };
+
+  // ------------------------------------------------------------------ eventos
+  $("tab-live").onclick = () => setModo("live");
+  $("tab-replay").onclick = () => setModo("replay");
+  $("go-replay").onclick = (e) => { e.preventDefault(); setModo("replay"); play(); };
+  $("play").onclick = () => (rTimer ? pause() : play());
+  $("slider").oninput = (e) => { pause(); vaiPara(+e.target.value); };
+  $("seg-r").onclick = () => { tabela = "r"; $("seg-r").setAttribute("aria-pressed", true); $("seg-u").setAttribute("aria-pressed", false); rerender(); };
+  $("seg-u").onclick = () => { tabela = "u"; $("seg-u").setAttribute("aria-pressed", true); $("seg-r").setAttribute("aria-pressed", false); rerender(); };
+  function rerender() { if (modo === "replay" && replay) vaiPara(rIdx); else if (ultimoLive) render(ultimoLive); }
+
+  contagem(); setInterval(contagem, 1000);
+  // carrega o índice do replay para a tabela de validação, mesmo no modo ao vivo
+  fetch(`${REPLAY}/indice.json`).then((r) => r.json()).then((d) => { replay = replay || d; $("slider").max = replay.pontos.length - 1; renderValidacao(); });
+  setModo(qs.get("modo") === "replay" ? "replay" : "live");
+})();
+</script>
+</body>
+</html>
