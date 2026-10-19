@@ -10,6 +10,9 @@ import os, re
 HERE = os.path.dirname(os.path.abspath(__file__))
 src = open(os.path.join(HERE, "sp2026.html"), encoding="utf-8").read()
 i = src.index("</style>") + len("</style>")
+tema = '\n<link rel="stylesheet" href="tema-grquest.css">'
+if src.startswith(tema, i):   # o tema GR Quest vai no <head>, depois do <style> da página
+    i += len(tema)
 head, body = src[:i], src[i:]
 doc = ('<!doctype html>\n<html lang="pt-BR">\n<head>\n<meta charset="utf-8">\n'
        '<meta name="viewport" content="width=device-width,initial-scale=1">\n'

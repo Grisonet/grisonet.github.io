@@ -1,0 +1,90 @@
+/* Tema GR Quest para as páginas da Apuração SP (carregar DEPOIS do <style> da página).
+   Paleta: Ignition Orange #FF4C00, Amber Gold #FFC200, Carbon #080808, branco.
+   Topo = faixa escura (.gq-stage) com navegação e título; conteúdo em cartões claros.
+   Mesma linguagem visual de projecao.html. Classes novas usam o prefixo gq- para não colidir com as da página. */
+:root{
+  --canvas:#ffffff; --parchment:#f6f5f3; --pearl:#faf9f7;
+  --hairline:#e7e5e2; --divider:#f0efed; --track:#eceae6;
+  --primary:#FF4C00; --amber:#FFC200; --carbon:#080808;
+  --display:"Inter Tight","Inter",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --canvas:#151515; --parchment:#0d0d0d; --pearl:#1c1c1c;
+  --hairline:rgba(255,255,255,.10); --divider:rgba(255,255,255,.06); --track:rgba(255,255,255,.08);
+}}
+:root[data-theme="dark"]{
+  --canvas:#151515; --parchment:#0d0d0d; --pearl:#1c1c1c;
+  --hairline:rgba(255,255,255,.10); --divider:rgba(255,255,255,.06); --track:rgba(255,255,255,.08);
+}
+body{line-height:1.5}
+h1,h2,h3{font-family:var(--display);font-weight:700;letter-spacing:-.018em}
+a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+
+/* ---------- faixa escura */
+.gq-stage{position:relative;overflow:hidden;background:var(--carbon);color:#fff;padding-bottom:34px}
+.gq-stage::before{content:"";position:absolute;inset:-45% -10% auto auto;width:700px;height:700px;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(255,76,0,.20),rgba(255,194,0,.06) 55%,transparent)}
+.gq-stage::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1px);background-size:22px 22px;
+  mask-image:linear-gradient(180deg,#000 0,transparent 75%);-webkit-mask-image:linear-gradient(180deg,#000 0,transparent 75%)}
+.gq-stage > *{position:relative;z-index:1}
+header.gq-top{position:sticky;top:0;z-index:30;background:rgba(8,8,8,.82);backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);
+  border-bottom:1px solid rgba(255,255,255,.07);color:#fff}
+.gq-hd{display:flex;align-items:center;gap:14px;padding-block:12px;flex-wrap:wrap}
+.gq-mark{display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff;min-width:0}
+.gq-mark .grlogo{height:22px;width:120px;flex:none;fill:currentColor;display:block;color:#fff}
+.gq-chip{font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.02em;text-transform:uppercase;white-space:nowrap;
+  background:var(--amber);color:var(--carbon);padding:4px 9px;border-radius:7px}
+.gq-nav{display:flex;gap:2px;margin-left:auto;flex-wrap:wrap}
+.gq-nav a{font-size:13px;font-weight:500;color:#bdbdbd;text-decoration:none;padding:6px 10px;border-radius:8px;white-space:nowrap}
+.gq-nav a:hover{color:#fff;background:rgba(255,255,255,.07)}
+.gq-nav a[aria-current="page"]{color:#fff;background:rgba(255,255,255,.10)}
+.gq-nav a.gq-hot{color:var(--carbon);background:var(--primary);font-weight:600}
+.gq-nav a.gq-hot:hover{background:#ff6a26}
+.gq-live{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#e9e9e9;white-space:nowrap;
+  border:1px solid rgba(255,255,255,.14);border-radius:9999px;padding:5px 11px}
+.gq-live .clock{color:#fff}
+.gq-dot{width:8px;height:8px;border-radius:50%;background:var(--primary);animation:gqpulse 1.8s infinite}
+.gq-dot.off{background:#5c5c5c;animation:none}
+@keyframes gqpulse{0%{box-shadow:0 0 0 0 rgba(255,76,0,.65)}70%{box-shadow:0 0 0 9px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@media(prefers-reduced-motion:reduce){.gq-dot{animation:none}}
+.gq-hero{padding-top:32px}
+.gq-tagrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.gq-tag{font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:var(--primary);color:var(--carbon);padding:5px 10px;border-radius:6px}
+.gq-ctx{font-size:12.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#c4c4c4}
+.gq-hero h1{font-size:clamp(30px,5.6vw,58px);font-weight:800;letter-spacing:-.03em;line-height:1.02;margin-top:16px;max-width:920px;color:#fff}
+.gq-hl{background:var(--amber);color:var(--carbon);padding:0 .14em;border-radius:.12em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.gq-lead{color:#c4c4c4;max-width:720px;margin:16px 0 0;font-size:16px}
+.gq-lead b{color:#fff;font-weight:600}
+.gq-cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.gq-btn{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;text-decoration:none;border-radius:12px;padding:10px 15px;
+  border:1px solid rgba(255,255,255,.14);color:#fff;background:rgba(255,255,255,.04)}
+.gq-btn:hover{background:rgba(255,255,255,.09)}
+.gq-btn.pri{background:var(--primary);border-color:var(--primary);color:var(--carbon)}
+.gq-btn.pri:hover{background:#ff6a26}
+.gq-btn .k{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.75}
+
+/* ---------- conteúdo */
+main{padding-top:6px}
+.eyebrow{font-family:var(--display);font-size:clamp(20px,2.8vw,26px)!important;font-weight:800!important;letter-spacing:-.022em!important;
+  text-transform:none!important;color:var(--ink)!important;margin:40px 2px 16px!important;gap:12px!important;line-height:1.15}
+.eyebrow::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--primary);flex:none}
+.eyebrow .rule{background:var(--hairline)}
+.card,.kpi,.mapcard,.h2h,.dcard,.xcard,.cc,.detail,.favbar,.intro,.ins,.tbl-wrap{border-color:var(--hairline)}
+.card,.mapcard,.h2h,.dcard,.xcard{border-radius:22px}
+.kpi,.cc,.detail,.favbar,.ins,.tbl-wrap,.intro{border-radius:16px}
+.kpi .l{font-size:11px!important;letter-spacing:.1em!important;font-weight:700!important}
+.kpi .v{font-family:var(--display);font-weight:800!important;letter-spacing:-.03em!important}
+.card h3,.h2h h3,.dcard h3,.xcard h3{font-size:19px}
+.ins{border-left:3px solid var(--amber)!important}
+.disclaimer{border-radius:16px!important}
+.search{border-radius:12px!important}
+footer{background:var(--carbon);color:#9a9a9a!important;border:0!important;border-radius:22px;padding:22px 24px!important;margin-top:40px!important}
+footer b{color:#fff!important}
+footer a{color:#fff}
+@media (max-width:520px){
+  .gq-nav{order:3;width:100%;margin-left:0;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
+  .gq-nav::-webkit-scrollbar{display:none}
+  .gq-live{margin-left:auto}
+  footer{padding:18px!important}
+}
