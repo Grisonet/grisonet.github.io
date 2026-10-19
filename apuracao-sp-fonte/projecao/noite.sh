@@ -5,7 +5,7 @@
 #   log:      tail -f ~/eleicao2026/projecao/out/noite.log
 cd "$(dirname "$0")"
 set -a; source ~/.config/grdata/relay.env; set +a
-export REQ_POR_SEG=${REQ_POR_SEG:-110} THREADS=${THREADS:-128} LOTE=${LOTE:-4000} INTERVALO=${INTERVALO:-30}
+export REQ_POR_SEG=${REQ_POR_SEG:-120} THREADS=${THREADS:-128} LOTE=${LOTE:-4000} INTERVALO=${INTERVALO:-30}
 mkdir -p out
 if [[ "$1" != "--fg" ]]; then
   nohup caffeinate -i "$0" --fg >> out/noite.log 2>&1 &

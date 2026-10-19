@@ -4,20 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Projeção 2º Turno · GR Data</title>
-<meta name="description" content="Apuração do 2º turno para Presidente com projeção independente: cada urna comparada com ela mesma no 1º turno. GR Data.">
+<meta name="description" content="Apuração do 2º turno com projeção independente: cada urna comparada com ela mesma no 1º turno. Presidente e governadores. GR Data.">
 <meta property="og:title" content="Projeção do 2º turno · GR Data">
 <meta property="og:description" content="Veja para que lado o voto está andando antes do placar: cada seção do 2º turno comparada com ela mesma no 1º turno.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <style>
-  /* Projeção do 2º turno (Presidente) — Design System Griso / GR Data. Light-first + dark. */
+  /* Projeção do 2º turno (Presidente + governadores) — Design System Griso / GR Data. Light-first + dark.
+     As cores dos candidatos vêm dos dados (--ca / --cb). */
   :root{
     --canvas:#ffffff; --parchment:#f6f5f3; --pearl:#faf9f7;
     --ink:#080808; --graphite:#454545; --steel:#7a7a7a;
     --hairline:#e5e5e5; --divider:#f0efed; --track:#f0efed;
-    --primary:#FF4C00; --primary-tint:rgba(255,76,0,.12); --amber:#FFC200;
-    --c22:#0B57D0; --c22-bg:#DCE7FA; --c13:#C5221F; --c13-bg:#F9DEDB;
+    --primary:#FF4C00; --amber:#FFC200; --ok:#16A34A; --bad:#DC2626;
+    --ca:#0B57D0; --cb:#C5221F;
+    --ca-t:var(--ca); --cb-t:var(--cb);
+    --ca-bg:color-mix(in srgb, var(--ca) 13%, var(--canvas)); --cb-bg:color-mix(in srgb, var(--cb) 13%, var(--canvas));
     --band:rgba(122,122,122,.18);
     color-scheme:light; --maxw:1100px;
   }
@@ -25,16 +28,18 @@
     --canvas:#1b1b1b; --parchment:#121212; --pearl:#222;
     --ink:#fff; --graphite:#ccc; --steel:#9a9a9a;
     --hairline:rgba(255,255,255,.13); --divider:rgba(255,255,255,.08); --track:rgba(255,255,255,.09);
-    --c22:#7AA7FF; --c22-bg:rgba(122,167,255,.16); --c13:#FF7B72; --c13-bg:rgba(255,123,114,.16);
-    --band:rgba(255,255,255,.12); --primary-tint:rgba(255,76,0,.2);
+    --ca-t:color-mix(in srgb, var(--ca) 62%, white); --cb-t:color-mix(in srgb, var(--cb) 62%, white);
+    --ca-bg:color-mix(in srgb, var(--ca) 24%, var(--canvas)); --cb-bg:color-mix(in srgb, var(--cb) 24%, var(--canvas));
+    --band:rgba(255,255,255,.12); --ok:#34d17f; --bad:#ff7b72;
     color-scheme:dark;
   }}
   :root[data-theme="dark"]{
     --canvas:#1b1b1b; --parchment:#121212; --pearl:#222;
     --ink:#fff; --graphite:#ccc; --steel:#9a9a9a;
     --hairline:rgba(255,255,255,.13); --divider:rgba(255,255,255,.08); --track:rgba(255,255,255,.09);
-    --c22:#7AA7FF; --c22-bg:rgba(122,167,255,.16); --c13:#FF7B72; --c13-bg:rgba(255,123,114,.16);
-    --band:rgba(255,255,255,.12); --primary-tint:rgba(255,76,0,.2);
+    --ca-t:color-mix(in srgb, var(--ca) 62%, white); --cb-t:color-mix(in srgb, var(--cb) 62%, white);
+    --ca-bg:color-mix(in srgb, var(--ca) 24%, var(--canvas)); --cb-bg:color-mix(in srgb, var(--cb) 24%, var(--canvas));
+    --band:rgba(255,255,255,.12); --ok:#34d17f; --bad:#ff7b72;
     color-scheme:dark;
   }
   *{box-sizing:border-box}
@@ -67,34 +72,39 @@
   .insight b{color:var(--ink);font-weight:600}
   .grid2{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
   .muted{color:var(--steel)}
-  .c22{color:var(--c22)} .c13{color:var(--c13)}
+  .ca{color:var(--ca-t)} .cb{color:var(--cb-t)}
+  button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
 
-  /* hero */
+  /* hero + seletores */
   .hero h1{font-size:clamp(26px,5vw,40px);letter-spacing:-.03em;line-height:1.1}
   .hero p{color:var(--graphite);max-width:720px;margin:10px 0 0;font-size:16px}
-  .tabs{display:inline-flex;gap:4px;background:var(--divider);border-radius:9999px;padding:4px;margin-top:18px}
+  .disputas{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:18px}
+  .disputas .lbl{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--steel);margin:0 4px 0 10px}
+  .chip{font:inherit;font-size:13.5px;font-weight:600;border:1px solid var(--hairline);background:var(--canvas);color:var(--graphite);padding:7px 13px;border-radius:9999px;cursor:pointer}
+  .chip[aria-pressed="true"]{background:var(--ink);color:var(--canvas);border-color:var(--ink)}
+  .tabs{display:inline-flex;gap:4px;background:var(--divider);border-radius:9999px;padding:4px;margin-top:12px;flex-wrap:wrap}
   .tabs button{font:inherit;font-size:13.5px;font-weight:600;border:0;background:transparent;color:var(--graphite);padding:8px 16px;border-radius:9999px;cursor:pointer}
   .tabs button[aria-pressed="true"]{background:var(--canvas);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
-  button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+  .tabs button[hidden]{display:none}
   .countdown{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
   .countdown div{background:var(--canvas);border:1px solid var(--hairline);border-radius:14px;padding:10px 14px;min-width:78px;text-align:center}
   .countdown b{display:block;font-size:26px;font-weight:600;letter-spacing:-.02em}
   .countdown span{font-size:11.5px;color:var(--steel);text-transform:uppercase;letter-spacing:.08em}
   .aviso{margin-top:14px;font-size:14px;color:var(--graphite);max-width:720px}
+  .nota-ordem{margin-top:10px;font-size:13px;color:var(--steel);max-width:720px}
 
   /* projeção */
-  .proj-top{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap}
   .badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-radius:9999px;padding:5px 11px;background:var(--divider);color:var(--graphite)}
-  .badge.win22{background:var(--c22-bg);color:var(--c22)} .badge.win13{background:var(--c13-bg);color:var(--c13)}
+  .badge.wina{background:var(--ca-bg);color:var(--ca-t)} .badge.winb{background:var(--cb-bg);color:var(--cb-t)}
   .status h2{font-size:clamp(22px,4vw,30px);margin-top:10px;letter-spacing:-.025em}
   .status p{margin:6px 0 0;color:var(--graphite);font-size:14px;max-width:560px}
   .duo{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
-  .cand{border-radius:14px;padding:14px 16px;border:1px solid var(--hairline)}
+  .cand{border-radius:14px;padding:14px 16px}
   .cand .nm{font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
   .cand .pc{font-size:clamp(34px,7vw,52px);font-weight:600;letter-spacing:-.035em;line-height:1.05;margin-top:4px}
   .cand .fx{font-size:13px;color:var(--steel)}
-  .cand.k22{background:var(--c22-bg);border-color:transparent} .cand.k22 .nm,.cand.k22 .pc{color:var(--c22)}
-  .cand.k13{background:var(--c13-bg);border-color:transparent} .cand.k13 .nm,.cand.k13 .pc{color:var(--c13)}
+  .cand.ka{background:var(--ca-bg)} .cand.ka .nm,.cand.ka .pc{color:var(--ca-t)}
+  .cand.kb{background:var(--cb-bg)} .cand.kb .nm,.cand.kb .pc{color:var(--cb-t)}
   .meter{position:relative;height:30px;margin-top:18px}
   .meter .bar{position:absolute;inset:9px 0;border-radius:9999px;overflow:hidden;display:flex}
   .meter .bar i{display:block;height:100%}
@@ -106,6 +116,10 @@
   .mini .l{font-size:11.5px;color:var(--steel);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
   .mini .v{font-size:19px;font-weight:600;margin-top:2px;letter-spacing:-.015em}
   .mini .v small{font-size:12.5px;color:var(--steel);font-weight:400}
+  .selo[hidden]{display:none}
+  .selo{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:var(--graphite)}
+  .selo .ic{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:color-mix(in srgb, var(--ok) 18%, transparent);color:var(--ok);font-size:12px;font-weight:700;flex:none}
+  .selo.alerta .ic{background:color-mix(in srgb, var(--bad) 18%, transparent);color:var(--bad)}
 
   /* replay */
   .player{display:none;align-items:center;gap:12px;margin-top:18px;padding:12px 14px;border-radius:14px;background:var(--pearl);border:1px solid var(--divider);flex-wrap:wrap}
@@ -128,7 +142,7 @@
   .stack-l{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--graphite);margin-top:8px}
   .sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 
-  /* tabela */
+  /* tabelas */
   .tblwrap{overflow-x:auto;margin-top:12px;-webkit-overflow-scrolling:touch}
   table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px}
   th{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--steel);font-weight:600;text-align:right;padding:8px 8px;border-bottom:1px solid var(--hairline);white-space:nowrap}
@@ -140,6 +154,7 @@
   .seg{display:inline-flex;gap:4px;background:var(--divider);border-radius:9999px;padding:3px;margin-top:12px}
   .seg button{font:inherit;font-size:12.5px;font-weight:600;border:0;background:transparent;color:var(--graphite);padding:6px 12px;border-radius:9999px;cursor:pointer}
   .seg button[aria-pressed="true"]{background:var(--canvas);color:var(--ink)}
+  .seg[hidden]{display:none}
 
   /* sua seção */
   .form{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:14px}
@@ -154,7 +169,7 @@
   .metodo p{color:var(--graphite);font-size:14.5px;margin:8px 0 0}
   .metodo h4{margin:16px 0 0;font-size:15px}
   footer{color:var(--steel);font-size:12.5px;padding:20px 0 40px;border-top:1px solid var(--hairline);margin-top:30px}
-  @media (max-width:520px){.card{padding:16px}.duo{grid-template-columns:1fr 1fr;gap:8px}.cand{padding:12px}}
+  @media (max-width:520px){.card{padding:16px}.duo{gap:8px}.cand{padding:12px}}
 </style>
 </head>
 <body>
@@ -175,13 +190,17 @@
   </nav>
 
   <section class="hero">
-    <div class="eyebrow" style="margin-top:6px">Presidente · domingo, 25 de outubro<span class="rule"></span></div>
+    <div class="eyebrow" style="margin-top:6px"><span id="eyebrow">Presidente · domingo, 25 de outubro</span><span class="rule"></span></div>
     <h1>O resultado do 2º turno antes do placar</h1>
-    <p>As urnas não chegam todas ao mesmo tempo, então o placar do começo da noite mostra só uma parte do Brasil. Aqui, cada seção apurada é comparada com ela mesma no 1º turno: como votam as mesmas pessoas, dá para ver para que lado o voto está andando.</p>
-    <div class="tabs" role="group" aria-label="Modo">
-      <button id="tab-live" aria-pressed="true">Ao vivo 2026</button>
-      <button id="tab-replay" aria-pressed="false">Rever 2022</button>
+    <p>As urnas não chegam todas ao mesmo tempo, então o placar do começo da noite mostra só uma parte dos votos. Aqui, cada seção apurada é comparada com ela mesma no 1º turno: como votam as mesmas pessoas, dá para ver para que lado o voto está andando.</p>
+    <div class="disputas" role="group" aria-label="Disputa" id="disputas"></div>
+    <div class="tabs" role="group" aria-label="Modo" id="modos">
+      <button data-modo="live" aria-pressed="true">Ao vivo 2026</button>
+      <button data-modo="2022" aria-pressed="false">Rever 2022</button>
+      <button data-modo="2018" aria-pressed="false">Rever 2018</button>
+      <button data-modo="2014" aria-pressed="false">Rever 2014</button>
     </div>
+    <p class="nota-ordem" id="nota-ordem" hidden></p>
     <div id="espera" hidden>
       <div class="countdown" aria-live="polite">
         <div><b id="cd-d">—</b><span>dias</span></div><div><b id="cd-h">—</b><span>horas</span></div>
@@ -193,28 +212,27 @@
 
   <div class="eyebrow">Projeção do resultado final<span class="rule"></span></div>
   <section class="card" id="card-proj">
-    <div class="proj-top">
-      <div class="status">
-        <span class="badge" id="badge">Aguardando</span>
-        <h2 id="st-titulo">—</h2>
-        <p id="st-detalhe">Projeção independente, não é resultado oficial.</p>
-      </div>
+    <div class="status">
+      <span class="badge" id="badge">Aguardando</span>
+      <h2 id="st-titulo">—</h2>
+      <p id="st-detalhe">Projeção independente, não é resultado oficial.</p>
     </div>
     <div class="duo">
-      <div class="cand k22"><div class="nm" id="nm22">Flávio (PL)</div><div class="pc" id="pc22">—</div><div class="fx" id="fx22">&nbsp;</div></div>
-      <div class="cand k13"><div class="nm" id="nm13">Lula (PT)</div><div class="pc" id="pc13">—</div><div class="fx" id="fx13">&nbsp;</div></div>
+      <div class="cand ka"><div class="nm" id="nma">—</div><div class="pc" id="pca">—</div><div class="fx" id="fxa">&nbsp;</div></div>
+      <div class="cand kb"><div class="nm" id="nmb">—</div><div class="pc" id="pcb">—</div><div class="fx" id="fxb">&nbsp;</div></div>
     </div>
     <div class="meter" aria-hidden="true">
-      <div class="bar"><i id="m22" style="background:var(--c22);width:50%"></i><i id="m13" style="background:var(--c13);width:50%"></i></div>
+      <div class="bar"><i id="ma" style="background:var(--ca);width:50%"></i><i id="mb" style="background:var(--cb);width:50%"></i></div>
       <div class="mid"></div><div class="fx" id="mfx" style="display:none"></div>
     </div>
-    <div class="meter-l"><span>← <span id="ml22">Flávio</span></span><span>empate</span><span><span id="ml13">Lula</span> →</span></div>
+    <div class="meter-l"><span>← <span id="mla">—</span></span><span>empate</span><span><span id="mlb">—</span> →</span></div>
     <div class="contado">
       <div class="mini"><div class="l">Seções apuradas</div><div class="v" id="k-secoes">—</div></div>
       <div class="mini"><div class="l">Placar contado</div><div class="v" id="k-placar">—</div></div>
       <div class="mini"><div class="l">Placar oficial TSE</div><div class="v" id="k-oficial">—</div></div>
       <div class="mini"><div class="l">Horário (TSE)</div><div class="v" id="k-hora">—</div></div>
     </div>
+    <div class="selo" id="selo" hidden><span class="ic">✓</span><span id="selo-txt"></span></div>
     <div class="player" id="player">
       <button id="play" aria-label="Tocar">▶</button>
       <input type="range" id="slider" min="0" max="0" value="0" aria-label="Ponto da apuração">
@@ -226,7 +244,7 @@
 
   <section class="card">
     <h3>A noite em um gráfico</h3>
-    <div class="sub">Fatia <span id="g-nome">do Flávio</span> nos votos válidos (eixo vertical) conforme as seções chegam (eixo horizontal, % das seções apuradas)</div>
+    <div class="sub">Fatia <span id="g-nome">—</span> nos votos válidos (eixo vertical) conforme as seções chegam (eixo horizontal, % das seções apuradas)</div>
     <svg class="chart" id="chart" viewBox="0 0 900 320" role="img" aria-label="Placar contado e projeção ao longo da apuração"></svg>
     <div class="legend">
       <span><i style="background:var(--graphite)"></i>Placar contado (igual ao do TSE)</span>
@@ -264,11 +282,11 @@
     </section>
   </div>
 
-  <div class="eyebrow">Por região e estado<span class="rule"></span></div>
+  <div class="eyebrow"><span id="tbl-eyebrow">Por região e estado</span><span class="rule"></span></div>
   <section class="card">
     <h3>Onde a diferença está andando</h3>
-    <div class="sub">Placar contado, quanto a diferença mudou contra o 1º turno e a projeção de cada lugar</div>
-    <div class="seg" role="group" aria-label="Agrupar por"><button id="seg-r" aria-pressed="true">Regiões</button><button id="seg-u" aria-pressed="false">Estados</button></div>
+    <div class="sub" id="tbl-sub">Placar contado, quanto a diferença mudou contra o 1º turno e a projeção de cada lugar</div>
+    <div class="seg" role="group" aria-label="Agrupar por" id="seg"><button id="seg-r" aria-pressed="true">Regiões</button><button id="seg-u" aria-pressed="false">Estados</button></div>
     <div class="tblwrap"><table id="tbl"></table></div>
     <div class="insight" id="ins-tbl">—</div>
   </section>
@@ -286,10 +304,11 @@
     <div class="sec-out" id="sec-out"></div>
   </section>
 
-  <div class="eyebrow">O método em 2022<span class="rule"></span></div>
+  <div class="eyebrow">O método nas eleições anteriores<span class="rule"></span></div>
   <section class="card">
-    <h3>Como a projeção se saiu na noite de 2022</h3>
-    <div class="sub">Mesma conta e mesmo código deste painel, refeitos com os boletins reais do TSE na ordem em que chegaram</div>
+    <h3>Como a projeção se saiu em 2014, 2018 e 2022</h3>
+    <div class="sub">Mesma conta e mesmo código deste painel, refeitos com os boletins de urna reais do TSE</div>
+    <div class="seg" role="group" aria-label="Ano" id="seg-val"></div>
     <div class="tblwrap"><table id="tbl-val"></table></div>
     <div class="insight" id="ins-val">—</div>
   </section>
@@ -297,11 +316,11 @@
   <div class="eyebrow">Como calculamos<span class="rule"></span></div>
   <section class="card metodo">
     <h4>O modelo</h4>
-    <p>Cada seção apurada no 2º turno é comparada com ela mesma no 1º. Por município, e agrupando em capital e interior de cada estado, o modelo mede quanto dos votos de cada bloco do 1º turno (Flávio, Lula, demais candidatos, brancos e nulos) foi para cada lado. Depois aplica essa mesma "matriz de transferência" ao 1º turno das seções que ainda faltam. Município com poucas seções apuradas usa o comportamento do seu estado até ter dados próprios.</p>
+    <p>Cada seção apurada no 2º turno é comparada com ela mesma no 1º. Por município, o modelo mede quanto dos votos de cada bloco do 1º turno (os dois finalistas, os demais candidatos, brancos e nulos) foi para cada lado, e aplica essa mesma "matriz de transferência" ao 1º turno das seções que ainda faltam. Município com poucas seções apuradas usa o comportamento do seu grupo — capital, interior grande ou interior pequeno do mesmo estado — até ter dados próprios.</p>
     <h4>A faixa provável</h4>
-    <p>Combina a variação entre seções com uma margem extra para o fato de as urnas não chegarem em ordem aleatória, calibrada refazendo a apuração de 2022. A projeção só indica um vencedor quando a faixa inteira fica de um lado do empate, pela mesma regra para os dois candidatos, e nunca antes de 1% das seções.</p>
-    <h4>Os dados</h4>
-    <p>Tudo sai dos arquivos públicos do TSE: o boletim de urna de cada seção (resultados.tse.jus.br) e os dados abertos do 1º turno. Seções agregadas de outro jeito no 2º turno entram no placar, mas ficam fora do cálculo de transferência. O botão abaixo baixa a série da noite em CSV.</p>
+    <p>Combina a variação entre seções com uma margem extra para o fato de os municípios que chegam primeiro não serem iguais aos que faltam, calibrada refazendo as apurações de 2014, 2018 e 2022. A projeção só indica um vencedor quando a faixa inteira fica de um lado do empate, pela mesma regra para os dois candidatos, e nunca antes de 1% das seções. Nas três eleições refeitas, ela nunca apontou o vencedor errado.</p>
+    <h4>Os dados e a conferência</h4>
+    <p>Tudo sai dos arquivos públicos do TSE: o boletim de urna de cada seção (resultados.tse.jus.br) e os dados abertos do 1º turno. Antes de usar um boletim, o painel confere a cadeia de integridade publicada pelo próprio TSE: o hash divulgado confere o arquivo de assinaturas da urna, o certificado da urna foi emitido por uma autoridade certificadora das urnas do TSE, e a assinatura digital da urna sobre o boletim é válida (Ed521 nas urnas UE2020 e UE2022, ECDSA P-521 nas anteriores). Boletim que não confere fica de fora e aparece listado. Seções agregadas de outro jeito no 2º turno entram no placar, mas ficam fora do cálculo de transferência.</p>
     <p><a href="#" id="csv">Baixar dados (CSV)</a> · <a href="https://resultados.tse.jus.br" target="_blank" rel="noopener">Resultado oficial no TSE ↗</a></p>
   </section>
 
@@ -316,13 +335,28 @@
   const qs = new URLSearchParams(location.search);
   const LIVE = qs.get("fonte") || (location.hostname === "localhost" || location.hostname === "127.0.0.1"
     ? "http://localhost:8787" : "https://grdata-apuracao-production.up.railway.app");
-  const REPLAY = "projecao/replay2022";
   const INICIO = new Date("2026-10-25T17:00:00-03:00");
   const TSE = "https://resultados.tse.jus.br/oficial/ele2026/arquivo-urna";
-  const NOMES = {
-    live: { "22": "Flávio", "13": "Lula", c22: "Flávio (PL)", c13: "Lula (PT)" },
-    replay: { "22": "Bolsonaro", "13": "Lula", c22: "Bolsonaro (PL)", c13: "Lula (PT)" },
-  };
+  const AZUL = "#0B57D0", VERM = "#C5221F", GA = "#0F766E", GB = "#7C3AED";
+  const c = (nome, completo, numero, cor) => ({ nome, completo, numero, cor });
+  // espelho de disputas.py (usado antes de o snapshot chegar e na "Sua seção")
+  const DISPUTAS = [
+    { id: "presidente", rot: "Presidente", titulo: "Presidente", abr: "Brasil", uf: null, saida: "", cargo: 1, e1: 6257, e2: 6258,
+      cand: { a: c("Flávio", "Flávio Bolsonaro (PL)", 22, AZUL), b: c("Lula", "Lula (PT)", 13, VERM) } },
+    { id: "gov-ac", rot: "AC", titulo: "Governador", abr: "Acre", uf: "AC", saida: "governador/ac/", cargo: 3, e1: 6259, e2: 6260,
+      cand: { a: c("Mailza", "Mailza Assis (PP)", 11, GA), b: c("Alan Rick", "Alan Rick (Republicanos)", 10, GB) } },
+    { id: "gov-am", rot: "AM", titulo: "Governador", abr: "Amazonas", uf: "AM", saida: "governador/am/", cargo: 3, e1: 6259, e2: 6260,
+      cand: { a: c("Omar Aziz", "Omar Aziz (PSD)", 55, GA), b: c("Maria do Carmo", "Professora Maria do Carmo (PL)", 22, GB) } },
+    { id: "gov-df", rot: "DF", titulo: "Governador", abr: "Distrito Federal", uf: "DF", saida: "governador/df/", cargo: 3, e1: 6259, e2: 6260,
+      cand: { a: c("Celina Leão", "Celina Leão (PP)", 11, GA), b: c("Leandro Grass", "Leandro Grass (PT)", 13, GB) } },
+    { id: "gov-es", rot: "ES", titulo: "Governador", abr: "Espírito Santo", uf: "ES", saida: "governador/es/", cargo: 3, e1: 6259, e2: 6260,
+      cand: { a: c("Pazolini", "Lorenzo Pazolini (Republicanos)", 10, GA), b: c("Ferraço", "Ricardo Ferraço (MDB)", 15, GB) } },
+    { id: "gov-rn", rot: "RN", titulo: "Governador", abr: "Rio Grande do Norte", uf: "RN", saida: "governador/rn/", cargo: 3, e1: 6259, e2: 6260,
+      cand: { a: c("Allyson", "Allyson (União)", 44, GA), b: c("Cadu de Lula", "Cadu de Lula (PT)", 13, GB) } },
+    { id: "gov-to", rot: "TO", titulo: "Governador", abr: "Tocantins", uf: "TO", saida: "governador/to/", cargo: 3, e1: 6259, e2: 6260,
+      cand: { a: c("Dorinha", "Professora Dorinha (União)", 44, GA), b: c("Vicentinho", "Vicentinho Júnior (PSDB)", 45, GB) } },
+  ];
+  const ANOS = ["2022", "2018", "2014"];
   const $ = (id) => document.getElementById(id);
   const nf = (d) => new Intl.NumberFormat("pt-BR", { minimumFractionDigits: d, maximumFractionDigits: d });
   const pc = (v, d = 1) => v == null ? "—" : nf(d).format(v) + "%";
@@ -332,22 +366,35 @@
   const hora = (iso) => { const m = iso && iso.match(/T(\d\d):(\d\d)/); return m ? `${m[1]}:${m[2]}` : "—"; };
   const pontos = (v) => v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "") + nf(1).format(Math.abs(v)) + (Math.abs(v) >= 2 ? " pontos" : " ponto");
 
-  let modo = "live", N = NOMES.live, liveTimer = null, ultimoLive = null;
-  let replay = null, rIdx = +(qs.get("p") || 0), rTimer = null, tabela = "r";
-  const cacheP = new Map();
+  let disputa = DISPUTAS.find((d) => d.id === qs.get("d")) || DISPUTAS[0];
+  let modo = ANOS.includes(qs.get("ano")) && qs.get("modo") === "replay" ? qs.get("ano") : "live";
+  let N = {}, liveTimer = null, ultimoLive = null, tabela = "r";
+  const replays = {}, cacheP = new Map();
+  let rIdx = +(qs.get("p") || 0), rTimer = null, anoVal = "2022";
+
+  // ------------------------------------------------------------------ candidatos e cores
+  function aplicaCandidatos(cand) {
+    N = { a: cand.a.nome, b: cand.b.nome, ca: cand.a.completo, cb: cand.b.completo };
+    document.documentElement.style.setProperty("--ca", cand.a.cor);
+    document.documentElement.style.setProperty("--cb", cand.b.cor);
+    $("nma").textContent = N.ca; $("nmb").textContent = N.cb; $("mla").textContent = N.a; $("mlb").textContent = N.b;
+    $("g-nome").textContent = "de " + N.a;
+  }
+  const de = (k) => `de ${N[k]}`;
 
   // ------------------------------------------------------------------ render
-  function lado(m) { return m > 0 ? N["22"] : m < 0 ? N["13"] : null; }
-  function aFavor(m) { const l = lado(m); return l ? `${votos(m)} a favor do ${l}` : "empate"; }
+  function lado(m) { return m > 0 ? N.a : m < 0 ? N.b : null; }
+  function aFavor(m) { const l = lado(m); return l ? `${votos(m)} a favor de ${l}` : "empate"; }
+  const tag = (m) => m > 0 ? `<span class="ca">${N.a} +${votosC(m)}</span>` : m < 0 ? `<span class="cb">${N.b} +${votosC(m)}</span>` : "—";
 
   function render(s, historico) {
-    const p = s.projecao, sec = s.secoes || {};
-    // status
+    if (s.candidatos) aplicaCandidatos(s.candidatos);
+    const p = s.projecao, sec = s.secoes || {}, replay = s.modo === "replay";
     const badge = $("badge");
     badge.className = "badge";
     if (!p || !sec.apuradas) {
-      badge.textContent = s.modo === "replay" ? "17h · início" : "Aguardando";
-      $("st-titulo").textContent = s.modo === "replay" ? "A apuração vai começar" : "Aguardando as primeiras urnas";
+      badge.textContent = replay ? "17h · início" : "Aguardando";
+      $("st-titulo").textContent = replay ? "A apuração vai começar" : "Aguardando as primeiras urnas";
       $("st-detalhe").textContent = "A projeção aparece com as primeiras seções. Projeção independente, não é resultado oficial.";
     } else if (p.status === "indefinido") {
       badge.textContent = "Ainda indefinido";
@@ -357,39 +404,37 @@
       badge.className = "badge win" + p.status;
       badge.textContent = s.modo === "final" ? "Resultado" : "Projeção";
       $("st-titulo").innerHTML = `Projeção: <span class="c${p.status}">${N[p.status]} vence</span>`;
-      $("st-detalhe").textContent = `A faixa provável inteira está do lado do ${N[p.status]}` +
+      $("st-detalhe").textContent = `A faixa provável inteira está do lado ${de(p.status)}` +
         (p.desde_pct != null ? ` desde ${nf(1).format(p.desde_pct)}% das seções apuradas` : "") + ". O resultado oficial é o do TSE.";
     }
-    // números
-    const p22 = p ? p.pct22 : null;
-    $("pc22").textContent = pc(p22, 1); $("pc13").textContent = p22 == null ? "—" : pc(100 - p22, 1);
+    const pa = p ? p.pcta : null;
+    $("pca").textContent = pc(pa, 1); $("pcb").textContent = pa == null ? "—" : pc(100 - pa, 1);
     if (p) {
       const [a, b] = p.faixa, d = Math.abs(b - a) < 0.2 ? 2 : 1;
-      $("fx22").textContent = `faixa ${nf(d).format(a)}% a ${nf(d).format(b)}%`;
-      $("fx13").textContent = `faixa ${nf(d).format(100 - b)}% a ${nf(d).format(100 - a)}%`;
-      $("m22").style.width = p22 + "%"; $("m13").style.width = (100 - p22) + "%";
-      const lo = Math.max(a, 35), hi = Math.min(b, 65);
+      $("fxa").textContent = `faixa ${nf(d).format(a)}% a ${nf(d).format(b)}%`;
+      $("fxb").textContent = `faixa ${nf(d).format(100 - b)}% a ${nf(d).format(100 - a)}%`;
+      const lo = 50 - 20, hi = 50 + 20;                 // a régua mostra de 30% a 70% para a faixa ser visível
+      const pos = (v) => (Math.min(Math.max(v, lo), hi) - lo) / (hi - lo) * 100;
+      $("ma").style.width = pos(pa) + "%"; $("mb").style.width = (100 - pos(pa)) + "%";
       const mfx = $("mfx"); mfx.style.display = "block";
-      // a régua mostra de 35% a 65% para a faixa ser visível
-      const pos = (v) => (Math.min(Math.max(v, 35), 65) - 35) / 30 * 100;
-      $("m22").style.width = pos(p22) + "%"; $("m13").style.width = (100 - pos(p22)) + "%";
-      mfx.style.left = pos(lo) + "%"; mfx.style.width = Math.max(pos(hi) - pos(lo), 0.6) + "%";
+      mfx.style.left = pos(a) + "%"; mfx.style.width = Math.max(pos(b) - pos(a), 0.6) + "%";
     } else {
-      $("fx22").innerHTML = "&nbsp;"; $("fx13").innerHTML = "&nbsp;"; $("mfx").style.display = "none";
-      $("m22").style.width = "50%"; $("m13").style.width = "50%";
+      $("fxa").innerHTML = "&nbsp;"; $("fxb").innerHTML = "&nbsp;"; $("mfx").style.display = "none";
+      $("ma").style.width = "50%"; $("mb").style.width = "50%";
     }
     $("k-secoes").innerHTML = sec.total ? `${pc(sec.pct, 1)} <small>${int(sec.apuradas)} de ${int(sec.total)}</small>` : "—";
     const pl = s.placar;
-    $("k-placar").innerHTML = pl && pl.pct22 != null ? `<span class="c22">${pc(pl.pct22)}</span> × <span class="c13">${pc(100 - pl.pct22)}</span>` : "—";
+    $("k-placar").innerHTML = pl && pl.pcta != null ? `<span class="ca">${pc(pl.pcta)}</span> × <span class="cb">${pc(100 - pl.pcta)}</span>` : "—";
     const of = s.oficial;
-    $("k-oficial").innerHTML = of && of.pct22 != null ? `<span class="c22">${pc(of.pct22)}</span> × <span class="c13">${pc(100 - of.pct22)}</span> <small>${pc(of.pst, 1)} urnas</small>` : (s.modo === "replay" ? "<small>igual ao placar contado</small>" : "—");
-    $("k-hora").textContent = sec.apuradas || s.modo === "replay" ? hora(s.gerado_tse) : "—";
-    // insight principal
-    if (p && pl && pl.pct22 != null) {
-      const lid = pl.pct22 > 50 ? "22" : "13", proj = p.pct22 > 50 ? "22" : "13";
+    $("k-oficial").innerHTML = of && of.pcta != null ? `<span class="ca">${pc(of.pcta)}</span> × <span class="cb">${pc(100 - of.pcta)}</span> <small>${pc(of.pst, 1)} urnas</small>` : (replay ? "<small>igual ao placar contado</small>" : "—");
+    $("k-hora").textContent = sec.apuradas || replay ? hora(s.gerado_tse) : "—";
+    renderSelo(s);
+    if (p && pl && pl.pcta != null) {
+      const lid = pl.pcta > 50 ? "a" : "b", proj = p.pcta > 50 ? "a" : "b";
+      const v = (k, x) => (k === "a" ? x : 100 - x);
       $("ins-proj").innerHTML = lid !== proj
-        ? `O placar mostra <b>${N[lid]} na frente com ${pc(lid === "22" ? pl.pct22 : 100 - pl.pct22)}</b>, mas as seções já apuradas, comparadas com o 1º turno, apontam <b>${N[proj]} com ${pc(proj === "22" ? p.pct22 : 100 - p.pct22)}</b> no final. A diferença vem da ordem em que as urnas chegam.`
-        : `Placar e projeção apontam para o mesmo lado: <b>${N[proj]}</b>, com ${pc(proj === "22" ? p.pct22 : 100 - p.pct22)} projetados no final (placar agora: ${pc(lid === "22" ? pl.pct22 : 100 - pl.pct22)}).`;
+        ? `O placar mostra <b>${N[lid]} na frente com ${pc(v(lid, pl.pcta))}</b>, mas as seções já apuradas, comparadas com o 1º turno, apontam <b>${N[proj]} com ${pc(v(proj, p.pcta))}</b> no final. A diferença vem da ordem em que as urnas chegam.`
+        : `Placar e projeção apontam para o mesmo lado: <b>${N[proj]}</b>, com ${pc(v(proj, p.pcta))} projetados no final (placar agora: ${pc(v(lid, pl.pcta))}).`;
     } else {
       $("ins-proj").textContent = "Projeção independente, não é resultado oficial: o resultado oficial é o do TSE.";
     }
@@ -397,13 +442,23 @@
     renderDif(s); renderTransf(s); renderTabela(s);
   }
 
+  function renderSelo(s) {
+    const el = $("selo"), i = s.integridade;
+    if (s.modo === "replay" || !i || !i.ativa) { el.hidden = true; return; }
+    el.hidden = false;
+    el.classList.toggle("alerta", i.rejeitadas > 0);
+    el.querySelector(".ic").textContent = i.rejeitadas > 0 ? "!" : "✓";
+    const lista = (i.rejeitadas_lista || []).slice(0, 3).map((r) => `${r.secao.replaceAll("|", " · ")} (${r.motivo})`).join("; ");
+    $("selo-txt").innerHTML = i.verificadas
+      ? `<b>${int(i.verificadas)}</b> boletins com assinatura digital da urna conferida` + (i.rejeitadas ? ` · <b>${int(i.rejeitadas)}</b> rejeitado(s), fora da conta: ${lista}` : " · nenhum rejeitado")
+      : "Cada boletim tem a assinatura digital da urna conferida antes de entrar na conta.";
+  }
+
   function renderChart(h) {
     const svg = $("chart"), W = 900, H = 320, m = { l: 44, r: 16, t: 14, b: 30 };
-    const pts = h.filter((d) => d.pct > 0 && d.placar22 != null);
+    const pts = h.filter((d) => d.pct > 0 && d.placara != null);
     let lo = 45, hi = 55;
-    for (const d of pts) {
-      lo = Math.min(lo, d.placar22, d.faixa ? d.faixa[0] : 99); hi = Math.max(hi, d.placar22, d.faixa ? d.faixa[1] : 0);
-    }
+    for (const d of pts) { lo = Math.min(lo, d.placara, d.faixa ? d.faixa[0] : 99); hi = Math.max(hi, d.placara, d.faixa ? d.faixa[1] : 0); }
     lo = Math.floor(lo - 0.5); hi = Math.ceil(hi + 0.5);
     const x = (v) => m.l + (v / 100) * (W - m.l - m.r), y = (v) => m.t + (hi - v) / (hi - lo) * (H - m.t - m.b);
     let g = "";
@@ -419,138 +474,174 @@
       g += `<polygon points="${top} ${bot}" fill="var(--band)"/>`;
       g += `<polyline points="${fx.map((d) => `${x(d.pct)},${y(d.proj)}`).join(" ")}" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linejoin="round"/>`;
     }
-    if (pts.length > 1) g += `<polyline points="${pts.map((d) => `${x(d.pct)},${y(d.placar22)}`).join(" ")}" fill="none" stroke="var(--graphite)" stroke-width="1.6" stroke-linejoin="round"/>`;
+    if (pts.length > 1) g += `<polyline points="${pts.map((d) => `${x(d.pct)},${y(d.placara)}`).join(" ")}" fill="none" stroke="var(--graphite)" stroke-width="1.6" stroke-linejoin="round"/>`;
     const last = pts[pts.length - 1];
     if (last) {
-      g += `<circle cx="${x(last.pct)}" cy="${y(last.placar22)}" r="4" fill="var(--graphite)"/>`;
+      g += `<circle cx="${x(last.pct)}" cy="${y(last.placara)}" r="4" fill="var(--graphite)"/>`;
       if (last.proj != null) g += `<circle cx="${x(last.pct)}" cy="${y(last.proj)}" r="5" fill="var(--primary)"/>`;
     }
     svg.innerHTML = g;
-    $("g-nome").textContent = "do " + N["22"];
-    // insight
     if (!last) { $("ins-chart").textContent = "O gráfico começa com as primeiras seções."; return; }
-    const pico = pts.reduce((a, d) => (Math.abs(d.placar22 - 50) > Math.abs(a.placar22 - 50) ? d : a), pts[0]);
-    const lp = pico.placar22 > 50 ? "22" : "13";
-    let txt = `No pico, com ${pc(pico.pct, 1)} das seções, o placar dava <b>${N[lp]} com ${pc(lp === "22" ? pico.placar22 : 100 - pico.placar22)}</b>`;
-    txt += pico.proj != null ? `; a projeção, no mesmo momento, já dizia <b>${pc(pico.proj > 50 ? pico.proj : 100 - pico.proj)} para o ${N[pico.proj > 50 ? "22" : "13"]}</b>.` : ".";
+    const pico = pts.reduce((a, d) => (Math.abs(d.placara - 50) > Math.abs(a.placara - 50) ? d : a), pts[0]);
+    const lp = pico.placara > 50 ? "a" : "b";
+    let txt = `No pico, com ${pc(pico.pct, 1)} das seções, o placar dava <b>${N[lp]} com ${pc(lp === "a" ? pico.placara : 100 - pico.placara)}</b>`;
+    txt += pico.proj != null ? `; a projeção, no mesmo momento, já dizia <b>${pc(pico.proj > 50 ? pico.proj : 100 - pico.proj)} para ${N[pico.proj > 50 ? "a" : "b"]}</b>.` : ".";
     $("ins-chart").innerHTML = txt + " A linha laranja quase não se mexe enquanto o placar oscila: é isso que a comparação com o 1º turno resolve.";
   }
 
   function renderDif(s) {
     const d = s.diferenca;
     if (!d) { ["d-1t", "d-saldo", "d-atual"].forEach((i) => ($(i).textContent = "—")); $("ins-dif").textContent = "Aparece com as primeiras seções."; $("d-stack").innerHTML = ""; $("d-stack-l").innerHTML = ""; return; }
-    const tag = (m) => m > 0 ? `<span class="c22">${N["22"]} +${votosC(m)}</span>` : m < 0 ? `<span class="c13">${N["13"]} +${votosC(m)}</span>` : "empate";
     $("d-1t").innerHTML = tag(d.primeiro_turno); $("d-saldo").innerHTML = tag(d.saldo); $("d-atual").innerHTML = tag(d.atual);
-    const sem = Math.max(0, 100 - d.a22_pct - d.a13_pct);
-    $("d-stack").innerHTML = `<i style="width:${d.a22_pct}%;background:var(--c22)"></i><i style="width:${sem}%;background:var(--track)"></i><i style="width:${d.a13_pct}%;background:var(--c13)"></i>`;
-    $("d-stack-l").innerHTML = `<span><span class="sw" style="background:var(--c22)"></span>${pc(d.a22_pct, 0)} das seções andaram para o ${N["22"]}</span><span><span class="sw" style="background:var(--c13)"></span>${pc(d.a13_pct, 0)} para o ${N["13"]}</span>`;
+    const sem = Math.max(0, 100 - d.aa_pct - d.ab_pct);
+    $("d-stack").innerHTML = `<i style="width:${d.aa_pct}%;background:var(--ca)"></i><i style="width:${sem}%;background:var(--track)"></i><i style="width:${d.ab_pct}%;background:var(--cb)"></i>`;
+    $("d-stack-l").innerHTML = `<span><span class="sw" style="background:var(--ca)"></span>${pc(d.aa_pct, 0)} das seções andaram para ${N.a}</span><span><span class="sw" style="background:var(--cb)"></span>${pc(d.ab_pct, 0)} para ${N.b}</span>`;
     const virou = d.primeiro_turno * d.atual < 0;
     $("ins-dif").innerHTML = `O 1º turno terminou com <b>${aFavor(d.primeiro_turno)}</b> no confronto direto. Nas seções já apuradas a diferença mudou <b>${aFavor(d.saldo)}</b>` +
-      (virou ? `, o que <b>já inverte o resultado do 1º turno</b>.` : d.saldo * d.primeiro_turno < 0 ? `, encolhendo a vantagem do ${lado(d.primeiro_turno)}.` : `, ampliando a vantagem do ${lado(d.primeiro_turno) || "líder"}.`) +
-      ` ${int(d.viraram22 + d.viraram13)} urnas trocaram de vencedor (${int(d.viraram22)} para o ${N["22"]}, ${int(d.viraram13)} para o ${N["13"]}).`;
+      (virou ? `, o que <b>já inverte o resultado do 1º turno</b>.` : d.saldo * d.primeiro_turno < 0 ? `, encolhendo a vantagem ${de(d.primeiro_turno > 0 ? "a" : "b")}.` : `, ampliando a vantagem ${d.primeiro_turno ? de(d.primeiro_turno > 0 ? "a" : "b") : "do líder"}.`) +
+      ` ${int(d.viraram_a + d.viraram_b)} urnas trocaram de vencedor (${int(d.viraram_a)} para ${N.a}, ${int(d.viraram_b)} para ${N.b}).`;
   }
 
   function renderTransf(s) {
     const t = s.transferencia;
     if (!t) { $("t-stack").innerHTML = ""; $("t-stack-l").innerHTML = ""; $("t-comp").textContent = "—"; $("t-lote").textContent = "—"; $("ins-transf").textContent = "Aparece com as primeiras seções."; return; }
-    const a = Math.max(t.outros22, 0), b = Math.max(t.outros13, 0), c = Math.max(100 - a - b, 0);
-    $("t-stack").innerHTML = `<i style="width:${a}%;background:var(--c22)"></i><i style="width:${c}%;background:var(--steel);opacity:.45"></i><i style="width:${b}%;background:var(--c13)"></i>`;
-    $("t-stack-l").innerHTML = `<span><span class="sw" style="background:var(--c22)"></span>${pc(a, 0)} ${N["22"]}</span><span><span class="sw" style="background:var(--steel);opacity:.45"></span>${pc(c, 0)} não votou, branco ou nulo</span><span><span class="sw" style="background:var(--c13)"></span>${pc(b, 0)} ${N["13"]}</span>`;
+    const a = Math.max(t.outrosa, 0), b = Math.max(t.outrosb, 0), r = Math.max(100 - a - b, 0);
+    $("t-stack").innerHTML = `<i style="width:${a}%;background:var(--ca)"></i><i style="width:${r}%;background:var(--steel);opacity:.45"></i><i style="width:${b}%;background:var(--cb)"></i>`;
+    $("t-stack-l").innerHTML = `<span><span class="sw" style="background:var(--ca)"></span>${pc(a, 0)} ${N.a}</span><span><span class="sw" style="background:var(--steel);opacity:.45"></span>${pc(r, 0)} não votou, branco ou nulo</span><span><span class="sw" style="background:var(--cb)"></span>${pc(b, 0)} ${N.b}</span>`;
     $("t-comp").textContent = pontos(s.comparecimento_delta);
     const ul = s.ultimo_lote;
-    $("t-lote").innerHTML = ul && ul.pct22 != null ? `<span class="c${ul.pct22 > 50 ? "22" : "13"}">${N[ul.pct22 > 50 ? "22" : "13"]} ${pc(ul.pct22 > 50 ? ul.pct22 : 100 - ul.pct22, 0)}</span> <small>${int(ul.secoes)} seções</small>` : "—";
-    const quem = a > b ? "22" : "13";
-    $("ins-transf").innerHTML = `De cada 100 eleitores dos demais candidatos do 1º turno, <b>${int(a)} foram para o ${N["22"]} e ${int(b)} para o ${N["13"]}</b>. ` +
-      (Math.abs(a - b) >= 3 ? `É por aqui que o ${N[quem]} ganha terreno no 2º turno.` : "Esses votos se dividiram quase meio a meio.") +
+    $("t-lote").innerHTML = ul && ul.pcta != null ? `<span class="c${ul.pcta > 50 ? "a" : "b"}">${N[ul.pcta > 50 ? "a" : "b"]} ${pc(ul.pcta > 50 ? ul.pcta : 100 - ul.pcta, 0)}</span> <small>${int(ul.secoes)} seções</small>` : "—";
+    const quem = a > b ? "a" : "b";
+    $("ins-transf").innerHTML = `De cada 100 eleitores dos demais candidatos do 1º turno, <b>${int(a)} foram para ${N.a} e ${int(b)} para ${N.b}</b>. ` +
+      (Math.abs(a - b) >= 3 ? `É por aqui que ${N[quem]} ganha terreno no 2º turno.` : "Esses votos se dividiram quase meio a meio.") +
       (s.comparecimento_delta != null ? ` O comparecimento nas seções apuradas variou ${pontos(s.comparecimento_delta)} em relação ao 1º turno.` : "");
   }
 
   function renderTabela(s) {
-    const rows = (tabela === "r" ? s.regioes : s.estados) || [];
+    const estadual = !!s.subareas || (disputa.uf && modo === "live");
+    $("seg").hidden = estadual;
+    const tipo = s.subareas ? s.subareas.tipo : null;
+    $("tbl-eyebrow").textContent = estadual ? (tipo === "zona" ? "Por zona eleitoral" : "Por município") : "Por região e estado";
+    $("tbl-sub").textContent = estadual
+      ? `Os maiores ${tipo === "zona" ? "zonas eleitorais" : "municípios"} em número de seções: placar contado, quanto a diferença mudou contra o 1º turno` + (tipo === "zona" ? "" : " e a projeção de cada um")
+      : "Placar contado, quanto a diferença mudou contra o 1º turno e a projeção de cada lugar";
+    const rows = (estadual ? (s.subareas && s.subareas.lista) : tabela === "r" ? s.regioes : s.estados) || [];
     const t = $("tbl");
     if (!rows.length) { t.innerHTML = "<tr><td class='muted'>Aparece com as primeiras seções.</td></tr>"; $("ins-tbl").textContent = "—"; return; }
-    const tag = (m) => m > 0 ? `<span class="c22">${N["22"]} +${votosC(m)}</span>` : m < 0 ? `<span class="c13">${N["13"]} +${votosC(m)}</span>` : "—";
-    let h = `<thead><tr><th>${tabela === "r" ? "Região" : "Estado"}</th><th>Apurado</th><th>Placar ${N["22"]}</th><th>Vs. 1º turno</th><th>Projeção ${N["22"]}</th><th>Comparecimento</th></tr></thead><tbody>`;
+    const titulo = estadual ? (tipo === "zona" ? "Zona" : "Município") : tabela === "r" ? "Região" : "Estado";
+    const temProj = rows.some((r) => r.proja != null);
+    let h = `<thead><tr><th>${titulo}</th><th>Apurado</th><th>Placar ${N.a}</th><th>Vs. 1º turno</th>${temProj ? `<th>Projeção ${N.a}</th>` : ""}<th>Comparecimento</th></tr></thead><tbody>`;
     for (const r of rows) {
-      const p = r.pct22, pr = r.proj22;
+      const p = r.pcta;
       h += `<tr><td><b>${r.nome}</b></td><td>${pc(r.apurado_pct, 0)}</td>
-        <td>${p == null ? "—" : pc(p)}<span class="pbar"><i style="width:${p || 0}%;background:var(--c22)"></i><i style="width:${p == null ? 0 : 100 - p}%;background:var(--c13)"></i></span></td>
-        <td>${tag(r.saldo)}</td><td>${pr == null ? "—" : pc(pr)}</td><td>${pontos(r.comp_delta)}</td></tr>`;
+        <td>${p == null ? "—" : pc(p)}<span class="pbar"><i style="width:${p || 0}%;background:var(--ca)"></i><i style="width:${p == null ? 0 : 100 - p}%;background:var(--cb)"></i></span></td>
+        <td>${tag(r.saldo)}</td>${temProj ? `<td>${r.proja == null ? "—" : pc(r.proja)}</td>` : ""}<td>${pontos(r.comp_delta)}</td></tr>`;
     }
     t.innerHTML = h + "</tbody>";
     const com = rows.filter((r) => r.apurado_pct > 0);
     if (com.length) {
-      const m22 = com.reduce((a, r) => (r.saldo > a.saldo ? r : a)), m13 = com.reduce((a, r) => (r.saldo < a.saldo ? r : a));
-      const onde = (r, k, ok) => ok ? `Onde o ${N[k]} mais ganhou terreno contra o 1º turno: <b>${r.nome}</b> (+${votos(r.saldo)}).` : `O ${N[k]} não ganhou terreno contra o 1º turno em nenhum${tabela === "r" ? "a região" : " estado"} até aqui.`;
-      $("ins-tbl").innerHTML = `${onde(m22, "22", m22.saldo > 0)} ${onde(m13, "13", m13.saldo < 0)}` +
-        (s.secoes && s.secoes.pct < 100 ? " Regiões que totalizam mais rápido pesam mais no placar do começo da noite." : "");
+      const ma = com.reduce((x, r) => (r.saldo > x.saldo ? r : x)), mb = com.reduce((x, r) => (r.saldo < x.saldo ? r : x));
+      const onde = (r, k, ok) => ok ? `Onde ${N[k]} mais ganhou terreno contra o 1º turno: <b>${r.nome}</b> (+${votos(r.saldo)}).` : `${N[k]} não ganhou terreno contra o 1º turno em nenhum lugar desta lista até aqui.`;
+      $("ins-tbl").innerHTML = `${onde(ma, "a", ma.saldo > 0)} ${onde(mb, "b", mb.saldo < 0)}` +
+        (s.secoes && s.secoes.pct < 100 ? " Lugares que totalizam mais rápido pesam mais no placar do começo da noite." : "");
     }
   }
 
-  // ------------------------------------------------------------------ modos
-  function setModo(m) {
-    modo = m; N = NOMES[m];
-    $("tab-live").setAttribute("aria-pressed", m === "live"); $("tab-replay").setAttribute("aria-pressed", m === "replay");
-    $("nm22").textContent = N.c22; $("nm13").textContent = N.c13; $("ml22").textContent = N["22"]; $("ml13").textContent = N["13"];
-    $("player").classList.toggle("on", m === "replay");
-    clearInterval(liveTimer); pause();
-    if (m === "live") { $("espera").hidden = true; carregaLive(); liveTimer = setInterval(carregaLive, 30000); }
-    else { $("espera").hidden = true; carregaReplay(); }
+  // ------------------------------------------------------------------ disputas e modos
+  function montaDisputas() {
+    const el = $("disputas");
+    el.innerHTML = DISPUTAS.map((d, i) => (i === 1 ? `<span class="lbl">Governador</span>` : "") +
+      `<button class="chip" data-d="${d.id}" aria-pressed="${d.id === disputa.id}" title="${d.titulo} · ${d.abr}">${d.rot}</button>`).join("");
+    el.onclick = (e) => { const b = e.target.closest("[data-d]"); if (b) { disputa = DISPUTAS.find((d) => d.id === b.dataset.d); if (disputa.uf) modo = "live"; aplica(); } };
+  }
+
+  function aplica() {
+    clearInterval(liveTimer); pause(); ultimoLive = null;
+    document.querySelectorAll("#disputas [data-d]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.d === disputa.id));
+    document.querySelectorAll("#modos button").forEach((b) => {
+      b.setAttribute("aria-pressed", b.dataset.modo === modo);
+      b.hidden = b.dataset.modo !== "live" && !!disputa.uf;      // os replays são só de Presidente
+    });
+    $("eyebrow").textContent = modo === "live" ? `${disputa.titulo} · ${disputa.abr} · domingo, 25 de outubro` : `Presidente · Brasil · 2º turno de ${modo}`;
+    $("player").classList.toggle("on", modo !== "live");
+    $("espera").hidden = true;
+    if (modo === "live") { aplicaCandidatos(disputa.cand); $("nota-ordem").hidden = true; carregaLive(); liveTimer = setInterval(carregaLive, 30000); }
+    else { carregaReplay(modo); renderValidacao(modo); }
+    const u = new URLSearchParams();
+    if (disputa.id !== "presidente") u.set("d", disputa.id);
+    if (modo !== "live") { u.set("modo", "replay"); u.set("ano", modo); }
+    history.replaceState(null, "", location.pathname + (u.toString() ? "?" + u : ""));
   }
 
   async function carregaLive() {
+    const d = disputa;
     try {
-      const r = await fetch(`${LIVE}/snapshot.json?t=${Date.now()}`, { cache: "no-store" });
+      const r = await fetch(`${LIVE}/${d.saida}snapshot.json?t=${Date.now()}`, { cache: "no-store" });
       if (!r.ok) throw new Error(r.status);
-      const s = await r.json(); ultimoLive = s;
-      if (modo !== "live") return;
+      const s = await r.json();
+      if (modo !== "live" || d !== disputa) return;
+      ultimoLive = s;
       const esperando = s.modo === "aguardando";
       $("espera").hidden = !esperando;
       $("dot").classList.toggle("on", !esperando && s.modo !== "final");
       $("livetxt").textContent = esperando ? "começa domingo, 17h" : s.modo === "final" ? "apuração encerrada" : `ao vivo · ${hora(s.gerado_painel)}`;
       render(s);
     } catch (e) {
-      if (modo !== "live") return;
+      if (modo !== "live" || d !== disputa) return;
       const antes = Date.now() < INICIO.getTime();
       $("espera").hidden = !antes;
       $("dot").classList.remove("on");
       $("livetxt").textContent = antes ? "começa domingo, 17h" : "reconectando…";
-      if (!ultimoLive) render({ modo: "aguardando", historico: [] });
+      if (!ultimoLive) render({ modo: "aguardando", historico: [], candidatos: d.cand });
     }
   }
 
-  async function carregaReplay() {
-    $("livetxt").textContent = "rever 2022"; $("dot").classList.remove("on");
-    if (!replay) {
-      replay = await (await fetch(`${REPLAY}/indice.json`)).json();
-      $("slider").max = replay.pontos.length - 1;
-      renderValidacao();
-    }
+  async function indice(ano) {
+    if (!replays[ano]) replays[ano] = fetch(`projecao/replay${ano}/indice.json`).then((r) => r.json());
+    return replays[ano];
+  }
+
+  async function carregaReplay(ano) {
+    $("livetxt").textContent = `rever ${ano}`; $("dot").classList.remove("on");
+    const ix = await indice(ano);
+    if (modo !== ano) return;
+    aplicaCandidatos(ix.candidatos);
+    $("slider").max = ix.pontos.length - 1;
+    rIdx = Math.min(rIdx, ix.pontos.length - 1);
+    const nota = $("nota-ordem");
+    nota.hidden = false;
+    nota.textContent = ix.ordem === "real"
+      ? `Boletins reais de ${ano}, liberados na ordem e no horário em que chegaram ao TSE naquela noite.`
+      : `Boletins reais de ${ano}. O TSE não publicou a hora de chegada das urnas nesse ano: a ordem foi simulada dando a cada seção o horário de chegada de uma seção do mesmo município em 2022.`;
     vaiPara(rIdx);
   }
 
-  async function ponto(i) {
-    const p = replay.pontos[i];
-    if (!cacheP.has(i)) cacheP.set(i, fetch(`${REPLAY}/${p.arquivo}`).then((r) => r.json()));
-    return cacheP.get(i);
+  async function ponto(ano, i) {
+    const ix = await indice(ano), key = ano + ":" + i;
+    if (!cacheP.has(key)) cacheP.set(key, fetch(`projecao/replay${ano}/${ix.pontos[i].arquivo}`).then((r) => r.json()));
+    return cacheP.get(key);
   }
 
   async function vaiPara(i) {
+    const ano = modo; if (ano === "live") return;
+    const ix = await indice(ano);
     rIdx = i; $("slider").value = i;
-    const p = replay.pontos[i];
+    const p = ix.pontos[i];
     $("ptxt").textContent = `${hora(p.t)} · ${pc(p.pct, 1)} das seções`;
-    const s = await ponto(i);
-    if (rIdx !== i || modo !== "replay") return;
-    const hist = replay.pontos.slice(0, i + 1).map((q) => ({ pct: q.pct, placar22: q.placar22, proj: q.proj, faixa: q.faixa, dif: q.dif }));
+    const s = await ponto(ano, i);
+    if (rIdx !== i || modo !== ano) return;
+    const hist = ix.pontos.slice(0, i + 1).map((q) => ({ pct: q.pct, placara: q.placara, proj: q.proj, faixa: q.faixa, dif: q.dif }));
     render(s, hist);
-    ponto(Math.min(i + 1, replay.pontos.length - 1)); ponto(Math.min(i + 2, replay.pontos.length - 1));
+    const ult = ix.pontos.length - 1;
+    ponto(ano, Math.min(i + 1, ult)); ponto(ano, Math.min(i + 2, ult));
   }
 
-  function play() {
-    if (rIdx >= replay.pontos.length - 1) rIdx = 0;
+  async function play() {
+    const ix = await indice(modo);
+    if (rIdx >= ix.pontos.length - 1) rIdx = 0;
     $("play").textContent = "❚❚"; $("play").setAttribute("aria-label", "Pausar");
     const tick = async () => {
-      if (rIdx >= replay.pontos.length - 1) return pause();
+      if (modo === "live" || rIdx >= ix.pontos.length - 1) return pause();
       await vaiPara(rIdx + 1);
       rTimer = setTimeout(tick, +$("speed").value);
     };
@@ -558,15 +649,28 @@
   }
   function pause() { clearTimeout(rTimer); rTimer = null; $("play").textContent = "▶"; $("play").setAttribute("aria-label", "Tocar"); }
 
-  function renderValidacao() {
-    const v = replay.validacao, f = replay.final;
-    let h = `<thead><tr><th>Seções apuradas</th><th>Horário</th><th>Projeção Bolsonaro</th><th>Faixa provável</th><th>Erro</th></tr></thead><tbody>`;
-    for (const r of v) h += `<tr><td>${pc(r.pct, 0)}</td><td>${hora(r.t)}</td><td>${pc(r.proj22, 2)}</td><td>${nf(2).format(r.faixa[0])}% a ${nf(2).format(r.faixa[1])}%</td><td>${nf(2).format(Math.abs(r.erro))} ponto</td></tr>`;
-    h += `<tr><td><b>Final</b></td><td>${hora(replay.fim)}</td><td><b>${pc(f.pct22, 2)}</b></td><td colspan="2" class="muted">resultado oficial</td></tr>`;
+  // ------------------------------------------------------------------ validação (3 eleições)
+  async function renderValidacao(ano) {
+    anoVal = ano;
+    document.querySelectorAll("#seg-val button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.ano === ano));
+    const ix = await indice(ano);
+    if (anoVal !== ano) return;
+    const v = ix.validacao, f = ix.final, na = ix.candidatos.a.nome, nb = ix.candidatos.b.nome;
+    let h = `<thead><tr><th>Seções apuradas</th><th>Horário</th><th>Projeção ${na}</th><th>Faixa provável</th><th>Erro</th></tr></thead><tbody>`;
+    for (const r of v) h += `<tr><td>${pc(r.pct, 0)}</td><td>${hora(r.t)}</td><td>${pc(r.proja, 2)}</td><td>${nf(2).format(r.faixa[0])}% a ${nf(2).format(r.faixa[1])}%</td><td>${nf(2).format(Math.abs(r.erro))} ponto</td></tr>`;
+    h += `<tr><td><b>Final</b></td><td>${hora(ix.fim)}</td><td><b>${pc(f.pcta, 2)}</b></td><td colspan="2" class="muted">resultado oficial</td></tr>`;
     $("tbl-val").innerHTML = h + "</tbody>";
-    const ini = replay.pontos.find((p) => p.pct >= 3) || replay.pontos[1];
-    $("ins-val").innerHTML = `Em 2022 o placar chegou a mostrar Bolsonaro com mais de 56% no começo da noite. A projeção indicou <b>Lula vencedor às ${hora(replay.selo.t)}, com ${pc(replay.selo.pct, 1)} das seções</b>, e não mudou mais. Com 20% apurado, errou o resultado final por ${nf(2).format(Math.abs(v.find((r) => r.alvo === 20).erro))} ponto.`;
+    const venc = f.vencedor === "a" ? na : nb;
+    const pico = ix.pontos.reduce((a, p) => (p.placara != null && Math.abs(p.placara - 50) > Math.abs((a.placara ?? 50) - 50) ? p : a), ix.pontos[0]);
+    const lp = pico.placara > 50 ? na : nb;
+    const e20 = v.find((r) => r.alvo === 20);
+    $("ins-val").innerHTML = `Em ${ano} o placar chegou a mostrar ${lp} com ${pc(pico.placara > 50 ? pico.placara : 100 - pico.placara)} no começo da noite. ` +
+      `A projeção indicou <b>${venc} vencedor às ${hora(ix.selo.t)}, com ${pc(ix.selo.pct, 1)} das seções</b>, e não mudou mais. ` +
+      `Com 20% apurado, errou o resultado final por ${nf(2).format(Math.abs(e20.erro))} ponto.` +
+      (ix.ordem === "real" ? "" : " Ordem de chegada simulada a partir do padrão de 2022 (o TSE não publicou a de " + ano + ").");
   }
+  $("seg-val").innerHTML = ANOS.map((a) => `<button data-ano="${a}" aria-pressed="false">${a}</button>`).join("");
+  $("seg-val").onclick = (e) => { const b = e.target.closest("[data-ano]"); if (b) renderValidacao(b.dataset.ano); };
 
   // ------------------------------------------------------------------ contagem
   function contagem() {
@@ -577,24 +681,21 @@
   }
 
   // ------------------------------------------------------------------ CSV
-  $("csv").addEventListener("click", (e) => {
+  $("csv").addEventListener("click", async (e) => {
     e.preventDefault();
-    let linhas;
-    if (modo === "live" && ultimoLive && ultimoLive.historico && ultimoLive.historico.length) {
-      window.open(`${LIVE}/dados.csv`, "_blank"); return;
-    }
-    if (!replay) return;
-    linhas = [["horario", "secoes_apuradas_pct", "placar_pct_22", "projecao_pct_22", "faixa_min", "faixa_max", "diferenca_votos_22_menos_13"]];
-    for (const p of replay.pontos) linhas.push([p.t, p.pct, p.placar22 ?? "", p.proj ?? "", p.faixa ? p.faixa[0] : "", p.faixa ? p.faixa[1] : "", p.dif ?? ""]);
+    if (modo === "live") { window.open(`${LIVE}/${disputa.saida}dados.csv`, "_blank"); return; }
+    const ix = await indice(modo), na = ix.candidatos.a.numero, nb = ix.candidatos.b.numero;
+    const linhas = [["horario", "secoes_apuradas_pct", `placar_pct_${na}`, `projecao_pct_${na}`, "faixa_min", "faixa_max", `diferenca_votos_${na}_menos_${nb}`]];
+    for (const p of ix.pontos) linhas.push([p.t, p.pct, p.placara ?? "", p.proj ?? "", p.faixa ? p.faixa[0] : "", p.faixa ? p.faixa[1] : "", p.dif ?? ""]);
     const blob = new Blob([linhas.map((l) => l.join(",")).join("\n")], { type: "text/csv" });
-    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "projecao-2turno-2022.csv"; a.click();
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `projecao-2turno-${modo}.csv`; a.click();
   });
 
   // ------------------------------------------------------------------ sua seção (boletins direto do TSE)
   function der(b, i = 0, end = b.length) {
     const out = [];
     while (i < end) {
-      const t = b[i++]; const cls = t >> 6, cons = !!(t & 0x20); let num = t & 0x1f;
+      const t = b[i++]; const cons = !!(t & 0x20); let num = t & 0x1f; const cls = t >> 6;
       if (num === 0x1f) { num = 0; let x; do { x = b[i++]; num = num * 128 + (x & 0x7f); } while (x & 0x80); }
       let l = b[i++];
       if (l & 0x80) { const n = l & 0x7f; l = 0; for (let k = 0; k < n; k++) l = l * 256 + b[i++]; }
@@ -603,34 +704,32 @@
     }
     return out;
   }
-  const asInt = (v) => { let n = v[0] & 0x80 ? -1 : 0; for (const x of v) n = n * 256 + x; return v[0] & 0x80 ? n - 0 : n; };
-  function presidente(buf, eleicao) {
+  const asInt = (v) => { let n = 0; for (const x of v) n = n * 256 + x; return v[0] & 0x80 ? n - Math.pow(256, v.length) : n; };
+  function resultados(buf) {
     const env = der(new Uint8Array(buf))[0][2];
-    const conteudo = env.find(([c, n, v]) => c === 0 && n === 4 && !Array.isArray(v) && v.length > 200)[2];
-    const bu = der(conteudo)[0][2];
+    const conteudo = env.find(([cl, n, v]) => cl === 0 && n === 4 && !Array.isArray(v) && v.length > 200)[2];
+    const bu = der(conteudo)[0][2], out = {};
     for (const [, , v] of bu) {
       if (!Array.isArray(v) || !v.length || !v.every(([, , x]) => Array.isArray(x) && x.length >= 5)) continue;
       for (const [, , pe] of v) {
-        if (asInt(pe[0][2]) !== eleicao) continue;
-        const aptos = asInt(pe[1][2]);
-        const res = pe.find(([, , x]) => Array.isArray(x))[2];
-        for (const [, , rv] of res) {
+        const eleicao = asInt(pe[0][2]), aptos = asInt(pe[1][2]);
+        for (const [, , rv] of pe.find(([, , x]) => Array.isArray(x))[2]) {
           const comp = asInt(rv[1][2]);
           for (const [, , tvc] of rv[2][2]) {
-            if (asInt(tvc[0][2]) !== 1) continue;
-            const r = { v22: 0, v13: 0, outros: 0, brancos: 0, nulos: 0, comp, aptos };
+            const r = { votos: {}, brancos: 0, nulos: 0, comp, aptos };
             for (const [, , vv] of tvc[2][2]) {
-              const f = {}; for (const [c, n, val] of vv) f[c + ":" + n] = val;
+              const f = {}; for (const [cl, n, val] of vv) f[cl + ":" + n] = val;
               const tipo = asInt(f["2:1"]), q = asInt(f["2:2"]);
               if (tipo === 2) r.brancos += q; else if (tipo === 3) r.nulos += q;
-              else { const cod = f["2:3"] ? asInt(f["2:3"][1][2]) : 0; r[cod === 22 ? "v22" : cod === 13 ? "v13" : "outros"] += q; }
+              else if (tipo === 1 && f["2:3"]) { const cod = asInt(f["2:3"][1][2]); r.votos[cod] = (r.votos[cod] || 0) + q; }
             }
-            return r;
+            out[eleicao + ":" + asInt(tvc[0][2])] = r;
           }
         }
       }
+      break;
     }
-    return null;
+    return out;
   }
   const cfgCache = {};
   async function cfg(uf, pleito) {
@@ -638,7 +737,7 @@
     if (!cfgCache[k]) cfgCache[k] = fetch(`${TSE}/${pleito}/config/${uf}/${uf}-p${String(pleito).padStart(6, "0")}-cs.json`).then((r) => r.ok ? r.json() : null);
     return cfgCache[k];
   }
-  async function boletim(pleito, eleicao, uf, mu, zo, se) {
+  async function boletim(pleito, uf, mu, zo, se) {
     const d = `${TSE}/${pleito}/dados/${uf}/${mu}/${zo}/${se}`;
     const r = await fetch(`${d}/p${String(pleito).padStart(6, "0")}-${uf}-m${mu}-z${zo}-s${se}-aux.json`);
     if (!r.ok) return null;
@@ -647,7 +746,7 @@
       const a = (h.arq || []).find((x) => x.tp === "bu");
       if (!a) continue;
       const b = await fetch(`${d}/${h.hash}/${a.nm}`);
-      if (b.ok) return presidente(await b.arrayBuffer(), eleicao);
+      if (b.ok) return resultados(await b.arrayBuffer());
     }
     return null;
   }
@@ -660,8 +759,7 @@
     opt(fmu, [], "Carregando…"); opt(fzo, [], "—"); opt(fse, [], "—"); $("sec-out").innerHTML = "";
     if (!fuf.value) return opt(fmu, [], "Escolha o estado");
     cfgUF = await cfg(fuf.value.toLowerCase(), 3220);
-    const mus = cfgUF.abr[0].mu.map((m) => [m.cd, m.nm]).sort((a, b) => a[1].localeCompare(b[1], "pt"));
-    opt(fmu, mus, "Escolha");
+    opt(fmu, cfgUF.abr[0].mu.map((m) => [m.cd, m.nm]).sort((a, b) => a[1].localeCompare(b[1], "pt")), "Escolha");
   };
   fmu.onchange = () => {
     const m = cfgUF.abr[0].mu.find((x) => x.cd === fmu.value);
@@ -671,50 +769,56 @@
     const m = cfgUF.abr[0].mu.find((x) => x.cd === fmu.value), z = m && m.zon.find((x) => x.cd === fzo.value);
     opt(fse, z ? z.sec.map((s) => [s.ns, String(+s.ns)]) : [], "Escolha"); $("sec-out").innerHTML = "";
   };
+  function blocoSecao(d, r1, r2) {
+    const na = d.cand.a, nb = d.cand.b;
+    const col = (tit, r, outros) => {
+      if (!r) return `<div class="sec-col"><h4>${tit}</h4><p class="muted" style="margin:0">Boletim ainda não divulgado.</p></div>`;
+      const v = r.votos, va = v[na.numero] || 0, vb = v[nb.numero] || 0, ot = Object.values(v).reduce((a, x) => a + x, 0) - va - vb;
+      return `<div class="sec-col"><h4>${tit}</h4>
+        <div class="row"><span style="color:${na.cor}">${na.nome} (${na.numero})</span><b>${int(va)}</b></div>
+        <div class="row"><span style="color:${nb.cor}">${nb.nome} (${nb.numero})</span><b>${int(vb)}</b></div>
+        ${outros ? `<div class="row"><span>Demais candidatos</span><b>${int(ot)}</b></div>` : ""}
+        <div class="row"><span>Brancos e nulos</span><b>${int(r.brancos + r.nulos)}</b></div>
+        <div class="row muted"><span>Votaram / aptos</span><span>${int(r.comp)} / ${int(r.aptos)}</span></div></div>`;
+    };
+    let ins = "";
+    const conf = (r) => { const v = r.votos; return [v[na.numero] || 0, v[nb.numero] || 0, Object.values(v).reduce((a, x) => a + x, 0) - (v[na.numero] || 0) - (v[nb.numero] || 0)]; };
+    if (r1 && r2) {
+      const [a1, b1, o1] = conf(r1), [a2, b2] = conf(r2), m1 = a1 - b1, m2 = a2 - b2, dm = m2 - m1;
+      const lado = (m) => m === 0 ? "zero" : `${int(Math.abs(m))} votos a favor de ${m > 0 ? na.nome : nb.nome}`;
+      ins = `<div class="insight">A diferença entre os dois era <b>${lado(m1)}</b> no 1º turno e ficou <b>${lado(m2)}</b> no 2º: andou ${dm === 0 ? "nada" : `${int(Math.abs(dm))} votos para ${dm > 0 ? na.nome : nb.nome}`}. Dos ${int(o1)} votos dos demais candidatos no 1º turno, ${na.nome} ganhou ${int(Math.max(a2 - a1, 0))} e ${nb.nome} ${int(Math.max(b2 - b1, 0))} (saldo aproximado).</div>`;
+    } else if (r1) {
+      const [a1, b1, o1] = conf(r1), v = a1 + b1 + o1;
+      ins = v ? `<div class="insight">No 1º turno, sua seção deu <b>${pc(100 * a1 / v)} a ${na.nome} e ${pc(100 * b1 / v)} a ${nb.nome}</b>, e ${pc(100 * o1 / v)} aos demais. O boletim do 2º turno aparece aqui assim que a urna for apurada, no dia 25.</div>` : "";
+    }
+    return `<h4 style="margin:16px 0 8px;font-size:15px">${d.titulo}${d.uf ? " · " + d.abr : ""}</h4><div class="sec-grid">${col("1º turno · 4/out", r1, true)}${col("2º turno · 25/out", r2, false)}</div>${ins}`;
+  }
   fse.onchange = async () => {
     if (!fse.value) return;
     const out = $("sec-out"); out.innerHTML = `<p class="muted">Buscando os boletins no TSE…</p>`;
     const uf = fuf.value.toLowerCase(), a = [uf, fmu.value, fzo.value, fse.value];
     try {
-      const [t1, t2] = await Promise.all([boletim(3220, 6257, ...a), boletim(3221, 6258, ...a).catch(() => null)]);
-      const col = (tit, r, nomes) => {
-        if (!r) return `<div class="sec-col"><h4>${tit}</h4><p class="muted" style="margin:0">Boletim ainda não divulgado.</p></div>`;
-        const v = r.v22 + r.v13 + r.outros;
-        return `<div class="sec-col"><h4>${tit}</h4>
-          <div class="row"><span class="c22">Flávio (22)</span><b>${int(r.v22)}</b></div>
-          <div class="row"><span class="c13">Lula (13)</span><b>${int(r.v13)}</b></div>
-          ${nomes ? `<div class="row"><span>Demais candidatos</span><b>${int(r.outros)}</b></div>` : ""}
-          <div class="row"><span>Brancos e nulos</span><b>${int(r.brancos + r.nulos)}</b></div>
-          <div class="row muted"><span>Votaram / aptos</span><span>${int(r.comp)} / ${int(r.aptos)}</span></div></div>`;
-      };
-      let ins = "";
-      if (t1 && t2) {
-        const m1 = t1.v22 - t1.v13, m2 = t2.v22 - t2.v13, dm = m2 - m1;
-        ins = `<div class="insight">Na sua seção, a diferença entre os dois era <b>${m1 === 0 ? "zero" : `${int(Math.abs(m1))} votos a favor do ${m1 > 0 ? "Flávio" : "Lula"}`}</b> no 1º turno e ficou <b>${m2 === 0 ? "zero" : `${int(Math.abs(m2))} a favor do ${m2 > 0 ? "Flávio" : "Lula"}`}</b> no 2º: andou ${dm === 0 ? "nada" : `${int(Math.abs(dm))} votos para o ${dm > 0 ? "Flávio" : "Lula"}`}. Dos ${int(t1.outros)} votos dos demais candidatos no 1º turno, o Flávio ganhou ${int(Math.max(t2.v22 - t1.v22, 0))} e o Lula ${int(Math.max(t2.v13 - t1.v13, 0))} (saldo aproximado).</div>`;
-      } else if (t1) {
-        const v = t1.v22 + t1.v13 + t1.outros;
-        ins = `<div class="insight">No 1º turno, sua seção deu <b>${pc(100 * t1.v22 / v)} ao Flávio e ${pc(100 * t1.v13 / v)} ao Lula</b>, e ${pc(100 * t1.outros / v)} aos demais. O boletim do 2º turno aparece aqui assim que a urna for apurada, no dia 25.</div>`;
-      }
-      out.innerHTML = `<div class="sec-grid">${col("1º turno · 4/out", t1, true)}${col("2º turno · 25/out", t2, false)}</div>${ins}`;
+      const [t1, t2] = await Promise.all([boletim(3220, ...a), boletim(3221, ...a).catch(() => null)]);
+      const lista = DISPUTAS.filter((d) => !d.uf || d.uf === fuf.value);
+      out.innerHTML = lista.map((d) => blocoSecao(d, t1 && t1[`${d.e1}:${d.cargo}`], t2 && t2[`${d.e2}:${d.cargo}`])).join("");
     } catch (e) {
       out.innerHTML = `<p class="muted">Não deu para ler o boletim agora. Tente de novo em instantes.</p>`;
     }
   };
 
   // ------------------------------------------------------------------ eventos
-  $("tab-live").onclick = () => setModo("live");
-  $("tab-replay").onclick = () => setModo("replay");
-  $("go-replay").onclick = (e) => { e.preventDefault(); setModo("replay"); play(); };
+  $("modos").onclick = (e) => { const b = e.target.closest("[data-modo]"); if (b && !b.hidden) { modo = b.dataset.modo; if (modo !== "live") disputa = DISPUTAS[0]; aplica(); } };
+  $("go-replay").onclick = (e) => { e.preventDefault(); modo = "2022"; disputa = DISPUTAS[0]; aplica(); play(); };
   $("play").onclick = () => (rTimer ? pause() : play());
   $("slider").oninput = (e) => { pause(); vaiPara(+e.target.value); };
   $("seg-r").onclick = () => { tabela = "r"; $("seg-r").setAttribute("aria-pressed", true); $("seg-u").setAttribute("aria-pressed", false); rerender(); };
   $("seg-u").onclick = () => { tabela = "u"; $("seg-u").setAttribute("aria-pressed", true); $("seg-r").setAttribute("aria-pressed", false); rerender(); };
-  function rerender() { if (modo === "replay" && replay) vaiPara(rIdx); else if (ultimoLive) render(ultimoLive); }
+  function rerender() { if (modo !== "live") vaiPara(rIdx); else if (ultimoLive) render(ultimoLive); }
 
   contagem(); setInterval(contagem, 1000);
-  // carrega o índice do replay para a tabela de validação, mesmo no modo ao vivo
-  fetch(`${REPLAY}/indice.json`).then((r) => r.json()).then((d) => { replay = replay || d; $("slider").max = replay.pontos.length - 1; renderValidacao(); });
-  setModo(qs.get("modo") === "replay" ? "replay" : "live");
+  montaDisputas();
+  renderValidacao("2022");
+  aplica();
 })();
 </script>
 </body>

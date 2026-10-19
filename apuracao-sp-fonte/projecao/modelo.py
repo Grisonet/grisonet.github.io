@@ -4,8 +4,8 @@ Numa seção votam as mesmas pessoas nos dois turnos. Em cada grupo de seções
 (município → UF×capital/interior → UF → Brasil) estimamos, com as seções já
 apuradas, uma "matriz de transferência":
 
-    v22_2t = a1·v22_1t + a2·v13_1t + a3·outros_1t + a4·brancos/nulos_1t
-    v13_2t = b1·v22_1t + b2·v13_1t + b3·outros_1t + b4·brancos/nulos_1t
+    va_2t = a1·va_1t + a2·vb_1t + a3·outros_1t + a4·brancos/nulos_1t
+    vb_2t = b1·va_1t + b2·vb_1t + b3·outros_1t + b4·brancos/nulos_1t
 
 ou seja, quanto de cada bloco do 1º turno foi para cada lado (o que falta para
 1 virou abstenção, branco ou nulo). Grupo com poucas seções apuradas é puxado
@@ -37,11 +37,21 @@ NF = 4
 K_PADRAO = 10.0
 
 
-def grupos(chave):
-    """Cadeia de grupos da seção, do mais fino ao mais grosso."""
+PORTE_GRANDE = 150   # seções; município do interior com pelo menos isso é "grande"
+
+
+def grupos(chave, porte=None):
+    """Cadeia de grupos da seção, do mais fino ao mais grosso.
+    Estrato = UF × (capital | interior grande | interior pequeno)."""
     uf, mun = chave.split("|")[:2]
     um = f"{uf}|{mun}"
-    return (f"m:{um}", f"e:{uf}|{'cap' if um in CAPITAIS else 'int'}", f"u:{uf}", "br")
+    if um in CAPITAIS:
+        e = "cap"
+    elif porte is None:
+        e = "int"
+    else:
+        e = "g" if porte.get(um, 0) >= PORTE_GRANDE else "p"
+    return (f"m:{um}", f"e:{uf}|{e}", f"u:{uf}", "br")
 
 
 def _x(v):
@@ -87,26 +97,35 @@ class Grupo:
 
 class Painel:
     """Placar e métricas descritivas de uma área (Brasil, região ou UF)."""
-    __slots__ = ("total", "ap", "v22", "v13", "bn", "comp1", "comp2", "aptos", "saldo",
-                 "a22", "a13", "vir22", "vir13", "m1", "casadas", "proj22", "proj13")
+    __slots__ = ("total", "ap", "va", "vb", "bn", "comp1", "comp2", "aptos", "saldo",
+                 "aa", "ab", "vira", "virb", "m1", "casadas", "proja", "projb")
 
     def __init__(self):
-        self.total = self.ap = self.v22 = self.v13 = self.bn = 0
+        self.total = self.ap = self.va = self.vb = self.bn = 0
         self.comp1 = self.comp2 = self.aptos = self.saldo = 0
-        self.a22 = self.a13 = self.vir22 = self.vir13 = self.m1 = self.casadas = 0
-        self.proj22 = self.proj13 = 0.0
+        self.aa = self.ab = self.vira = self.virb = self.m1 = self.casadas = 0
+        self.proja = self.projb = 0.0
 
 
 class ModeloTransferencia:
-    def __init__(self, base, K=K_PADRAO):
-        """base: {"UF|MUN|ZONA|SECAO": [v22, v13, outros, brancos, nulos]} do 1º turno."""
+    def __init__(self, base, K=K_PADRAO, detalhe=None, nomes=None):
+        """base: {"UF|MUN|ZONA|SECAO": [va, vb, outros, brancos, nulos]} do 1º turno.
+        detalhe: None | "municipio" | "zona" — painel extra por município (ou zona) para disputas estaduais;
+        nomes: {"UF|MUN": nome} para rotular os municípios."""
         self.K = K
         self.base = base
+        self.detalhe = detalhe
+        self.nomes = nomes or {}
+        self.sub = {}
         self.cadeia = {}
         self.tot, self.ap, self.pai = {}, {}, {}
         self.areas = {"BR": Painel(), **{r: Painel() for r in REGIOES}}
+        porte = {}
+        for k in base:
+            um = k[:k.index("|", 3)]
+            porte[um] = porte.get(um, 0) + 1
         for k, v in base.items():
-            cad = self.cadeia[k] = grupos(k)
+            cad = self.cadeia[k] = grupos(k, porte)
             x = _x(v)
             for i, g in enumerate(cad):
                 if g not in self.tot:
@@ -128,40 +147,47 @@ class ModeloTransferencia:
         uf = chave[:2]
         if uf not in self.areas:
             self.areas[uf] = Painel()
-        return (self.areas["BR"], self.areas[REGIAO.get(uf, "Exterior")], self.areas[uf])
+        base = (self.areas["BR"], self.areas[REGIAO.get(uf, "Exterior")], self.areas[uf])
+        if not self.detalhe:
+            return base
+        partes = chave.split("|")
+        sid = "|".join(partes[:2] if self.detalhe == "municipio" else partes[:3])
+        if sid not in self.sub:
+            self.sub[sid] = Painel()
+        return base + (self.sub[sid],)
 
     # ------------------------------------------------------------------
-    def adiciona(self, chave, v22, v13, bn=0, comp=None, aptos=0):
-        """Registra uma seção apurada no 2º turno. comp = comparecimento (None = v22+v13+bn)."""
+    def adiciona(self, chave, va, vb, bn=0, comp=None, aptos=0):
+        """Registra uma seção apurada no 2º turno. comp = comparecimento (None = va+vb+bn)."""
         if chave in self.feitas:
             return False
-        comp = v22 + v13 + bn if comp is None else comp
-        self.feitas[chave] = (v22, v13, bn)
+        comp = va + vb + bn if comp is None else comp
+        self.feitas[chave] = (va, vb, bn)
         b = self.base.get(chave)
         for a in self._areas(chave):
-            a.ap += 1; a.v22 += v22; a.v13 += v13; a.bn += bn
+            a.ap += 1; a.va += va; a.vb += vb; a.bn += bn
             if b is not None:
                 a.casadas += 1
                 a.comp1 += sum(b); a.comp2 += comp; a.aptos += aptos or sum(b)
-                m1, m2 = b[0] - b[1], v22 - v13
+                m1, m2 = b[0] - b[1], va - vb
                 a.saldo += m2 - m1
-                a.a22 += m2 > m1; a.a13 += m2 < m1
+                a.aa += m2 > m1; a.ab += m2 < m1
                 if m1 < 0 < m2:
-                    a.vir22 += 1
+                    a.vira += 1
                 elif m2 < 0 < m1:
-                    a.vir13 += 1
+                    a.virb += 1
             else:
                 a.total += 1         # seção nova (agregação diferente): entra só no placar
         if b is None:
             self.extra += 1
             return True
         x = _x(b)
-        m = v22 - v13
+        m = va - vb
         for g in self.cadeia[chave]:
             a = self.ap[g]
             a.soma_x(x)
             for i in range(NF):
-                a.xyF[i] += x[i] * v22; a.xyL[i] += x[i] * v13; a.xyM[i] += x[i] * m
+                a.xyF[i] += x[i] * va; a.xyL[i] += x[i] * vb; a.xyM[i] += x[i] * m
             a.yyM += m * m
         return True
 
@@ -191,13 +217,13 @@ class ModeloTransferencia:
         return co
 
     def projeta(self):
-        """Projeção do resultado final: fatia do 22 nos votos válidos + faixa provável."""
+        """Projeção do resultado final: fatia do candidato "a" (1º no 1º turno) nos votos válidos + faixa provável."""
         br = self.areas["BR"]
         if self.ap["br"].n == 0:
             return None
         co = self._coef()
-        for a in self.areas.values():
-            a.proj22, a.proj13 = float(a.v22), float(a.v13)
+        for a in list(self.areas.values()) + list(self.sub.values()):
+            a.proja, a.projb = float(a.va), float(a.vb)
         var_ind = 0.0
         margem_estrato = {}
         for g in self.folhas:
@@ -210,34 +236,40 @@ class ModeloTransferencia:
             f = max(sum(cF[i] * xR[i] for i in range(NF)), 0.0)
             l = max(sum(cL[i] * xR[i] for i in range(NF)), 0.0)
             uf = g[2:4]
-            for ar in (br, self.areas[REGIAO.get(uf, "Exterior")], self.areas[uf]):
-                ar.proj22 += f; ar.proj13 += l
+            alvos = [br, self.areas[REGIAO.get(uf, "Exterior")], self.areas[uf]]
+            if self.detalhe == "municipio":
+                alvos.append(self.sub[g[2:]])
+            for ar in alvos:
+                ar.proja += f; ar.projb += l
             var_ind += s2 * nR
             e = self.pai[g]
             margem_estrato[e] = margem_estrato.get(e, 0) + nR
         # incerteza dos coeficientes, correlacionada dentro de cada estrato
         var_par = sum(co[e][2] * nR * nR / (self.ap[e].n + self.K) for e, nR in margem_estrato.items())
-        tot = br.proj22 + br.proj13
-        pct = 100 * br.proj22 / tot
+        tot = br.proja + br.projb
+        pct = 100 * br.proja / tot
         sd = 100 * math.sqrt(var_ind + var_par) / (2 * tot)
-        # faixa provável: erro estatístico + termo sistemático calibrado no replay de 2022
-        # (a ordem de chegada das urnas não é aleatória dentro dos estratos)
+        # faixa provável: erro estatístico + termos sistemáticos calibrados nos replays de 2014, 2018 e
+        # 2022 (os municípios que chegam primeiro não são iguais aos que faltam; o erro do começo da
+        # noite chegou a 0,7 ponto em 2018 com 1% e 0,46 em 2014 com 5%)
         f_ap = br.casadas / max(br.total, 1)
-        pct_ap = max(100 * f_ap, 0.05)
-        meia = math.sqrt((2 * sd) ** 2 + (0.10 * math.sqrt(max(1 - f_ap, 0))) ** 2 + (0.40 / math.sqrt(pct_ap)) ** 2)
-        if f_ap >= 0.9999:
-            meia = 0.0
+        pct_ap = 100 * f_ap
+        meia = math.sqrt((2 * sd) ** 2 + (0.10 * math.sqrt(max(1 - f_ap, 0))) ** 2
+                         + (0.9 * math.exp(-pct_ap / 8)) ** 2)
         faixa = [pct - meia, pct + meia]
         status = "indefinido"
         if pct_ap >= 1:          # nunca indica vencedor antes de 1% das seções
-            status = "22" if faixa[0] > 50 else "13" if faixa[1] < 50 else "indefinido"
+            status = "a" if faixa[0] > 50 else "b" if faixa[1] < 50 else "indefinido"
         if status != self._status_ant:
             self.status_desde = round(100 * br.ap / max(br.total, 1), 2) if status != "indefinido" else None
             self._status_ant = status
-        transf = co["br"]
-        return {"pct22": pct, "faixa": faixa, "status": status, "desde_pct": self.status_desde,
-                "v22": br.proj22, "v13": br.proj13, "sd": sd,
-                "transferencia_outros": [transf[0][2], transf[1][2]]}
+        # destino dos votos dos demais candidatos: média dos coeficientes dos municípios, ponderada pelos
+        # votos que os demais tiveram em cada um (o coeficiente nacional sozinho é instável)
+        so = sum(self.tot[g].sx[2] for g in self.folhas) or 1.0
+        oa = sum(co[g][0][2] * self.tot[g].sx[2] for g in self.folhas) / so
+        ob = sum(co[g][1][2] * self.tot[g].sx[2] for g in self.folhas) / so
+        return {"pcta": pct, "faixa": faixa, "status": status, "desde_pct": self.status_desde,
+                "va": br.proja, "vb": br.projb, "sd": sd, "transferencia_outros": [oa, ob]}
 
     # ------------------------------------------------------------------
     def snapshot(self, meta, ultimo_lote=None, guarda_historico=True):
@@ -251,41 +283,54 @@ class ModeloTransferencia:
 
         def area(nome, a):
             d = {"nome": nome, "apurado_pct": round(100 * a.ap / max(a.total, 1), 1),
-                 "v22": a.v22, "v13": a.v13, "pct22": pct(a.v22, a.v13),
-                 "saldo": a.saldo, "a22_pct": round(100 * a.a22 / a.casadas, 1) if a.casadas else 0,
-                 "a13_pct": round(100 * a.a13 / a.casadas, 1) if a.casadas else 0,
+                 "va": a.va, "vb": a.vb, "pcta": pct(a.va, a.vb),
+                 "saldo": a.saldo, "aa_pct": round(100 * a.aa / a.casadas, 1) if a.casadas else 0,
+                 "ab_pct": round(100 * a.ab / a.casadas, 1) if a.casadas else 0,
                  "comp_delta": round(100 * (a.comp2 - a.comp1) / a.aptos, 2) if a.aptos else None,
                  "m1": a.m1}
             if p:
-                d["proj22"] = pct(a.proj22, a.proj13)
+                d["proja"] = pct(a.proja, a.projb)
             return d
 
         snap = dict(meta)
         snap.update({
             "secoes": {"total": br.total, "apuradas": br.ap, "pct": pct_ap,
                        "casadas": br.casadas, "sem_par": self.extra},
-            "placar": {"v22": br.v22, "v13": br.v13, "pct22": pct(br.v22, br.v13), "bn": br.bn},
+            "placar": {"va": br.va, "vb": br.vb, "pcta": pct(br.va, br.vb), "bn": br.bn},
             "diferenca": {"primeiro_turno": br.m1, "saldo": br.saldo, "atual": br.m1 + br.saldo,
-                          "a22_pct": round(100 * br.a22 / br.casadas, 1) if br.casadas else 0,
-                          "a13_pct": round(100 * br.a13 / br.casadas, 1) if br.casadas else 0,
-                          "viraram22": br.vir22, "viraram13": br.vir13},
+                          "aa_pct": round(100 * br.aa / br.casadas, 1) if br.casadas else 0,
+                          "ab_pct": round(100 * br.ab / br.casadas, 1) if br.casadas else 0,
+                          "viraram_a": br.vira, "viraram_b": br.virb},
             "comparecimento_delta": round(100 * (br.comp2 - br.comp1) / br.aptos, 2) if br.aptos else None,
             "ultimo_lote": ultimo_lote,
             "regioes": [area(r, self.areas[r]) for r in REGIOES if self.areas[r].total],
             "estados": [area(uf, self.areas[uf]) for uf in sorted(k for k in self.areas if len(k) == 2 and k != "BR")],
         })
+        if self.detalhe:
+            # os 25 maiores municípios (ou zonas) em número de seções
+            maiores = sorted(self.sub.items(), key=lambda kv: -kv[1].total)[:25]
+
+            def rotulo(sid):
+                if self.detalhe == "zona":
+                    return f"Zona {sid.split('|')[2]}"
+                return self.nomes.get(sid, sid).title()
+            sub = [area(rotulo(sid), a) for sid, a in maiores]
+            if self.detalhe == "zona":
+                for d in sub:
+                    d.pop("proja", None)       # a projeção é por município; por zona fica só o placar
+            snap["subareas"] = {"tipo": self.detalhe, "lista": sub}
         if p:
             to = p["transferencia_outros"]
-            snap["projecao"] = {"pct22": round(p["pct22"], 3), "faixa": [round(x, 3) for x in p["faixa"]],
+            snap["projecao"] = {"pcta": round(p["pcta"], 3), "faixa": [round(x, 3) for x in p["faixa"]],
                                 "status": p["status"], "desde_pct": p["desde_pct"],
-                                "v22": round(p["v22"]), "v13": round(p["v13"])}
-            snap["transferencia"] = {"outros22": round(100 * to[0], 1), "outros13": round(100 * to[1], 1),
+                                "va": round(p["va"]), "vb": round(p["vb"])}
+            snap["transferencia"] = {"outrosa": round(100 * to[0], 1), "outrosb": round(100 * to[1], 1),
                                      "outros_bn": round(100 * (1 - to[0] - to[1]), 1)}
         if guarda_historico:
-            ponto = {"t": meta.get("gerado_tse"), "pct": pct_ap, "placar22": snap["placar"]["pct22"],
+            ponto = {"t": meta.get("gerado_tse"), "pct": pct_ap, "placara": snap["placar"]["pcta"],
                      "dif": br.m1 + br.saldo}
             if p:
-                ponto.update({"proj": round(p["pct22"], 3), "faixa": [round(x, 3) for x in p["faixa"]]})
+                ponto.update({"proj": round(p["pcta"], 3), "faixa": [round(x, 3) for x in p["faixa"]]})
             if not self.historico or self.historico[-1]["pct"] != pct_ap:
                 self.historico.append(ponto)
         snap["historico"] = self.historico

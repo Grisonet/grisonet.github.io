@@ -2,44 +2,45 @@
 """Coletor do painel "Projeção do 2º turno" (GR Data).
 
 A cada ciclo:
-  1. lê a lista de seções de cada UF no TSE (arquivo-urna/<pleito>/config) e vê
-     quais já chegaram;
-  2. baixa e decodifica o boletim de urna de cada seção nova (.bu.dat);
-  3. passa a seção para o modelo (seção do 2º turno × mesma seção no 1º);
-  4. grava out/live/snapshot.json + dados.csv e serve por HTTP com CORS.
+  1. lê a lista de seções de cada UF no TSE (arquivo-urna/<pleito>/config) e vê quais já chegaram;
+  2. baixa, de cada seção nova, o aux.json, o arquivo de assinaturas (.vsc) e o boletim (.bu.dat);
+  3. confere a cadeia de integridade (integridade.py) num pool de processos — boletim que não
+     confere fica de fora e é listado no snapshot;
+  4. passa a seção para o modelo de cada disputa (Presidente + governadores com 2º turno);
+  5. grava <saida>/snapshot.json + dados.csv de cada disputa e serve por HTTP com CORS.
 
-Só stdlib. Seções já lidas ficam em cache (secoes.jsonl), então reiniciar não
-baixa tudo de novo.
+Só stdlib. Seções já lidas ficam em cache (secoes.jsonl), então reiniciar não baixa tudo de novo.
 
-  python3 coletor.py                    # 2º turno de verdade (pleito 3221 / eleição 6258)
-  ENSAIO=1 UFS=ac,rr python3 coletor.py # ensaio com o 1º turno (3220/6257), poucas UFs
+  python3 coletor.py                    # 2º turno de verdade (pleito 3221)
+  ENSAIO=1 UFS=ac,rr python3 coletor.py # ensaio com o 1º turno (pleito 3220), poucas UFs
+  RELAY=1 python3 coletor.py            # só serve o que receber por PUT (Railway)
 """
-import concurrent.futures, csv, io, json, os, sys, threading, time, urllib.request, urllib.error
+import concurrent.futures, csv, hashlib, hmac, io, json, os, re, threading, time, urllib.request, urllib.error
 from datetime import datetime, timezone, timedelta
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
-
-from bu import presidente
-from modelo import ModeloTransferencia
 
 here = os.path.dirname(os.path.abspath(__file__))
 ENSAIO = os.environ.get("ENSAIO") == "1"
 PLEITO = int(os.environ.get("PLEITO") or (3220 if ENSAIO else 3221))
-ELEICAO = int(os.environ.get("ELEICAO") or (6257 if ENSAIO else 6258))
-BASE = os.environ.get("BASE") or os.path.join(here, "base", "2026_t1.json")
 SAIDA = os.environ.get("SAIDA") or os.path.join(here, "out", "ensaio" if ENSAIO else "live")
 PORTA = int(os.environ.get("PORT") or os.environ.get("PORTA") or 8787)
 INTERVALO = int(os.environ.get("INTERVALO") or 30)
 THREADS = int(os.environ.get("THREADS") or 48)
 LOTE = int(os.environ.get("LOTE") or 5000)
+VERIFICAR = os.environ.get("VERIFICAR", "1") != "0"     # conferir assinatura de cada boletim
+PROCESSOS = int(os.environ.get("PROCESSOS") or max(2, (os.cpu_count() or 4) - 2))
 # Plano B (IP de datacenter barrado pelo TSE): coleta no Mac e envia ao Railway, que só serve.
 RELAY = os.environ.get("RELAY") == "1"              # só serve o que receber por PUT
 ENVIA_PARA = (os.environ.get("ENVIA_PARA") or "").rstrip("/")   # coletor envia cada publicação para cá
 TOKEN = os.environ.get("RELAY_TOKEN") or ""
+# no relay basta o hash do token (o token em si fica só na máquina que coleta)
+TOKEN_SHA256 = os.environ.get("RELAY_TOKEN_SHA256") or (hashlib.sha256(TOKEN.encode()).hexdigest() if TOKEN else "")
 INICIO = os.environ.get("INICIO") or "2026-10-25T17:00:00-03:00"
 UFS = (os.environ.get("UFS") or "ac,al,am,ap,ba,ce,df,es,go,ma,mg,ms,mt,pa,pb,pe,pi,pr,rj,rn,ro,rr,rs,sc,se,sp,to,zz").split(",")
 T = "https://resultados.tse.jus.br/oficial/ele2026"
 BRT = timezone(timedelta(hours=-3))
 UA = {"User-Agent": "GRData-Projecao/1.0 (+https://grisonet.github.io/apuracao-sp/)"}
+PUBLICAVEIS = re.compile(r"^(governador/[a-z]{2}/)?(snapshot\.json|dados\.csv)$")
 
 
 def log(*a):
@@ -88,8 +89,6 @@ def get(url, timeout=20, tentativas=4):
                 except ValueError:
                     ra = 0
                 LIMITE.recua(max(ra, 3 * (i + 1)))
-            elif i == tentativas - 1:
-                raise
             if i == tentativas - 1:
                 raise
         except Exception:
@@ -108,37 +107,131 @@ def iso_tse(dg, hg):
 
 
 def grava(nome, texto):
-    tmp = os.path.join(SAIDA, nome + ".tmp")
+    destino = os.path.join(SAIDA, nome)
+    os.makedirs(os.path.dirname(destino), exist_ok=True)
+    tmp = destino + ".tmp"
     open(tmp, "w", encoding="utf-8").write(texto)
-    os.replace(tmp, os.path.join(SAIDA, nome))
+    os.replace(tmp, destino)
+
+
+def processa(hash_aux, vsc, bu, nome_bu, verificar):
+    """Roda num processo separado: confere a integridade e decodifica o boletim."""
+    from bu import resultados
+    from integridade import confere
+    if verificar:
+        ok, info = confere(hash_aux, vsc, bu, nome_bu)
+        if not ok:
+            return False, info, None
+    else:
+        info = "não verificado"
+    return True, info, resultados(bu)
 
 
 # ----------------------------------------------------------------------------
-class Coletor:
-    def __init__(self):
-        os.makedirs(SAIDA, exist_ok=True)
-        log(f"carregando base {os.path.basename(BASE)} …")
-        base = json.load(open(BASE))
-        self.modelo = ModeloTransferencia(base)
-        self.cache_path = os.path.join(SAIDA, "secoes.jsonl")
-        self.pendentes = {}            # chave -> url do diretório da seção
-        self.gerado_tse = None
+class Disputa:
+    def __init__(self, cfg):
+        from modelo import ModeloTransferencia
+        self.cfg = cfg
+        self.eleicao = cfg["eleicao_1t"] if ENSAIO else cfg["eleicao"]
+        self.ufs = set(cfg["ufs"]) if cfg["ufs"] else None
+        detalhe = None if self.ufs is None else "zona" if self.ufs == {"DF"} else "municipio"
+        nomes = json.load(open(os.path.join(here, "base", "municipios_2026.json"))) if detalhe else None
+        self.modelo = ModeloTransferencia(json.load(open(os.path.join(here, "base", cfg["base"]))),
+                                          detalhe=detalhe, nomes=nomes)
         self.oficial = None
         self.ultimo_lote = None
+        self.lote = [0, 0, 0]
+
+    def aceita(self, chave):
+        return self.ufs is None or chave[:2] in self.ufs
+
+    def adiciona(self, chave, res, do_cache=False):
+        from bu import confronto
+        r = res.get(f"{self.eleicao}:{self.cfg['cargo']}") if do_cache else res.get((self.eleicao, self.cfg["cargo"]))
+        if r is None:
+            return
+        ca, cb = self.cfg["candidatos"]["a"]["numero"], self.cfg["candidatos"]["b"]["numero"]
+        if do_cache:
+            r = {"votos": {int(k): v for k, v in r["votos"].items()}, **{k: r[k] for k in ("brancos", "nulos", "comparecimento", "aptos")}}
+        va, vb, _, br, nu, comp, aptos = confronto(r, ca, cb)
+        if self.modelo.adiciona(chave, va, vb, br + nu, comp, aptos):
+            self.lote[0] += 1; self.lote[1] += va; self.lote[2] += vb
+
+    def fecha_lote(self):
+        n, va, vb = self.lote
+        if n:
+            self.ultimo_lote = {"secoes": n, "validos": va + vb, "pcta": round(100 * va / (va + vb), 2) if va + vb else None}
+        self.lote = [0, 0, 0]
+
+    def le_oficial(self):
+        uf = "br" if self.ufs is None else next(iter(self.ufs)).lower()
+        cargo = self.cfg["cargo"]
+        try:
+            doc = json.loads(get(f"{T}/{self.eleicao}/dados/{uf}/{uf}-c{cargo:04d}-e{self.eleicao:06d}-u.json"))
+        except Exception:
+            return
+        cand = {}
+        for c in doc.get("carg", []):
+            for a in c.get("agr", []):
+                for p in a.get("par", []):
+                    for cd in p.get("cand", []):
+                        cand[int(cd["n"])] = int(str(cd.get("vap") or 0).replace(".", "") or 0)
+        pst = float(str(doc.get("s", {}).get("pst") or "0").replace(",", "."))
+        va = cand.get(self.cfg["candidatos"]["a"]["numero"], 0)
+        vb = cand.get(self.cfg["candidatos"]["b"]["numero"], 0)
+        self.oficial = {"pst": pst, "va": va, "vb": vb, "pcta": round(100 * va / (va + vb), 2) if va + vb else None,
+                        "atualizado": iso_tse(doc["dg"], doc["hg"]) if doc.get("dg") else None}
+
+    def snapshot(self, gerado_tse, integridade):
+        br = self.modelo.areas["BR"]
+        modo = "aguardando" if br.ap == 0 else "final" if br.ap >= br.total else "ensaio" if ENSAIO else "ao_vivo"
+        meta = {"modo": modo, "ano": 2026, "disputa": self.cfg["id"], "titulo": self.cfg["titulo"],
+                "abrangencia": self.cfg["abrangencia"], "candidatos": self.cfg["candidatos"], "inicio": INICIO,
+                "gerado_tse": gerado_tse, "gerado_painel": agora_iso(), "oficial": self.oficial,
+                "integridade": integridade}
+        return self.modelo.snapshot(meta, self.ultimo_lote) if br.ap else dict(meta, historico=[])
+
+
+class Coletor:
+    def __init__(self):
+        from disputas import DISPUTAS
+        os.makedirs(SAIDA, exist_ok=True)
+        log("carregando as bases do 1º turno …")
+        self.disputas = [Disputa(c) for c in DISPUTAS]
+        self.cache_path = os.path.join(SAIDA, "secoes.jsonl")
+        self.feitas = set()
+        self.pendentes = {}
+        self.gerado_tse = None
+        self.integ = {"verificadas": 0, "rejeitadas": 0, "por_ac": {}, "lista": [], "ativa": VERIFICAR}
+        self.pool = concurrent.futures.ProcessPoolExecutor(PROCESSOS)
         self._carrega_cache()
 
     def _carrega_cache(self):
         if not os.path.exists(self.cache_path):
             return
-        n = 0
         for linha in open(self.cache_path):
             try:
                 r = json.loads(linha)
             except ValueError:
                 continue
-            self.modelo.adiciona(r["k"], r["v22"], r["v13"], r["bn"], r["comp"], r["aptos"])
-            n += 1
-        log(f"cache: {n} seções já lidas")
+            self._registra(r["k"], r.get("info", ""), r["res"], do_cache=True, grava_cache=None)
+        log(f"cache: {len(self.feitas)} seções já lidas")
+
+    def _registra(self, k, info, res, do_cache=False, grava_cache=None):
+        self.feitas.add(k)
+        if info.startswith("AC "):
+            self.integ["verificadas"] += 1
+            self.integ["por_ac"][info] = self.integ["por_ac"].get(info, 0) + 1
+        for d in self.disputas:
+            if d.aceita(k):
+                d.adiciona(k, res, do_cache)
+        if grava_cache:
+            grava_cache.write(json.dumps({"k": k, "info": info, "res": {f"{e}:{c}": v for (e, c), v in res.items()
+                                                                       if (e, c) in self._interessa}}) + "\n")
+
+    @property
+    def _interessa(self):
+        return {(d.eleicao, d.cfg["cargo"]) for d in self.disputas}
 
     # -- 1. quem chegou ------------------------------------------------------
     def _config_uf(self, uf):
@@ -162,15 +255,15 @@ class Coletor:
                                 if "da" not in se:
                                     continue
                                 k = f"{UF}|{int(mu['cd'])}|{int(zo['cd'])}|{int(se['ns'])}"
-                                if k in self.modelo.feitas or k in self.pendentes:
+                                if k in self.feitas or k in self.pendentes:
                                     continue
                                 self.pendentes[k] = (uf, mu["cd"], zo["cd"], se["ns"])
                                 novas += 1
         self.gerado_tse = ultimo or self.gerado_tse
         return novas
 
-    # -- 2. boletim de cada seção ---------------------------------------------
-    def _le_secao(self, k):
+    # -- 2. arquivos de cada seção --------------------------------------------
+    def _baixa_secao(self, k):
         uf, mu, zo, se = self.pendentes[k]
         d = f"{T}/arquivo-urna/{PLEITO}/dados/{uf}/{mu}/{zo}/{se}"
         raw = get(f"{d}/p{PLEITO:06d}-{uf}-m{mu}-z{zo}-s{se}-aux.json")
@@ -178,84 +271,71 @@ class Coletor:
             return k, None
         aux = json.loads(raw)
         for h in reversed(aux.get("hashes", [])):
-            nm = next((a["nm"] for a in h.get("arq", []) if a.get("tp") == "bu"), None)
-            if nm:
-                bu = get(f"{d}/{h['hash']}/{nm}")
-                if bu:
-                    return k, presidente(bu, ELEICAO)
+            arq = {a.get("tp"): a["nm"] for a in h.get("arq", [])}
+            if "bu" not in arq:
+                continue
+            bu = get(f"{d}/{h['hash']}/{arq['bu']}")
+            vsc = get(f"{d}/{h['hash']}/{arq['vota']}") if VERIFICAR and "vota" in arq else b""
+            if bu:
+                return k, (h["hash"], vsc, bu, arq["bu"])
         return k, None
 
     def le_pendentes(self, limite=None):
         chaves = list(self.pendentes)[:limite] if limite else list(self.pendentes)
         ok = falhas = 0
-        lote = {"secoes": 0, "v22": 0, "v13": 0}
-        with open(self.cache_path, "a") as cache, \
-                concurrent.futures.ThreadPoolExecutor(max_workers=THREADS) as ex:
-            futs = [ex.submit(self._le_secao, k) for k in chaves]
-            for f in concurrent.futures.as_completed(futs):
+        conferencias = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=THREADS) as ex:
+            for f in concurrent.futures.as_completed([ex.submit(self._baixa_secao, k) for k in chaves]):
                 try:
-                    k, r = f.result()
+                    k, arqs = f.result()
+                except Exception:
+                    falhas += 1
+                    continue
+                if arqs is None:
+                    falhas += 1
+                    continue
+                conferencias.append((k, self.pool.submit(processa, *arqs, VERIFICAR)))
+        with open(self.cache_path, "a") as cache:
+            for k, fut in conferencias:
+                try:
+                    valido, info, res = fut.result()
                 except Exception as e:
-                    falhas += 1
-                    continue
-                if r is None:
-                    falhas += 1
-                    continue
+                    valido, info, res = False, f"boletim ilegível ({type(e).__name__})", None
                 self.pendentes.pop(k, None)
-                bn = r["brancos"] + r["nulos"]
-                if self.modelo.adiciona(k, r["v22"], r["v13"], bn, r["comparecimento"], r["aptos"]):
-                    cache.write(json.dumps({"k": k, "v22": r["v22"], "v13": r["v13"], "bn": bn,
-                                            "comp": r["comparecimento"], "aptos": r["aptos"]}) + "\n")
-                    lote["secoes"] += 1; lote["v22"] += r["v22"]; lote["v13"] += r["v13"]
-                    ok += 1
-        if lote["secoes"]:
-            v = lote["v22"] + lote["v13"]
-            self.ultimo_lote = {"secoes": lote["secoes"], "validos": v,
-                                "pct22": round(100 * lote["v22"] / v, 2) if v else None}
+                if not valido:
+                    self.feitas.add(k)
+                    self.integ["rejeitadas"] += 1
+                    if len(self.integ["lista"]) < 100:
+                        self.integ["lista"].append({"secao": k, "motivo": info})
+                    log(f"! boletim rejeitado {k}: {info}")
+                    cache.write(json.dumps({"k": k, "info": info, "res": {}}) + "\n")
+                    continue
+                self._registra(k, info, res, grava_cache=cache)
+                ok += 1
+        for d in self.disputas:
+            d.fecha_lote()
         return ok, falhas
-
-    # -- placar oficial agregado (só para conferência na tela) -----------------
-    def le_oficial(self):
-        try:
-            doc = json.loads(get(f"{T}/{ELEICAO}/dados/br/br-c0001-e{ELEICAO:06d}-u.json"))
-        except Exception:
-            return
-        cand = {}
-        for c in doc.get("carg", []):
-            for a in c.get("agr", []):
-                for p in a.get("par", []):
-                    for cd in p.get("cand", []):
-                        cand[cd["n"]] = int(str(cd.get("vap") or 0).replace(".", "") or 0)
-        pst = float(str(doc.get("s", {}).get("pst") or "0").replace(",", "."))
-        v22, v13 = cand.get("22", 0), cand.get("13", 0)
-        self.oficial = {"pst": pst, "v22": v22, "v13": v13,
-                        "pct22": round(100 * v22 / (v22 + v13), 2) if v22 + v13 else None,
-                        "atualizado": iso_tse(doc["dg"], doc["hg"]) if doc.get("dg") else None}
 
     # -- 3. publica ------------------------------------------------------------
     def publica(self):
-        br = self.modelo.areas["BR"]
-        if br.ap == 0:
-            modo = "aguardando"
-        elif br.ap >= br.total:
-            modo = "final"
-        else:
-            modo = "ensaio" if ENSAIO else "ao_vivo"
-        meta = {"modo": modo, "ano": 2026, "inicio": INICIO, "gerado_tse": self.gerado_tse,
-                "gerado_painel": agora_iso(), "oficial": self.oficial,
-                "nomes": {"22": "Flávio", "13": "Lula"}}
-        snap = self.modelo.snapshot(meta, self.ultimo_lote) if br.ap else dict(meta, historico=[])
-        self._grava("snapshot.json", json.dumps(snap, ensure_ascii=False, separators=(",", ":")))
-        # CSV com o histórico da noite, para qualquer pessoa conferir
-        buf = io.StringIO()
-        w = csv.writer(buf)
-        w.writerow(["horario_tse", "secoes_apuradas_pct", "placar_pct_22", "projecao_pct_22",
-                    "faixa_min", "faixa_max", "diferenca_votos_22_menos_13"])
-        for h in snap.get("historico", []):
-            fx = h.get("faixa") or [None, None]
-            w.writerow([h.get("t"), h.get("pct"), h.get("placar22"), h.get("proj"), fx[0], fx[1], h.get("dif")])
-        self._grava("dados.csv", buf.getvalue())
-        return snap
+        integ = {k: v for k, v in self.integ.items() if k != "lista"}
+        integ["rejeitadas_lista"] = self.integ["lista"]
+        snaps = []
+        for d in self.disputas:
+            snap = d.snapshot(self.gerado_tse, integ)
+            pre = d.cfg["saida"]
+            self._grava(pre + "snapshot.json", json.dumps(snap, ensure_ascii=False, separators=(",", ":")))
+            buf = io.StringIO()
+            w = csv.writer(buf)
+            na, nb = d.cfg["candidatos"]["a"]["numero"], d.cfg["candidatos"]["b"]["numero"]
+            w.writerow(["horario_tse", "secoes_apuradas_pct", f"placar_pct_{na}", f"projecao_pct_{na}",
+                        "faixa_min", "faixa_max", f"diferenca_votos_{na}_menos_{nb}"])
+            for h in snap.get("historico", []):
+                fx = h.get("faixa") or [None, None]
+                w.writerow([h.get("t"), h.get("pct"), h.get("placara"), h.get("proj"), fx[0], fx[1], h.get("dif")])
+            self._grava(pre + "dados.csv", buf.getvalue())
+            snaps.append(snap)
+        return snaps[0]
 
     def _grava(self, nome, texto):
         grava(nome, texto)
@@ -267,12 +347,12 @@ class Coletor:
             except Exception as e:
                 log(f"! envio {nome} para o relay falhou: {e!r}")
 
-
     # -- laço ------------------------------------------------------------------
     def ciclo(self):
         t0 = time.time()
         novas = self.varre_configs()
-        self.le_oficial()
+        for d in self.disputas:
+            d.le_oficial()
         ok = falhas = 0
         # publica a cada lote, para a página não congelar quando há muitas seções acumuladas
         while True:
@@ -283,8 +363,9 @@ class Coletor:
                 break
         pr = snap.get("projecao") or {}
         s = snap.get("secoes") or {}
-        log(f"novas {novas} lidas {ok} falhas {falhas} 429s {LIMITE.n429} pendentes {len(self.pendentes)} | apuradas {s.get('apuradas', 0)}/{s.get('total', 0)} "
-            f"({s.get('pct', 0)}%) | proj 22 {pr.get('pct22')} {pr.get('faixa')} {pr.get('status')} | {time.time() - t0:.0f}s")
+        log(f"novas {novas} lidas {ok} falhas {falhas} 429s {LIMITE.n429} pendentes {len(self.pendentes)} "
+            f"rejeitadas {self.integ['rejeitadas']} | Presidente {s.get('apuradas', 0)}/{s.get('total', 0)} "
+            f"({s.get('pct', 0)}%) proj a {pr.get('pcta')} {pr.get('faixa')} {pr.get('status')} | {time.time() - t0:.0f}s")
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -297,16 +378,18 @@ class Handler(SimpleHTTPRequestHandler):
         super().end_headers()
 
     def do_GET(self):
-        if self.path.split("?")[0] in ("/", "/health"):
+        caminho = self.path.split("?")[0]
+        if caminho in ("/", "/health"):
             self.send_response(200); self.send_header("Content-Type", "text/plain"); self.end_headers()
             self.wfile.write(b"ok"); return
-        if not self.path.split("?")[0].endswith((".json", ".csv")) or "secoes.jsonl" in self.path:
+        if not PUBLICAVEIS.match(caminho.lstrip("/")):
             self.send_error(404); return
         super().do_GET()
 
     def do_PUT(self):
         nome = self.path.split("?")[0].lstrip("/")
-        if not (RELAY and TOKEN and self.headers.get("X-Token") == TOKEN and nome in ("snapshot.json", "dados.csv")):
+        recebido = hashlib.sha256((self.headers.get("X-Token") or "").encode()).hexdigest()
+        if not (RELAY and TOKEN_SHA256 and hmac.compare_digest(recebido, TOKEN_SHA256) and PUBLICAVEIS.match(nome)):
             self.send_error(403); return
         n = int(self.headers.get("Content-Length") or 0)
         if n > 20_000_000:
@@ -330,7 +413,8 @@ def main():
     c.publica()
     srv = ThreadingHTTPServer(("0.0.0.0", PORTA), Handler)
     threading.Thread(target=srv.serve_forever, daemon=True).start()
-    log(f"servindo {SAIDA} em :{PORTA}  pleito {PLEITO} eleição {ELEICAO}  UFs {len(UFS)}")
+    log(f"servindo {SAIDA} em :{PORTA}  pleito {PLEITO}  disputas {len(c.disputas)}  UFs {len(UFS)}  "
+        f"conferência de assinatura {'ligada' if VERIFICAR else 'DESLIGADA'} ({PROCESSOS} processos)")
     while True:
         try:
             c.ciclo()
@@ -338,7 +422,7 @@ def main():
             log("! ciclo falhou:", repr(e))
         # antes da apuração (até 10 min antes das 17h) não há o que buscar a cada 30 s
         cedo = datetime.now(BRT) < datetime.fromisoformat(INICIO) - timedelta(minutes=10)
-        time.sleep(300 if cedo and not ENSAIO and c.modelo.areas["BR"].ap == 0 else INTERVALO)
+        time.sleep(300 if cedo and not ENSAIO and not c.feitas else INTERVALO)
 
 
 if __name__ == "__main__":
