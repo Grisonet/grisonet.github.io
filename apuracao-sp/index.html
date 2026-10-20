@@ -237,7 +237,7 @@
     <div class="gq-tagrow"><span class="gq-tag">Ao vivo</span><span class="gq-ctx">2º turno · domingo, 25 de outubro</span></div>
     <h1>O 2º turno <span class="gq-hl">voto a voto</span></h1>
     <p class="gq-lead">Resultado oficial do TSE para presidente no Brasil e em São Paulo, atualizado a cada 20 segundos, com mapas por estado e por cidade. O 1º turno completo, com governador, senado e deputados de SP, continua logo abaixo.</p>
-    <div class="gq-cta"><a class="gq-btn pri" href="projecao.html"><span class="k">Novo</span>Projeção do 2º turno · Presidente e governadores →</a><a class="gq-btn" data-zap hidden target="_blank" rel="noopener"><span class="k">WhatsApp</span>Receber a apuração no celular →</a></div>
+    <div class="gq-cta"><a class="gq-btn pri" href="projecao.html"><span class="k">Novo</span>Projeção do 2º turno · Presidente e governadores →</a></div>
   </section>
 </div>
 
@@ -759,13 +759,6 @@ async function loadSP2(){
 }
 genMap({svg:"imap-P2BR",geojson:"br-uf.geojson",loader:loadUF2,every:60000,kind:"uf",W:1000,H:1000,pin:6,photo:"pres",legend:"ileg-P2BR",upd:"iupd-P2BR",color:n=>C2[n]||"#b5b3ae"});
 genMap({svg:"imap-P2SP",geojson:"sp-mun.geojson",loader:loadSP2,every:30000,kind:"cid",W:1000,H:820,pin:5,photo:"pres",legend:"ileg-P2SP",upd:"iupd-P2SP",color:n=>C2[n]||"#b5b3ae"});
-</script>
-<script>/* botão "receber no WhatsApp": só aparece quando o robô da apuração está conectado */
-(()=>{const MSG="Quero receber as atualizações da apuração em tempo real.";
-fetch("https://grdata-zap-production.up.railway.app/config",{cache:"no-store"}).then(r=>r.json()).then(c=>{
-  if(!c.ativo||!c.numero) return;
-  document.querySelectorAll("[data-zap]").forEach(a=>{a.href=`https://wa.me/${c.numero}?text=${encodeURIComponent(MSG)}`;a.hidden=false;});
-}).catch(()=>{});})();
 </script>
 
 </body>
