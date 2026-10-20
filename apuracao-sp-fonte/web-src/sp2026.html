@@ -99,7 +99,7 @@
   .av{width:38px;height:38px;border-radius:50%;object-fit:cover;object-position:50% 20%;flex:none;background:var(--track);border:1px solid var(--hairline)}
   .dt .av{position:absolute;top:14px;right:14px;width:64px;height:64px;border:2px solid #fff}
   .dt.temfoto .nm{padding-right:72px}
-  @media (max-width:520px){.av{width:32px;height:32px}.dt .av{width:44px;height:44px;top:10px;right:10px}.dt.temfoto .nm{padding-right:50px}}
+  @media (max-width:520px){.av{width:32px;height:32px}.dt .av{position:static;display:block;width:44px;height:44px;margin-bottom:8px}.dt.temfoto .nm{padding-right:0}.dtiles{gap:8px}.dtiles .dt{padding:12px 14px}.dtiles .dt .pc{font-size:30px}.dtiles .dt .vt{font-size:12px}}
   .projban{display:flex;align-items:center;gap:12px;flex-wrap:wrap;text-decoration:none;color:var(--ink);background:var(--canvas);border:1px solid var(--hairline);border-left:4px solid var(--c,#FF4C00);border-radius:16px;padding:14px 16px;margin-bottom:14px}
   .projban[hidden]{display:none}
   .projban .k{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;background:var(--c,#FF4C00);color:#080808;padding:4px 8px;border-radius:6px}
@@ -202,7 +202,7 @@
   .dt::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px}
   .dt.a{background:#FFF3CC}.dt.a::before{background:#FFC200}.dt.a .nm,.dt.a .pc{color:#8a6100}
   .dt.b{background:#FFE6DB}.dt.b::before{background:#FF4C00}.dt.b .nm,.dt.b .pc{color:#C93B00}
-  .dt .nm{font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .dt .nm{white-space:normal;overflow:visible;font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   .dt .pc{font-family:var(--display);font-size:clamp(40px,7vw,64px);font-weight:800;letter-spacing:-.045em;line-height:1;margin-top:8px}
   .dt .vt{font-size:13px;color:var(--graphite);margin-top:6px}
   .dbar{display:flex;gap:3px;height:14px;margin-top:16px}.dbar i{display:block;height:100%;border-radius:4px}
