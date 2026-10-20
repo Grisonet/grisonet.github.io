@@ -120,6 +120,8 @@
   .cand .nm{font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
   .cand .pc{font-family:var(--display);font-size:clamp(40px,7.4vw,68px);font-weight:800;letter-spacing:-.045em;line-height:1;margin-top:8px}
   .cand .fx{font-size:12.5px;color:var(--steel);margin-top:6px}
+  .cand .foto{position:absolute;top:14px;right:14px;width:64px;height:64px;border-radius:50%;object-fit:cover;object-position:50% 20%;background:var(--track);border:2px solid #fff}
+  .cand.temfoto .nm{padding-right:72px}
   .cand.ka{background:var(--ca-bg)} .cand.ka::before{background:var(--ca)} .cand.ka .nm,.cand.ka .pc{color:var(--ca-t)}
   .cand.kb{background:var(--cb-bg)} .cand.kb::before{background:var(--cb)} .cand.kb .nm,.cand.kb .pc{color:var(--cb-t)}
   .meter{position:relative;height:34px;margin-top:20px}
@@ -206,7 +208,7 @@
   footer .wrap{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding-block:24px 36px}
   footer .grlogo{height:16px;width:87px;color:#fff}
   footer b{color:#fff}
-  @media (max-width:520px){.chart text{font-size:22px}.hd{gap:10px}.nav{display:flex;order:3;width:100%;margin-left:0;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}.live{margin-left:auto}.controls > *{flex:1 1 100%}.tabs{justify-content:space-between}.card,.panel{padding:16px}.duo{gap:8px}.cand{padding:12px 14px}.side{grid-template-columns:1fr 1fr}}
+  @media (max-width:520px){.chart text{font-size:22px}.hd{gap:10px}.nav{display:flex;order:3;width:100%;margin-left:0;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}.live{margin-left:auto}.controls > *{flex:1 1 100%}.tabs{justify-content:space-between}.card,.panel{padding:16px}.duo{gap:8px}.cand{padding:12px 14px}.cand .foto{width:44px;height:44px;top:10px;right:10px}.cand.temfoto .nm{padding-right:50px}.side{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -255,8 +257,8 @@
           <p id="st-detalhe">Projeção independente, não é resultado oficial.</p>
         </div>
         <div class="duo">
-          <div class="cand ka"><div class="nm" id="nma">—</div><div class="pc" id="pca">—</div><div class="fx" id="fxa">&nbsp;</div></div>
-          <div class="cand kb"><div class="nm" id="nmb">—</div><div class="pc" id="pcb">—</div><div class="fx" id="fxb">&nbsp;</div></div>
+          <div class="cand ka"><img class="foto" id="fta" alt="" hidden><div class="nm" id="nma">—</div><div class="pc" id="pca">—</div><div class="fx" id="fxa">&nbsp;</div></div>
+          <div class="cand kb"><img class="foto" id="ftb" alt="" hidden><div class="nm" id="nmb">—</div><div class="pc" id="pcb">—</div><div class="fx" id="fxb">&nbsp;</div></div>
         </div>
         <div class="meter" aria-hidden="true">
           <div class="bar"><i id="ma" style="background:var(--ca);width:50%"></i><i id="mb" style="background:var(--cb);width:50%"></i></div>
@@ -421,6 +423,29 @@
     N = { a: cand.a.nome, b: cand.b.nome, ca: cand.a.completo, cb: cand.b.completo };
     $("nma").textContent = N.ca; $("nmb").textContent = N.cb; $("mla").textContent = N.a; $("mlb").textContent = N.b;
     $("g-nome").textContent = "de " + N.a;
+  }
+  // fotos dos candidatos (TSE publica uma por sqcand). Só no ao vivo: nos replays os candidatos são outros.
+  const RES = "https://resultados.tse.jus.br/oficial/ele2026", sqCache = {};
+  async function fotos() {
+    const d = disputa, imgs = { a: $("fta"), b: $("ftb") };
+    const some = () => Object.values(imgs).forEach((i) => { i.hidden = true; i.parentNode.classList.remove("temfoto"); });
+    if (modo !== "live") return some();
+    try {
+      const uf = (d.uf || "br").toLowerCase(), cg = String(d.cargo).padStart(4, "0");
+      sqCache[d.id] ||= fetch(`${RES}/${d.e2}/dados/${uf}/${uf}-c${cg}-e00${d.e2}-u.json`).then((r) => r.json()).then((doc) => {
+        const m = {};
+        (doc.carg || []).forEach((c) => (c.agr || []).forEach((a) => (a.par || []).forEach((p) => (p.cand || []).forEach((x) => { m[+x.n] = x.sqcand; }))));
+        return m;
+      });
+      const sq = await sqCache[d.id];
+      if (d !== disputa || modo !== "live") return;
+      for (const k of ["a", "b"]) {
+        const i = imgs[k], q = sq[d.cand[k].numero];
+        if (!q) { i.hidden = true; i.parentNode.classList.remove("temfoto"); continue; }
+        i.onerror = () => { i.hidden = true; i.parentNode.classList.remove("temfoto"); };
+        i.src = `${RES}/${d.e2}/fotos/${uf}/${q}.jpeg`; i.alt = d.cand[k].completo; i.hidden = false; i.parentNode.classList.add("temfoto");
+      }
+    } catch { some(); }
   }
   const de = (k) => `de ${N[k]}`;
 
@@ -609,6 +634,7 @@
     $("espera").hidden = true;
     if (modo === "live") { aplicaCandidatos(disputa.cand); $("nota-ordem").hidden = true; carregaLive(); liveTimer = setInterval(carregaLive, 30000); }
     else { carregaReplay(modo); renderValidacao(modo); }
+    fotos();
     const u = new URLSearchParams();
     if (disputa.id !== "presidente") u.set("d", disputa.id);
     if (modo !== "live") { u.set("modo", "replay"); u.set("ano", modo); }
