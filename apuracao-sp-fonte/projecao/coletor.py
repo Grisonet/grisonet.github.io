@@ -171,16 +171,18 @@ class Disputa:
             doc = json.loads(get(f"{T}/{self.eleicao}/dados/{uf}/{uf}-c{cargo:04d}-e{self.eleicao:06d}-u.json"))
         except Exception:
             return
-        cand = {}
+        cand, eleito = {}, None
         for c in doc.get("carg", []):
             for a in c.get("agr", []):
                 for p in a.get("par", []):
                     for cd in p.get("cand", []):
                         cand[int(cd["n"])] = int(str(cd.get("vap") or 0).replace(".", "") or 0)
+                        if cd.get("e") == "s" and str(cd.get("st", "")).lower().startswith("eleito"):
+                            eleito = int(cd["n"])   # o TSE declarou o eleito
         pst = float(str(doc.get("s", {}).get("pst") or "0").replace(",", "."))
         va = cand.get(self.cfg["candidatos"]["a"]["numero"], 0)
         vb = cand.get(self.cfg["candidatos"]["b"]["numero"], 0)
-        self.oficial = {"pst": pst, "va": va, "vb": vb, "pcta": round(100 * va / (va + vb), 2) if va + vb else None,
+        self.oficial = {"pst": pst, "va": va, "vb": vb, "eleito": eleito, "pcta": round(100 * va / (va + vb), 2) if va + vb else None,
                         "atualizado": iso_tse(doc["dg"], doc["hg"]) if doc.get("dg") else None}
 
     def snapshot(self, gerado_tse, integridade):

@@ -56,6 +56,7 @@ header.gq-top{position:sticky;top:0;z-index:30;background:rgba(8,8,8,.82);backdr
 .gq-btn{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;text-decoration:none;border-radius:12px;padding:10px 15px;
   border:1px solid rgba(255,255,255,.14);color:#fff;background:rgba(255,255,255,.04)}
 .gq-btn:hover{background:rgba(255,255,255,.09)}
+.gq-btn[hidden]{display:none}
 .gq-btn.pri{background:var(--primary);border-color:var(--primary);color:var(--carbon)}
 .gq-btn.pri:hover{background:#ff6a26}
 .gq-btn .k{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.75}

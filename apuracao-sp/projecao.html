@@ -82,6 +82,7 @@
   .tagrow .ctx{font-size:12.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--graphite)}
   .hero h1{font-size:clamp(32px,6.4vw,64px);font-weight:800;letter-spacing:-.03em;line-height:1;margin-top:16px;max-width:900px}
   .hl{background:var(--amber);color:var(--carbon);padding:0 .14em;border-radius:.12em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+  .zapcta{margin:14px 0 0}.zapbtn{display:inline-flex;font-size:14px;font-weight:600;text-decoration:none;color:#fff;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);border-radius:12px;padding:9px 14px}.zapbtn:hover{background:rgba(255,255,255,.1)}.zapbtn[hidden]{display:none}
   .hero p.lead{color:var(--graphite);max-width:680px;margin:16px 0 0;font-size:16.5px}
 
   .controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:24px}
@@ -232,6 +233,7 @@
     <div class="tagrow"><span class="tag">Projeção</span><span class="ctx" id="eyebrow">Presidente · domingo, 25 de outubro</span></div>
     <h1>O resultado do 2º turno <span class="hl">antes do placar</span></h1>
     <p class="lead">As urnas não chegam todas ao mesmo tempo, então o placar do começo da noite mostra só uma parte dos votos. Aqui, cada seção apurada é comparada com ela mesma no 1º turno: como votam as mesmas pessoas, dá para ver para que lado o voto está andando.</p>
+    <p class="zapcta"><a class="zapbtn" data-zap hidden target="_blank" rel="noopener">📲 Receber a apuração e a projeção no WhatsApp →</a></p>
     <div class="controls">
       <div class="disputas" role="group" aria-label="Disputa" id="disputas"></div>
       <div class="tabs" role="group" aria-label="Modo" id="modos">
@@ -899,6 +901,13 @@
   renderValidacao("2022");
   aplica();
 })();
+</script>
+<script>/* botão "receber no WhatsApp": só aparece quando o robô da apuração está conectado */
+(()=>{const MSG="Quero receber as atualizações da apuração em tempo real.";
+fetch("https://grdata-zap-production.up.railway.app/config",{cache:"no-store"}).then(r=>r.json()).then(c=>{
+  if(!c.ativo||!c.numero) return;
+  document.querySelectorAll("[data-zap]").forEach(a=>{a.href=`https://wa.me/${c.numero}?text=${encodeURIComponent(MSG)}`;a.hidden=false;});
+}).catch(()=>{});})();
 </script>
 </body>
 </html>
