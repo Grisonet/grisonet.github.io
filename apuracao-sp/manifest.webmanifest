@@ -1,8 +1,8 @@
 {
   "name": "Apuração SP · GR Data",
   "short_name": "Apuração",
-  "start_url": "/apuracao-sp/",
-  "scope": "/apuracao-sp/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#080808",
   "theme_color": "#080808",
