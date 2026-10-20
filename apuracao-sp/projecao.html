@@ -208,6 +208,7 @@
   footer .wrap{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding-block:24px 36px}
   footer .grlogo{height:16px;width:87px;color:#fff}
   footer b{color:#fff}
+  footer .cred{flex-basis:100%;font-size:11px;color:#7a7a7a}
   @media (max-width:520px){.chart text{font-size:22px}.hd{gap:10px}.nav{display:flex;order:3;width:100%;margin-left:0;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}.live{margin-left:auto}.controls > *{flex:1 1 100%}.tabs{justify-content:space-between}.card,.panel{padding:16px}.duo{gap:8px}.cand{padding:12px 14px}.cand .foto{width:44px;height:44px;top:10px;right:10px}.cand.temfoto .nm{padding-right:50px}.side{grid-template-columns:1fr 1fr}}
 </style>
 </head>
@@ -372,7 +373,8 @@
 
 <footer>
   <div class="wrap"><svg class="grlogo" role="img" aria-label="GR Data"><use href="#grlogo"/></svg>
-  <span><b>GR Data</b> · Projeção independente, sem ligação com partidos ou campanhas. Não é resultado oficial: o resultado oficial é o do TSE.</span></div>
+  <span><b>GR Data</b> · Projeção independente, sem ligação com partidos ou campanhas. Não é resultado oficial: o resultado oficial é o do TSE.</span>
+  <span class="cred">Fotos: TSE (2026). Replays, via Wikimedia Commons: Roberto Stuckert Filho/PR (Dilma); Ricardo Stuckert/PR, CC BY 2.0 (Lula, Haddad); Isac Nóbrega/PR, CC BY 2.0 (Bolsonaro); Zeca Ribeiro/Câmara dos Deputados, CC BY 3.0 (Aécio).</span></div>
 </footer>
 
 <script>
@@ -423,13 +425,24 @@
     N = { a: cand.a.nome, b: cand.b.nome, ca: cand.a.completo, cb: cand.b.completo };
     $("nma").textContent = N.ca; $("nmb").textContent = N.cb; $("mla").textContent = N.a; $("mlb").textContent = N.b;
     $("g-nome").textContent = "de " + N.a;
+    if (modo !== "live") for (const k of ["a", "b"]) {   // replays: retratos guardados no site (créditos no rodapé)
+      const f = (FOTOS_REPLAY[modo] || {})[cand[k].numero];
+      poeFoto(k, f ? `fotos/replay/${f}.jpg` : "", cand[k].completo);
+    }
   }
-  // fotos dos candidatos (TSE publica uma por sqcand). Só no ao vivo: nos replays os candidatos são outros.
+  const FOTOS_REPLAY = { "2014": { 13: "dilma", 45: "aecio" }, "2018": { 17: "bolsonaro", 13: "haddad" }, "2022": { 13: "lula", 22: "bolsonaro" } };
+  function poeFoto(k, src, alt) {
+    const i = $(k === "a" ? "fta" : "ftb");
+    if (!src) { i.hidden = true; i.parentNode.classList.remove("temfoto"); return; }
+    i.onerror = () => { i.hidden = true; i.parentNode.classList.remove("temfoto"); };
+    i.src = src; i.alt = alt || ""; i.hidden = false; i.parentNode.classList.add("temfoto");
+  }
+  // fotos dos candidatos no ao vivo (TSE publica uma por sqcand); nos replays quem põe é aplicaCandidatos
   const RES = "https://resultados.tse.jus.br/oficial/ele2026", sqCache = {};
   async function fotos() {
-    const d = disputa, imgs = { a: $("fta"), b: $("ftb") };
-    const some = () => Object.values(imgs).forEach((i) => { i.hidden = true; i.parentNode.classList.remove("temfoto"); });
-    if (modo !== "live") return some();
+    const d = disputa;
+    if (modo !== "live") return;
+    const some = () => { poeFoto("a", ""); poeFoto("b", ""); };
     try {
       const uf = (d.uf || "br").toLowerCase(), cg = String(d.cargo).padStart(4, "0");
       sqCache[d.id] ||= fetch(`${RES}/${d.e2}/dados/${uf}/${uf}-c${cg}-e00${d.e2}-u.json`).then((r) => r.json()).then((doc) => {
@@ -440,10 +453,8 @@
       const sq = await sqCache[d.id];
       if (d !== disputa || modo !== "live") return;
       for (const k of ["a", "b"]) {
-        const i = imgs[k], q = sq[d.cand[k].numero];
-        if (!q) { i.hidden = true; i.parentNode.classList.remove("temfoto"); continue; }
-        i.onerror = () => { i.hidden = true; i.parentNode.classList.remove("temfoto"); };
-        i.src = `${RES}/${d.e2}/fotos/${uf}/${q}.jpeg`; i.alt = d.cand[k].completo; i.hidden = false; i.parentNode.classList.add("temfoto");
+        const q = sq[d.cand[k].numero];
+        poeFoto(k, q ? `${RES}/${d.e2}/fotos/${uf}/${q}.jpeg` : "", d.cand[k].completo);
       }
     } catch { some(); }
   }
