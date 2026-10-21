@@ -39,7 +39,7 @@ INICIO = os.environ.get("INICIO") or "2026-10-25T17:00:00-03:00"
 UFS = (os.environ.get("UFS") or "ac,al,am,ap,ba,ce,df,es,go,ma,mg,ms,mt,pa,pb,pe,pi,pr,rj,rn,ro,rr,rs,sc,se,sp,to,zz").split(",")
 T = "https://resultados.tse.jus.br/oficial/ele2026"
 BRT = timezone(timedelta(hours=-3))
-UA = {"User-Agent": "GRData-Projecao/1.0 (+https://grisonet.github.io/apuracao-sp/)"}
+UA = {"User-Agent": "GRData-Projecao/1.0 (+https://apuracao.grisodata.com.br/)"}
 PUBLICAVEIS = re.compile(r"^(governador/[a-z]{2}/)?(snapshot\.json|dados\.csv)$")
 
 

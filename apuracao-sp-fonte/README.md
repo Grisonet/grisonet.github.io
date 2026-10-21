@@ -2,7 +2,7 @@
 
 Painel ao vivo, mapas, estudo de Guaratinguetá e análise "Dinheiro × Votos" das
 Eleições 2026 em São Paulo. O site publicado está em **`../apuracao-sp/`**
-(GitHub Pages: https://grisonet.github.io/apuracao-sp/). Esta pasta guarda a
+(publicado em https://apuracao.grisodata.com.br pelo repositório Grisonet/apuracao: o hook pre-push roda `publica-apuracao.sh`, que copia esta pasta para lá). Esta pasta guarda a
 **fonte** (poller de WhatsApp, scripts de dados e o fonte do index), que antes
 vivia só no Mac/scratchpad temporário.
 
