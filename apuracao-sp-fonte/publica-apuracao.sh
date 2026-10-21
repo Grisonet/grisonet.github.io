@@ -10,22 +10,30 @@ DESTINO="git@github.com:Grisonet/apuracao.git"
 DOMINIO="$(git config apuracao.dominio || true)"
 
 # no pre-push, o git passa no stdin as refs enviadas; publica o que vai para main
-REF="${1:-}"
-if [ -z "$REF" ] && [ ! -t 0 ]; then
+# (como hook, $1 é o nome do remoto e $2 a URL; só age no push para o repositório do site)
+if [ $# -ge 2 ]; then
+  case "$2" in *Grisonet/grisonet.github.io*) ;; *) exit 0 ;; esac
+  REF=""
   while read -r _ local_sha remote_ref _; do
     [ "$remote_ref" = "refs/heads/main" ] && REF="$local_sha"
   done
   [ -z "$REF" ] && exit 0
+else
+  REF="${1:-HEAD}"
 fi
-REF="${REF:-HEAD}"
 [ "$REF" = "0000000000000000000000000000000000000000" ] && exit 0
 
 cd "$REPO"
 ARVORE=$(git rev-parse "$REF:apuracao-sp")
-if [ -n "$DOMINIO" ]; then
-  CNAME=$(printf '%s\n' "$DOMINIO" | git hash-object -w --stdin)
-  ARVORE=$( { git ls-tree "$ARVORE" | grep -v $'\tCNAME$'; printf '100644 blob %s\tCNAME\n' "$CNAME"; } | git mktree)
-fi
+# .nojekyll: o Pages publica os arquivos como estão, sem passar pelo Jekyll
+VAZIO=$(git hash-object -w --stdin </dev/null)
+CNAME=""
+[ -n "$DOMINIO" ] && CNAME=$(printf '%s\n' "$DOMINIO" | git hash-object -w --stdin)
+ARVORE=$( {
+  git ls-tree "$ARVORE" | grep -vE $'\t(CNAME|\\.nojekyll)$' || true
+  printf '100644 blob %s\t.nojekyll\n' "$VAZIO"
+  if [ -n "$CNAME" ]; then printf '100644 blob %s\tCNAME\n' "$CNAME"; fi
+} | git mktree)
 COMMIT=$(git commit-tree "$ARVORE" -m "publica apuracao-sp de $(git rev-parse --short "$REF")")
 git push --quiet --force "$DESTINO" "$COMMIT:refs/heads/main" \
   && echo "apuração publicada em ${DOMINIO:-grisonet.github.io/apuracao} ($(git rev-parse --short "$REF"))" >&2 \

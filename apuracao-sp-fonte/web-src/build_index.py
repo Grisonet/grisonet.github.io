@@ -14,8 +14,11 @@ tema = '\n<link rel="stylesheet" href="tema-grquest.css">'
 if src.startswith(tema, i):   # o tema GR Quest vai no <head>, depois do <style> da página
     i += len(tema)
 head, body = src[:i], src[i:]
+# a apuração mudou para apuracao.grisodata.com.br: o endereço antigo (…/apuracao-sp/) leva para lá
+REDIRECIONA = '<script>/* a apuração mudou para apuracao.grisodata.com.br: o endereço antigo (…/apuracao-sp/) leva para lá */if(/^(grisonet\\.github\\.io|(www\\.)?grisodata\\.com\\.br)$/.test(location.hostname)&&/^\\/apuracao-sp(\\/|$)/.test(location.pathname))location.replace("https://apuracao.grisodata.com.br"+location.pathname.replace(/^\\/apuracao-sp/,"")+location.search+location.hash)</script>\n'
 doc = ('<!doctype html>\n<html lang="pt-BR">\n<head>\n<meta charset="utf-8">\n'
        '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
+       + REDIRECIONA
        + head + '\n</head>\n<body>\n' + body + '\n</body>\n</html>\n')
 out = os.path.join(HERE, "index.html")
 open(out, "w", encoding="utf-8").write(doc)
