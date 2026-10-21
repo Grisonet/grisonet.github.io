@@ -8,7 +8,7 @@ self.addEventListener("push", (e) => {
     body: d.body || "Toque para ver os números.",
     tag: d.tag || "apuracao", renotify: !!d.renotify,
     icon: "icone-192.png", badge: "icone-badge.png", lang: "pt-BR",
-    data: { url: d.url || "https://grisonet.github.io/apuracao-sp/" },
+    data: { url: d.url || "https://apuracao.grisodata.com.br/" },
   }));
 });
 self.addEventListener("notificationclick", (e) => {
