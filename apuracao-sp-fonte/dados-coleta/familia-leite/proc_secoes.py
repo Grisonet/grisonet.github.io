@@ -16,7 +16,7 @@ ANO = int(sys.argv[1])
 CAP = "71072"
 T2I = json.load(open("tse2ibge.json"))
 cs = [c for c in CANDS if c["ano"] == ANO]
-MUNIC = ANO in (2000, 2004, 2008, 2012, 2016, 2020)
+MUNIC = ANO in (2000, 2004, 2008, 2012, 2016, 2020, 2024)
 cargos = sorted({c["cd_cargo"] for c in cs}, key=int)
 nums = {(c["cd_cargo"], c["n"]): c["id"] for c in cs}
 INVAL = {"95", "96", "97", "98"}

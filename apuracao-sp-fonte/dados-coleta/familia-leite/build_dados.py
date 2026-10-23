@@ -71,7 +71,7 @@ dados = {"gerado": __import__("datetime").datetime.now().strftime("%d/%m/%Y"),
 json.dump(dados, open(f"{OUT}/dados.json", "w"), ensure_ascii=False, separators=(",", ":"))
 json.dump(fin_out, open(f"{OUT}/financeiro.json", "w"), ensure_ascii=False, separators=(",", ":"))
 from distritos import distrito
-for y in (2000, 2004, 2008, 2012, 2014, 2016, 2018, 2020, 2022, 2026):
+for y in (2000, 2004, 2008, 2012, 2014, 2016, 2018, 2020, 2022, 2024, 2026):
     j = json.load(open(f"secoes_{y}.json"))
     for l in j["locais"]:   # distrito dos locais da capital posicionados depois (nome em outro ano ou endereço)
         if l[0] == "3550308" and l[5] is not None and not l[7]:

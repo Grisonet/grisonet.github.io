@@ -3,7 +3,7 @@
 import json, re, unicodedata
 from cand_cfg import CANDS
 def nk(s): return re.sub(r"[^a-z0-9]","",unicodedata.normalize("NFD",s or "").encode("ascii","ignore").decode().lower())
-Y=[2026,2022,2020,2018,2016,2014,2012,2008]
+Y=[2026,2024,2022,2020,2018,2016,2014,2012,2008]
 D={y:json.load(open(f"secoes_{y}.json")) for y in Y}
 byn={};byname={}
 for y in Y:

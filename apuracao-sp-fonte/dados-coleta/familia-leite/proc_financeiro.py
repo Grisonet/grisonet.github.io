@@ -115,7 +115,7 @@ old_muni(2012, "raw/prestacao_final_2012.zip", "receitas_candidatos_2012_brasil.
                     nul(r["Nome do fornecedor (Receita Federal)"]) or nul(r["Nome do fornecedor"]), r["CPF/CNPJ do fornecedor"], nul(r["Descriçao da despesa"])))
 
 # ---------- 2018 em diante ----------
-for ano in (2018, 2020, 2022, 2026):
+for ano in (2018, 2020, 2022, 2024, 2026):
     zp = f"raw/prestacao_de_contas_eleitorais_candidatos_{ano}.zip"
     for r in rows(zp, f"receitas_candidatos_{ano}_BRASIL.csv"):
         sq = r["SQ_CANDIDATO"]

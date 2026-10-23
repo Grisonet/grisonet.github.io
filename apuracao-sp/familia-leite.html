@@ -5,7 +5,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Família Leite · Votos e campanhas</title>
-<meta name="description" content="Milton Leite, Alexandre Leite e Milton Leite Filho: votos seção a seção e dinheiro de campanha em todas as eleições desde 2000.">
+<meta name="description" content="Milton Leite, Alexandre Leite, Milton Leite Filho, Silvinho Leite e Silvão Leite: votos seção a seção e dinheiro de campanha em todas as eleições desde 2000.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -142,9 +142,9 @@
     <div class="gq-live" style="margin-left:auto"><span class="gq-dot off"></span><span>TSE · 2000 a 2026</span></div>
   </div></header>
   <section class="wrap gq-hero">
-    <div class="gq-tagrow"><span class="gq-tag">Análise de votos</span><span class="gq-ctx">São Paulo · 14 candidaturas · 10 eleições</span></div>
-    <h1>Milton Leite, Alexandre Leite e Milton Leite Filho, <span class="gq-hl">urna a urna</span></h1>
-    <p class="gq-lead">Todas as candidaturas dos três desde 2000: onde vieram os votos, do estado à seção eleitoral, e quanto custou cada campanha, de onde veio o dinheiro e quanto foi para as redes.</p>
+    <div class="gq-tagrow"><span class="gq-tag">Análise de votos</span><span class="gq-ctx">São Paulo · 16 candidaturas · 11 eleições</span></div>
+    <h1>Os Leite na urna: Milton, Alexandre, Milton Filho, Silvinho e Silvão, <span class="gq-hl">seção a seção</span></h1>
+    <p class="gq-lead">Todas as candidaturas desde 2000: onde vieram os votos, do estado à seção eleitoral, e quanto custou cada campanha, de onde veio o dinheiro e quanto foi para as redes.</p>
   </section>
 </div>
 
@@ -157,7 +157,7 @@
   <!-- RESUMO -->
   <div class="eyebrow">Panorama<span class="rule"></span></div>
   <section class="kpis" id="kpis"></section>
-  <div class="grid3" id="pessoas" style="margin-top:14px"></div>
+  <div id="pessoas" style="margin-top:14px;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(330px,1fr))"></div>
   <div class="ins" id="insResumo" style="margin-top:14px"></div>
 
   <div class="eyebrow">Candidaturas<span class="rule"></span><button class="csvb" data-csv="cands">⬇ CSV</button></div>
@@ -284,7 +284,8 @@
 
 <script>
 /* ============ utilidades ============ */
-const COR={ML:"#FF4C00",AL:"#454545",MLF:"#E0A800"};
+const COR={ML:"#FF4C00",AL:"#454545",MLF:"#E0A800",SL:"#B23600",SV:"#8F8A82"};
+const PES=["ML","AL","MLF","SL","SV"];
 const NODATA="#e9e7e3";
 const nf=(n,d=0)=>Number(n||0).toLocaleString("pt-BR",{minimumFractionDigits:d,maximumFractionDigits:d});
 const brl=(n,d=0)=>"R$ "+nf(n,d);
@@ -336,9 +337,9 @@ function segwire(id,fn){document.querySelectorAll("#"+id+" button").forEach(b=>b
 let D,MUN,DIST,MUNNM={},DISTNM={};
 const S={ano:null,p:null,mAno:2022,mCand:"lead",met:"v",city:"3550308",loc:null};
 const SEC={};
-const ANOS=[2000,2004,2008,2012,2014,2016,2018,2020,2022,2026];
+const ANOS=[2000,2004,2008,2012,2014,2016,2018,2020,2022,2024,2026];
 const cargoCurto=c=>c.cargo.replace("Deputado ","Dep. ");
-const nomeCurto=p=>({ML:"Milton Leite",AL:"Alexandre Leite",MLF:"Milton Leite Filho"})[p];
+const nomeCurto=p=>({ML:"Milton Leite",AL:"Alexandre Leite",MLF:"Milton Leite Filho",SL:"Silvinho Leite",SV:"Silvão Leite"})[p];
 const filtradas=()=>D.cands.filter(c=>(!S.ano||c.ano===S.ano)&&(!S.p||c.p===S.p));
 const eleito=c=>/ELEITO/.test(c.sit)&&!/NÃO/.test(c.sit);
 
@@ -355,7 +356,7 @@ async function secoes(ano){
 /* ============ filtros ============ */
 function drawFilters(){
   $("fAno").innerHTML=[null,...ANOS].map(a=>`<button class="chip${S.ano===a?" on":""}" data-a="${a??""}">${a??"Todas"}</button>`).join("");
-  $("fPes").innerHTML=[null,"ML","AL","MLF"].map(p=>{const c=p&&D.cands.filter(x=>x.p===p).slice(-1)[0];
+  $("fPes").innerHTML=[null,...PES].map(p=>{const c=p&&D.cands.filter(x=>x.p===p).slice(-1)[0];
     return `<button class="chip${S.p===p?" on":""}" data-p="${p??""}">${p?`<img src="${c.foto}" alt="">${nomeCurto(p)}`:"Todos"}</button>`;}).join("");
   $("fAno").querySelectorAll("button").forEach(b=>b.onclick=()=>{S.ano=b.dataset.a?+b.dataset.a:null;if(S.ano){S.mAno=S.ano;S.mCand="lead";}renderAll();});
   $("fPes").querySelectorAll("button").forEach(b=>b.onclick=()=>{S.p=b.dataset.p||null;
@@ -376,7 +377,7 @@ function drawResumo(){
     {l:"Custo médio por voto",v:votos?brl(gasto/votos,2):"—",s:"gasto ÷ votos"},
     {l:"Fundo público recebido",v:brlc(fundo),s:"FEFC + Fundo Partidário"},
   ].map(k=>`<div class="kpi"><div class="l">${k.l}</div><div class="v">${k.v}</div><div class="s">${k.s}</div></div>`).join("");
-  $("pessoas").innerHTML=["ML","AL","MLF"].map(p=>{const pc=D.cands.filter(c=>c.p===p);const last=pc[pc.length-1];
+  $("pessoas").innerHTML=PES.map(p=>{const pc=D.cands.filter(c=>c.p===p);const last=pc[pc.length-1];
     return `<div class="card pcard" style="${S.p&&S.p!==p?"opacity:.45":""}"><img src="${last.foto}" alt="${nomeCurto(p)}" loading="lazy">
       <div style="min-width:0"><div class="nm"><span class="pdot" style="width:10px;height:10px;border-radius:50%;background:${COR[p]};display:inline-block"></span>${nomeCurto(p)}</div>
       <div class="tr">${pc.map(c=>`<span>${c.ano} · ${cargoCurto(c)} ${c.n} · ${eleito(c)?"eleito":"suplente"}</span>`).join("")}</div>
@@ -390,6 +391,7 @@ function drawResumo(){
     <li><b>Dobradinha federal + estadual.</b> Alexandre Leite e Milton Leite Filho dividiram a chapa federal + estadual em todas as eleições gerais, com números casados (${by(2014,"AL").n}/${by(2014,"MLF").n} em 2014, ${by(2022,"AL").n}/${by(2022,"MLF").n} em 2022). Em 2026, trocaram de cargo: o Filho foi para federal (${by(2026,"MLF").n}) e Alexandre para estadual (${by(2026,"AL").n}).</li>
     <li><b>O auge foi 2022</b>: a dupla somou ${nf(s22)} votos, contra ${nf(s14)} em 2014. <b>Em 2026 caiu para ${nf(s26)}</b> (${nf((s26/s22-1)*100,0)}%). Milton Leite Filho se elegeu federal com ${nf(by(2026,"MLF").votos)} votos; Alexandre ficou suplente na Assembleia.</li>
     <li><b>Seis eleições para a Câmara Municipal, seis vitórias.</b> Milton Leite saiu de ${nf(by(2000,"ML").votos)} votos em 2000 (${by(2000,"ML").rank}º mais votado de São Paulo) para ${nf(ml20.votos)} em 2020 (${ml20.rank}º, entre ${nf(ml20.ncand)} candidatos): cresceu em todas as eleições, ${D.cands.filter(c=>c.p==="ML").map(c=>`${c.ano}: ${c.rank}º`).join(" · ")}.</li>
+    <li><b>2024, sem Milton Leite na urna:</b> dois candidatos da União com "Leite" no nome político se elegeram vereadores — ${(()=>{const sl=by(2024,"SL"),sv=by(2024,"SV");return `Silvão Leite (${sv.n}) com ${nf(sv.votos)} votos, ${sv.rank}º da cidade, e Silvinho Leite (${sl.n}, o mesmo número de Milton Leite Filho em 2022) com ${nf(sl.votos)}, ${sl.rank}º. Somados, ${nf(sl.votos+sv.votos)} votos, ${nf((sl.votos+sv.votos)/ml20.votos*100-100,0)}% em relação aos ${nf(ml20.votos)} de Milton Leite em 2020`;})()}. No nome civil, nenhum dos dois é Leite.</li>
   </ul>`;
 }
 function drawCands(){
@@ -462,7 +464,8 @@ function drawMap(){
   $("stCard").style.display=ver?"none":"";
   $("mapgrid").style.gridTemplateColumns=ver?"1fr":"";
   if(ver)S.city="3550308";
-  $("mapSub").innerHTML=ver?(S.mAno<=2004?`Em ${S.mAno}, Milton Leite disputou vereador em São Paulo. O TSE não traz, para essa eleição, um local de votação comparável ao cadastro: o mapa mostra cada zona eleitoral; clique numa zona para ver as seções (urnas).`:`Em ${S.mAno}, Milton Leite disputou vereador em São Paulo. O mapa mostra os distritos da capital e cada local de votação; clique num local para ver as seções (urnas).`)
+  const quem=candsAno(S.mAno).length>1?candsAno(S.mAno).map(c=>c.nome).join(" e ")+" disputaram":candsAno(S.mAno).map(c=>c.nome).join(" e ")+" disputou";
+  $("mapSub").innerHTML=ver?(S.mAno<=2004?`Em ${S.mAno}, ${quem} vereador em São Paulo. O TSE não traz, para essa eleição, um local de votação comparável ao cadastro: o mapa mostra cada zona eleitoral; clique numa zona para ver as seções (urnas).`:`Em ${S.mAno}, ${quem} vereador em São Paulo. O mapa mostra os distritos da capital e cada local de votação; clique num local para ver as seções (urnas).`)
     :`Eleição de ${S.mAno}. À esquerda, o estado por cidade; à direita, a cidade escolhida por local de votação (na capital, também por distrito). Clique num local para ver cada seção (urna).`;
   if(!ver){
     const mx=S.met==="p"?Math.max(1e-9,...cs.flatMap(c=>Object.values(c.mun).map(m=>m[0]/m[1]))):Math.max(1,...cs.flatMap(c=>Object.values(c.mun).map(m=>m[0])));
@@ -554,7 +557,7 @@ function drawEvo(){
   const svg=d3.select("#evo");svg.selectAll("*").remove();
   const city=EVO==="cidade"?S.city:null,cnm=MUNNM[S.city]||"";
   $("evoCityBtn").textContent=cnm?`Em ${cnm}`:"Cidade do mapa";
-  const pes=S.p?[S.p]:["ML","AL","MLF"];
+  const pes=S.p?[S.p]:PES;
   /* valor de cada candidatura: total no 1º turno ou votos na cidade escolhida */
   const val=c=>city?(c.cargo==="Vereador"?(city==="3550308"?c.votos:0):((c.mun[city]||[0])[0])):c.votos;
   const series=pes.map(p=>({p,pts:D.cands.filter(c=>c.p===p).map(c=>({c,ano:c.ano,v:val(c)}))}));
@@ -600,11 +603,11 @@ async function drawRankings(){
       rows.map(r=>[ano,r.nm,r.id,...r.per.flatMap(m=>[m[0],m[1],m[1]?+(m[0]/m[1]*100).toFixed(2):0,m[2]||""])])];
   }else{
     $("rk1Title").textContent="Bairros";$("rk1Sub").textContent=`Soma dos locais de votação de cada bairro (cadastro do TSE) · ${ano}.`;
-    const c=cs[0],b={};j.locais.forEach((l,i)=>{const k=l[4]||"—";const o=b[k]||(b[k]={nm:k,v:0,t:0,n:0});o.v+=j.agg[i].v[c.id]||0;o.t+=j.agg[i].v["t"+c.cd_cargo]||0;o.n++;});
+    const b={};j.locais.forEach((l,i)=>{const k=l[4]||"—";const o=b[k]||(b[k]={nm:k,v:{},t:0,n:0});cs.forEach(c=>o.v[c.id]=(o.v[c.id]||0)+(j.agg[i].v[c.id]||0));o.t+=j.agg[i].v["t"+cs[0].cd_cargo]||0;o.n++;});
     const rows=Object.values(b);
     if(rows.length<=1)$("rk1Card").style.display="none";   /* 2000 a 2008: o TSE não informa o bairro */
-    tabela("tRk1",[{h:"Bairro",k:r=>r.nm},{h:"Votos",n:1,k:r=>r.v,f:r=>`<b>${nf(r.v)}</b>`},{h:"% válidos",n:1,k:r=>r.t?r.v/r.t:0,f:r=>pct(r.v,r.t)},{h:"Locais",n:1,k:r=>r.n}],rows,{sort:1});
-    CSV.rk1=()=>[`bairros_${ano}`,["eleicao","bairro","votos","validos_vereador","pct","locais"],rows.map(r=>[ano,r.nm,r.v,r.t,r.t?+(r.v/r.t*100).toFixed(2):0,r.n])];
+    tabela("tRk1",[{h:"Bairro",k:r=>r.nm},...cs.map(c=>({h:esc(c.nome),n:1,k:r=>r.v[c.id],f:r=>`<b>${nf(r.v[c.id])}</b> <span style="color:var(--steel)">${pct(r.v[c.id],r.t)}</span>`})),{h:"Válidos",n:1,k:r=>r.t,f:r=>nf(r.t)},{h:"Locais",n:1,k:r=>r.n}],rows,{sort:1});
+    CSV.rk1=()=>[`bairros_${ano}`,["eleicao","bairro",...cs.flatMap(c=>[`votos_${c.nome}`,`pct_${c.nome}`]),"validos_vereador","locais"],rows.map(r=>[ano,r.nm,...cs.flatMap(c=>[r.v[c.id],r.t?+(r.v[c.id]/r.t*100).toFixed(2):0]),r.t,r.n])];
   }
   /* 3: distritos da capital */
   const dv={};j.locais.forEach((l,i)=>{if(l[0]!=="3550308"||!l[7])return;const o=dv[l[7]]||(dv[l[7]]={cod:l[7],nm:DISTNM[l[7]],v:{},t:{}});cs.forEach(c=>{o.v[c.id]=(o.v[c.id]||0)+(j.agg[i].v[c.id]||0);o.t[c.id]=(o.t[c.id]||0)+(j.agg[i].v["t"+c.cd_cargo]||0);});});
@@ -691,7 +694,7 @@ function drawFin(){
   if(semc.length)ins.push(`<b>Sem prestação de contas publicada:</b> ${semc.map(c=>`${esc(c.nome)} em ${c.ano}`).join(", ")} (o TSE não divulga as contas dessa eleição). ${semc.length>1?"Essas candidaturas ficam":"Essa candidatura fica"} fora dos números de investimento.`);
   $("insFin").innerHTML=ins.length?`<ul>${ins.map(x=>`<li>${x}</li>`).join("")}</ul>`:"Sem campanhas no filtro atual.";
   /* tabela panorama */
-  const cols=[{h:"Campanha",k:c=>c.ano*10+(c.p==="ML"?0:c.p==="AL"?1:2),f:c=>`<img class="ph" src="${c.foto}" alt="" loading="lazy"><b>${c.ano}</b> · ${esc(c.nome)}<br><span style="color:var(--steel);font-size:11.5px">${c.cargo}</span>`},
+  const cols=[{h:"Campanha",k:c=>c.ano*10+PES.indexOf(c.p),f:c=>`<img class="ph" src="${c.foto}" alt="" loading="lazy"><b>${c.ano}</b> · ${esc(c.nome)}<br><span style="color:var(--steel);font-size:11.5px">${c.cargo}</span>`},
     {h:"Arrecadado",n:1,k:c=>c.fin.receita,f:c=>brl(c.fin.receita)},{h:"Gasto",n:1,k:c=>c.fin.gasto,f:c=>brl(c.fin.gasto)},
     {h:"Votos",n:1,k:c=>c.votos,f:c=>nf(c.votos)},{h:"R$/voto",n:1,k:c=>c.fin.custo_voto,f:c=>`<b>${brl(c.fin.custo_voto,2)}</b>`},
     {h:"Fundo público",n:1,k:c=>c.fin.fundo_publico,f:c=>brl(c.fin.fundo_publico)},{h:"Doações",n:1,k:c=>c.fin.doacoes,f:c=>brl(c.fin.doacoes)},
@@ -762,7 +765,7 @@ function renderAll(){drawFilters();drawResumo();drawCands();drawMap();drawFin();
   /* link direto: familia-leite.html#ano=2020&p=ML */
   const hp=new URLSearchParams(location.hash.slice(1));
   if(ANOS.includes(+hp.get("ano"))){S.ano=+hp.get("ano");S.mAno=S.ano;}
-  if(["ML","AL","MLF"].includes(hp.get("p")))S.p=hp.get("p");
+  if(PES.includes(hp.get("p")))S.p=hp.get("p");
   $("gerado").textContent=D.gerado;
   await initMap();
   renderAll();
