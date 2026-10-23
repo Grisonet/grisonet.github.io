@@ -35,6 +35,8 @@ for ano in sorted({c["ano"] for c in CANDS}):
         if not v:
             continue
         cg, sq, cm = r["CD_CARGO"], r["SQ_CANDIDATO"], r["CD_MUNICIPIO"]
+        if cg == "13" and cm != CAP:      # vereador: só a disputa da capital
+            continue
         mun[(cg, cm)][sq] += v
         tot[cg][sq] += v
         if cm == CAP:

@@ -5,6 +5,10 @@ P = {
     "MLF": {"nome": "Milton Leite Filho", "cpf": "27254818800"},
 }
 CANDS = [
+    {"id": "2000-ML",  "ano": 2000, "p": "ML",  "cargo": "Vereador",          "cd_cargo": "13", "n": "15685", "partido": "PMDB",  "sq": "2600"},
+    {"id": "2004-ML",  "ano": 2004, "p": "ML",  "cargo": "Vereador",          "cd_cargo": "13", "n": "15685", "partido": "PMDB",  "sq": "759"},
+    {"id": "2008-ML",  "ano": 2008, "p": "ML",  "cargo": "Vereador",          "cd_cargo": "13", "n": "25250", "partido": "DEM",   "sq": "4107"},
+    {"id": "2012-ML",  "ano": 2012, "p": "ML",  "cargo": "Vereador",          "cd_cargo": "13", "n": "25250", "partido": "DEM",   "sq": "250000049409"},
     {"id": "2014-AL",  "ano": 2014, "p": "AL",  "cargo": "Deputado Federal",  "cd_cargo": "6",  "n": "2513",  "partido": "DEM",   "sq": "250000001389"},
     {"id": "2014-MLF", "ano": 2014, "p": "MLF", "cargo": "Deputado Estadual", "cd_cargo": "7",  "n": "25250", "partido": "DEM",   "sq": "250000001662"},
     {"id": "2016-ML",  "ano": 2016, "p": "ML",  "cargo": "Vereador",          "cd_cargo": "13", "n": "25250", "partido": "DEM",   "sq": "250000011022"},

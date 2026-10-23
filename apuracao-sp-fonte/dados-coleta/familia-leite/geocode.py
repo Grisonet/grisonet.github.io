@@ -58,7 +58,7 @@ def locate(ibge, nome, bairro, end):
                 return round(lat, 5), round(lon, 5)
     return None
 
-Y = [2014, 2016, 2018, 2020, 2022, 2026]
+Y = [2008, 2012, 2014, 2016, 2018, 2020, 2022, 2026]
 D = {y: json.load(open(f"secoes_{y}.json")) for y in Y}
 todo = {}
 for y in Y:

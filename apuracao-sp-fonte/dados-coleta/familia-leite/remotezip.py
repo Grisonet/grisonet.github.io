@@ -20,6 +20,6 @@ u,out=sys.argv[1],sys.argv[2]; sqs=sys.argv[3:]
 z=zipfile.ZipFile(io.BufferedReader(R(u),buffer_size=1<<16))
 names=z.namelist(); print(len(names),names[:3])
 for sq in sqs:
-    m=[n for n in names if sq in n]
+    import re; m=[n for n in names if re.search(r"(^|[^0-9])"+sq+r"(_|\.)", n.split("/")[-1])]
     print(sq,m)
     for n in m[:1]: open(f"{out}/{sq}.{n.rsplit('.',1)[-1]}","wb").write(z.read(n))

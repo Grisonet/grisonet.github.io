@@ -16,7 +16,7 @@ ANO = int(sys.argv[1])
 CAP = "71072"
 T2I = json.load(open("tse2ibge.json"))
 cs = [c for c in CANDS if c["ano"] == ANO]
-MUNIC = ANO in (2016, 2020)
+MUNIC = ANO in (2000, 2004, 2008, 2012, 2016, 2020)
 cargos = sorted({c["cd_cargo"] for c in cs}, key=int)
 nums = {(c["cd_cargo"], c["n"]): c["id"] for c in cs}
 INVAL = {"95", "96", "97", "98"}
@@ -56,8 +56,10 @@ def distrito(lon, lat):
     return ""
 
 # ---------- cadastro de locais (lat/long) ----------
-lzip = f"raw/eleitorado_local_votacao_{ANO}.zip"
-lmem = f"eleitorado_local_votacao_{ANO}_SP.csv" if ANO == 2026 else f"eleitorado_local_votacao_{ANO}.csv"
+# 2000 a 2008 não têm cadastro de locais publicado: usa o de 2012 (mesma zona e número do local)
+GANO = ANO if ANO >= 2012 else 2012
+lzip = f"raw/eleitorado_local_votacao_{GANO}.zip"
+lmem = f"eleitorado_local_votacao_{GANO}_SP.csv" if GANO == 2026 else f"eleitorado_local_votacao_{GANO}.csv"
 it = rows(lzip, lmem); h = next(it)
 geo = {}
 for r in it:
@@ -75,6 +77,15 @@ for r in it:
     if k not in geo or (geo[k][2] is None and lat):
         geo[k] = (r[h["NM_LOCAL_VOTACAO"]].strip(), r[h["NM_BAIRRO"]].strip().title(), lat, lon,
                   r[h["DS_ENDERECO"]].strip().title())
+# antes de 2012 o número do local muda entre eleições (2008×2012: só 77% iguais): não posiciona pelo número
+ZC = {}
+if ANO < 2012:
+    acc = defaultdict(list)
+    for (m, z, _), g in geo.items():
+        if m == CAP and g[2]:
+            acc[z].append((g[2], g[3]))
+    ZC = {z: [round(sum(a for a, _ in v) / len(v), 5), round(sum(b for _, b in v) / len(v), 5)] for z, v in acc.items()}
+    geo = {}
 print(ANO, "locais no cadastro:", len(geo), file=sys.stderr)
 
 # ---------- votos por seção ----------
@@ -85,7 +96,8 @@ nmloc = {}
 it = rows(f"raw/votacao_secao_{ANO}_SP.zip", f"votacao_secao_{ANO}_SP.csv"); h = next(it)
 iT, iC, iM, iZ, iS, iV, iQ, iL = (h["NR_TURNO"], h["CD_CARGO"], h["CD_MUNICIPIO"], h["NR_ZONA"], h["NR_SECAO"],
                                   h["NR_VOTAVEL"], h["QT_VOTOS"], h["NR_LOCAL_VOTACAO"])
-iN = h.get("NM_LOCAL_VOTACAO")
+iN = h.get("NM_LOCAL_VOTACAO"); iE = h.get("DS_LOCAL_VOTACAO_ENDERECO")
+nmend = {}
 n = 0
 for r in it:
     n += 1
@@ -104,6 +116,8 @@ for r in it:
         loc_of[k] = int(r[iL])
         if iN is not None:
             nmloc[(r[iM], int(r[iZ]), int(r[iL]))] = r[iN].strip()
+            if iE is not None:
+                nmend[(r[iM], int(r[iZ]), int(r[iL]))] = r[iE].strip().title()
 print(ANO, "linhas lidas:", n, "seções:", len(tot), file=sys.stderr)
 
 # ---------- monta saída ----------
@@ -118,7 +132,7 @@ for k in sorted(tot, key=lambda k: (k[0], k[1], loc_of[k], k[2])):
     lk = (m, z, loc_of[k])
     if lk not in lidx:
         g = geo.get(lk)
-        nm, bairro, lat, lon, end = g if g else (nmloc.get(lk, f"Local {lk[2]}"), "", None, None, "")
+        nm, bairro, lat, lon, end = g if g else (nmloc.get(lk, f"Local nº {lk[2]}" if ANO > 2000 else f"Zona {lk[1]} (local não informado)"), "", None, None, nmend.get(lk, ""))
         if lat is None:
             miss += 1
         d = distrito(lon, lat) if (m == CAP and lat) else ""
@@ -129,7 +143,7 @@ for k in sorted(tot, key=lambda k: (k[0], k[1], loc_of[k], k[2])):
     for c in cols:
         row.append(tot[k][c[1:]] if c.startswith("t") else cv[k].get(c, 0))
     secs.append(row)
-out = {"ano": ANO, "cols": cols,
+out = {"ano": ANO, "cols": cols, "zcentro": ZC, "por_zona": ANO in (2000, 2004),
        "locais_campos": ["ibge", "zona", "local", "nome", "bairro", "lat", "lon", "distrito", "endereco"],
        "locais": locais, "secoes_campos": ["local_idx", "secao"] + cols, "secoes": secs}
 json.dump(out, open(f"secoes_{ANO}.json", "w"), ensure_ascii=False, separators=(",", ":"))

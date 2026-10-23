@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prestação de contas das 10 candidaturas da família Leite (TSE, dados abertos).
+"""Prestação de contas (sempre os arquivos NACIONAIS do TSE, os mais completos) das 10 candidaturas da família Leite (TSE, dados abertos).
 Extrai cada receita e cada despesa contratada (lançamento a lançamento) num formato único
 para 2014-2026 e classifica a origem do dinheiro.
 Saída: financeiro.json  {id: {"rec": [...], "desp": [...]}}"""
@@ -66,9 +66,9 @@ def add_desp(sq, data, valor, tipo, forn, doc, desc):
         "cnpj": doc_pub(doc), "desc": desc, "imp": impuls(tipo, forn)})
 
 # ---------- 2014 e 2016 (layout antigo) ----------
-OLD = {2014: ("raw/prestacao_final_2014.zip", "receitas_candidatos_2014_SP.txt", "despesas_candidatos_2014_SP.txt"),
-       2016: ("raw/prestacao_contas_final_2016.zip", "receitas_candidatos_prestacao_contas_final_2016_SP.txt",
-              "despesas_candidatos_prestacao_contas_final_2016_SP.txt")}
+OLD = {2014: ("raw/prestacao_final_2014.zip", "receitas_candidatos_2014_brasil.txt", "despesas_candidatos_2014_brasil.txt"),
+       2016: ("raw/prestacao_contas_final_2016.zip", "receitas_candidatos_prestacao_contas_final_2016_brasil.txt",
+              "despesas_candidatos_prestacao_contas_final_2016_brasil.txt")}
 for ano, (zp, rm, dm) in OLD.items():
     for r in rows(zp, rm):
         sq = r["Sequencial Candidato"]
@@ -86,17 +86,45 @@ for ano, (zp, rm, dm) in OLD.items():
                  nul(r["Nome do fornecedor (Receita Federal)"]) or nul(r["Nome do fornecedor"]),
                  r["CPF/CNPJ do fornecedor"], nul(r["Descriçao da despesa"]))
 
+# ---------- 2004, 2008 e 2012 (vereador da capital; em 2004 e 2008 o arquivo é nacional) ----------
+def old_muni(ano, zp, rm, dm, match, R, Dd):
+    """R e Dd: funções que convertem a linha nos campos de receita e despesa."""
+    sq = next(c["sq"] for c in CANDS if c["ano"] == ano)
+    for r in rows(zp, rm):
+        if match(r):
+            add_rec(sq, *R(r))
+    for r in rows(zp, dm):
+        if match(r):
+            add_desp(sq, *Dd(r))
+
+old_muni(2004, "raw/prestacao_contas_2004.zip", "2004/Candidato/Receita/ReceitaCandidato.csv", "2004/Candidato/Despesa/DespesaCandidato.csv",
+         lambda r: r["SG_UE"] == "71072" and r["NR_CAND"] == "15685" and r["CD_CARGO"] == "13",
+         lambda r: (r["DT_RECEITA"], num(r["VR_RECEITA"]), "", nul(r["RTRIM(LTRIM(DR.DS_TITULO))"]),
+                    nul(r["DECODE(REC.TP_RECURSO,0,'EMESPÉCIE',1,'CHEQUE',2,'ESTIMADO','NÃOINFORMADO')"]), nul(r["NO_DOADOR"]), r["CD_CPF_CGC_DOA"]),
+         lambda r: (r["DT_DOC_DESP"], num(r["VR_DESPESA"]), nul(r["RTRIM(LTRIM(DR.DS_TITULO))"]), nul(r["NO_FOR"]), r["CD_CPF_CGC"], ""))
+old_muni(2008, "raw/prestacao_contas_2008.zip", "prestacao_contas_2008/receitas_candidatos_2008_brasil.csv", "prestacao_contas_2008/despesas_candidatos_2008_brasil.csv",
+         lambda r: r["SG_UE"] == "71072" and r["NR_CANDIDATO"] == "25250" and r["CD_CARGO"] == "13",
+         lambda r: (r["DT_RECEITA"], num(r["VR_RECEITA"]), "", nul(r["DS_TITULO"]), nul(r["DS_ESP_RECURSO"]), nul(r["NM_DOADOR"]), r["CD_CPF_CNPJ_DOADOR"]),
+         lambda r: (r["DT_DESPESA"], num(r["VR_DESPESA"]), nul(r["DS_TITULO"]), nul(r["NM_FORNECEDOR"]), r["CD_CPF_CNPJ_FORNECEDOR"], ""))
+# 2012: o arquivo de SP está incompleto (108 despesas); o nacional tem todas (3.553)
+old_muni(2012, "raw/prestacao_final_2012.zip", "receitas_candidatos_2012_brasil.txt", "despesas_candidatos_2012_brasil.txt",
+         lambda r: r["Sequencial Candidato"] == "250000049409",
+         lambda r: (r["Data da receita"], num(r["Valor receita"]), nul(r["Fonte recurso"]), nul(r["Tipo receita"]), nul(r["Especie recurso"]),
+                    nul(r["Nome do doador (Receita Federal)"]) or nul(r["Nome do doador"]), r["CPF/CNPJ do doador"]),
+         lambda r: (r["Data da despesa"], num(r["Valor despesa"]), nul(r["Tipo despesa"]),
+                    nul(r["Nome do fornecedor (Receita Federal)"]) or nul(r["Nome do fornecedor"]), r["CPF/CNPJ do fornecedor"], nul(r["Descriçao da despesa"])))
+
 # ---------- 2018 em diante ----------
 for ano in (2018, 2020, 2022, 2026):
     zp = f"raw/prestacao_de_contas_eleitorais_candidatos_{ano}.zip"
-    for r in rows(zp, f"receitas_candidatos_{ano}_SP.csv"):
+    for r in rows(zp, f"receitas_candidatos_{ano}_BRASIL.csv"):
         sq = r["SQ_CANDIDATO"]
         if sq not in SQ:
             continue
         add_rec(sq, r["DT_RECEITA"], num(r["VR_RECEITA"]), nul(r["DS_FONTE_RECEITA"]), nul(r["DS_ORIGEM_RECEITA"]),
                 nul(r["DS_ESPECIE_RECEITA"]) + (" · " + nul(r["DS_NATUREZA_RECEITA"]) if nul(r["DS_NATUREZA_RECEITA"]) else ""),
                 nul(r["NM_DOADOR_RFB"]) or nul(r["NM_DOADOR"]), r["NR_CPF_CNPJ_DOADOR"])
-    for r in rows(zp, f"despesas_contratadas_candidatos_{ano}_SP.csv"):
+    for r in rows(zp, f"despesas_contratadas_candidatos_{ano}_BRASIL.csv"):
         sq = r["SQ_CANDIDATO"]
         if sq not in SQ:
             continue

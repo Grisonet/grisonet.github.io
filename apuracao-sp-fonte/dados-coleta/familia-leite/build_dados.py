@@ -23,8 +23,11 @@ def refine(r, ano):
 cands, fin_out = [], {}
 for c in CANDS:
     cid = c["id"]; v = V[cid]; f = F[cid]
-    foto = [x for x in os.listdir("fotos") if x.startswith(c["sq"])][0]
-    shutil.copy("fotos/" + foto, f"{OUT}/fotos/{cid}.jpg")
+    # foto: sempre a mais recente da pessoa, em todas as eleições
+    last = [o for o in CANDS if o["p"] == c["p"]][-1]
+    fl = [x for x in os.listdir("fotos") if x.split(".")[0] == last["sq"]]
+    foto_obs = ""
+    shutil.copy("fotos/" + fl[0], f"{OUT}/fotos/{c['p']}.jpg")
     for r in f["rec"]:
         r["cat"] = refine(r, c["ano"])
     rec_cat = Counter(); desp_tipo = Counter(); forn = Counter(); doad = Counter(); imp_f = Counter()
@@ -43,21 +46,22 @@ for c in CANDS:
     doac = sum(x for k, x in rec_cat.items() if k.startswith("Doações"))
     cands.append({
         **{k: c[k] for k in ("id", "ano", "p", "cargo", "cd_cargo", "n", "partido", "sq")},
-        "nome": P[c["p"]]["nome"], "foto": f"leite/fotos/{cid}.jpg",
+        "nome": P[c["p"]]["nome"], "foto": f"leite/fotos/{c['p']}.jpg", "foto_obs": foto_obs,
         "votos": v["votos"], "rank": v["rank"], "ncand": v["ncand"], "sit": v["sit"],
         "nominais_cargo": v["nominais_cargo"], "mun": v["mun"], "zonas": v["zonas"],
         "fin": {
             "receita": rt, "despesa": dt, "repasse_outros": outros, "gasto": gasto,
-            "custo_voto": round(gasto / v["votos"], 2) if v["votos"] else None,
+            "custo_voto": round(gasto / v["votos"], 2) if v["votos"] and dt else None,
+            "sem_contas": not (f["rec"] or f["desp"]),
             "impulsionamento": round(sum(imp_f.values()), 2),
             "imp_fornecedores": {k: round(x, 2) for k, x in imp_f.most_common()},
             "fundo_publico": round(fundo, 2), "doacoes": round(doac, 2),
             "proprios": round(rec_cat.get("Recursos próprios", 0), 2),
             "estimavel": round(estim, 2),
             "rec_cat": {k: round(x, 2) for k, x in rec_cat.most_common()},
-            "desp_tipo": {k: round(x, 2) for k, x in desp_tipo.most_common(12)},
-            "fornecedores": [[k, round(x, 2)] for k, x in forn.most_common(10)],
-            "doadores": [[k, round(x, 2)] for k, x in doad.most_common(10)],
+            "desp_tipo": {k: round(x, 2) for k, x in desp_tipo.most_common()},
+            "fornecedores": [[k, round(x, 2)] for k, x in forn.most_common(200)],
+            "doadores": [[k, round(x, 2)] for k, x in doad.most_common(200)],
             "n_rec": len(f["rec"]), "n_desp": len(f["desp"]),
         }})
     fin_out[cid] = f
@@ -66,9 +70,14 @@ dados = {"gerado": __import__("datetime").datetime.now().strftime("%d/%m/%Y"),
          "pessoas": P, "cands": cands}
 json.dump(dados, open(f"{OUT}/dados.json", "w"), ensure_ascii=False, separators=(",", ":"))
 json.dump(fin_out, open(f"{OUT}/financeiro.json", "w"), ensure_ascii=False, separators=(",", ":"))
-for y in (2014, 2016, 2018, 2020, 2022, 2026):
-    shutil.copy(f"secoes_{y}.json", f"{OUT}/secoes_{y}.json")
+from distritos import distrito
+for y in (2000, 2004, 2008, 2012, 2014, 2016, 2018, 2020, 2022, 2026):
+    j = json.load(open(f"secoes_{y}.json"))
+    for l in j["locais"]:   # distrito dos locais da capital posicionados depois (nome em outro ano ou endereço)
+        if l[0] == "3550308" and l[5] is not None and not l[7]:
+            l[7] = distrito(l[6], l[5])
+    json.dump(j, open(f"{OUT}/secoes_{y}.json", "w"), ensure_ascii=False, separators=(",", ":"))
 shutil.copy("sp-distritos.geojson", f"{OUT}/sp-distritos.geojson")
 for c in cands:
     f = c["fin"]
-    print(f'{c["id"]:9} votos {c["votos"]:>7,} | gasto R$ {f["gasto"]:>12,.0f} | R$/voto {f["custo_voto"]:>6} | fundo {f["fundo_publico"]:>12,.0f} | doações {f["doacoes"]:>12,.0f} | imp {f["impulsionamento"]:>9,.0f}')
+    print(f'{c["id"]:9} votos {c["votos"]:>7,} | gasto R$ {f["gasto"]:>12,.0f} | R$/voto {str(f["custo_voto"]):>6} | fundo {f["fundo_publico"]:>12,.0f} | doações {f["doacoes"]:>12,.0f} | imp {f["impulsionamento"]:>9,.0f}')
