@@ -200,11 +200,9 @@
     <div class="legend" id="lgEvo"></div>
   </div>
 
-  <div class="grid2" style="margin-top:14px">
-    <div class="card"><div class="chead"><h3 id="rk1Title">Cidades</h3><button class="csvb" data-csv="rk1" style="margin-left:auto">⬇ CSV</button></div>
+  <div style="margin-top:14px">
+    <div class="card" id="rk1Card"><div class="chead"><h3 id="rk1Title">Cidades</h3><button class="csvb" data-csv="rk1" style="margin-left:auto">⬇ CSV</button></div>
       <div class="csub" id="rk1Sub"></div><div class="tscroll"><table id="tRk1"></table></div></div>
-    <div class="card"><div class="chead"><h3 id="rk2Title">Locais de votação</h3><button class="csvb" data-csv="rk2" style="margin-left:auto">⬇ CSV</button></div>
-      <div class="csub" id="rk2Sub"></div><div class="tscroll"><table id="tRk2"></table></div></div>
   </div>
   <div class="grid2" style="margin-top:14px">
     <div class="card"><div class="chead"><h3>Distritos da capital</h3><button class="csvb" data-csv="dist" style="margin-left:auto">⬇ CSV</button></div>
@@ -277,7 +275,7 @@
     <div>Fonte: <b>Tribunal Superior Eleitoral</b>, dados abertos: candidaturas, votação por município e zona, votação por seção eleitoral,
     cadastro de locais de votação (coordenadas) e prestação de contas eleitorais dos candidatos (sempre os arquivos nacionais, os mais completos), de 2000 a 2026; o TSE não publica prestação de contas de 2000. Fotos: divulgação do TSE, a mais recente de cada candidato. Em 2000 e 2004 o TSE não traz um número de local de votação comparável ao cadastro de locais: nesses anos o mapa mostra cada zona eleitoral (no centro dos seus locais), e a consulta urna a urna continua seção a seção.
     Distritos da capital: Prefeitura de São Paulo. Votos válidos da seção = todos os votos do cargo, menos brancos e nulos.
-    Locais sem coordenada no cadastro do TSE foram posicionados pelo endereço (OpenStreetMap), conferindo que o ponto cai dentro da cidade; os poucos que não foram encontrados ficam fora do mapa, mas estão na consulta urna a urna e nos CSVs.
+    Locais sem coordenada no cadastro do TSE foram posicionados pelo endereço (OpenStreetMap), conferindo que o ponto cai dentro da cidade; em 2008, que não traz endereço, pelo nome do local comparado com os da mesma zona em 2012-2026; os poucos que não foram encontrados ficam fora do mapa, mas estão na consulta urna a urna e nos CSVs.
     Até 2014 a lei permitia doação de empresas; desde 2016 não permite. O impulsionamento pago nas redes passou a ser permitido em 2018.
     Projeto independente, sem vínculo com a Justiça Eleitoral nem com os candidatos. Dados gerados em <span id="gerado">—</span>.</div>
   </footer>
@@ -521,7 +519,7 @@ async function drawCity(){
       return S.met==="p"?ramp(.15+.85*Math.min(1,(vOf(d)/Math.max(1,tOf(d)))/pmax)):COR[cs[0].p];})
     .attr("fill-opacity",.85)
     .on("mousemove",(e,d)=>showtip(e,`<b>${esc(d.l[3])}</b><br><span style="color:#aaa">zona ${d.l[1]} · ${esc(d.l[4]||"")}${d.l[7]?" · "+esc(DISTNM[d.l[7]]):""}</span>`+
-      cs.map(c=>`<br>${esc(c.nome)}: <b>${nf(d.a.v[c.id]||0)}</b> · ${pct(d.a.v[c.id]||0,tOf(d))}`).join("")+`<br><span style="color:#aaa">${d.a.sec} seções · ${nf(tOf(d))} válidos no cargo${d.l[9]==="osm"?" · posição pelo endereço":""} · clique para ver as urnas</span>`))
+      cs.map(c=>`<br>${esc(c.nome)}: <b>${nf(d.a.v[c.id]||0)}</b> · ${pct(d.a.v[c.id]||0,tOf(d))}`).join("")+`<br><span style="color:#aaa">${d.a.sec} seções · ${nf(tOf(d))} válidos no cargo${d.l[9]==="osm"?" · posição pelo endereço":d.l[9]==="nome"?" · posição pelo nome do local":""} · clique para ver as urnas</span>`))
     .on("mouseleave",hidetip).on("click",(e,d)=>{S.loc=d.i;g2.selectAll("circle.loc").classed("sel",x=>x.i===d.i);drawLocal();});
   $("lgCity").innerHTML=(cs.length>1?cs.map(c=>`<span class="sw"><span class="box" style="background:${COR[c.p]};border-radius:50%"></span>${esc(c.nome)} à frente</span>`).join("")
       :S.met==="p"?`<span class="sw">% dos válidos no local <span class="ramp" style="background:linear-gradient(90deg,${ramp(.15)},${ramp(1)})"></span></span>`:`<span class="sw"><span class="box" style="background:${COR[cs[0].p]};border-radius:50%"></span>${esc(cs[0].nome)}</span>`)
@@ -546,7 +544,7 @@ async function drawLocal(){
 }
 function secCab(j,cs){return ["eleicao","municipio","ibge","zona","secao","local","nome_local","endereco","bairro","distrito_capital","latitude","longitude","fonte_coordenada",...cs.flatMap(c=>[`votos_${c.nome}_${c.cargo}`,`pct_validos_${c.nome}`]),...[...new Set(cs.map(c=>c.cargo))].map(cg=>`validos_${cg}`)];}
 function secLinha(j,cs,r){const l=j.locais[r[0]];
-  return [j.ano,MUNNM[l[0]]||l[0],l[0],l[1],r[1],l[2],l[3],l[8]||"",l[4],l[7]?DISTNM[l[7]]:"",l[5],l[6],l[5]==null?"":l[9]==="osm"?"endereço (OpenStreetMap)":"cadastro TSE",
+  return [j.ano,MUNNM[l[0]]||l[0],l[0],l[1],r[1],l[2],l[3],l[8]||"",l[4],l[7]?DISTNM[l[7]]:"",l[5],l[6],l[5]==null?"":l[9]==="osm"?"endereço (OpenStreetMap)":l[9]==="nome"?"nome do local (mesma zona, outra eleição)":"cadastro TSE",
     ...cs.flatMap(c=>{const t=r[j.ci["t"+c.cd_cargo]];const v=r[j.ci[c.id]];return [v,t?+(v/t*100).toFixed(2):0];}),
     ...[...new Set(cs.map(c=>c.cd_cargo))].map(cg=>r[j.ci["t"+cg]])];}
 
@@ -591,6 +589,7 @@ async function drawRankings(){
   const ano=S.mAno,cs=candsAno(ano),ver=cs[0].cargo==="Vereador";
   const j=await secoes(ano);if(ano!==S.mAno)return;
   /* 1: cidades (deputado) ou bairros (vereador) */
+  $("rk1Card").style.display="";
   if(!ver){
     $("rk1Title").textContent="Cidades";$("rk1Sub").textContent=`Votos e % dos votos nominais do cargo em cada cidade · ${ano}. Clique numa linha para abrir a cidade.`;
     const ids=[...new Set(cs.flatMap(c=>Object.keys(c.mun)))];
@@ -603,18 +602,10 @@ async function drawRankings(){
     $("rk1Title").textContent="Bairros";$("rk1Sub").textContent=`Soma dos locais de votação de cada bairro (cadastro do TSE) · ${ano}.`;
     const c=cs[0],b={};j.locais.forEach((l,i)=>{const k=l[4]||"—";const o=b[k]||(b[k]={nm:k,v:0,t:0,n:0});o.v+=j.agg[i].v[c.id]||0;o.t+=j.agg[i].v["t"+c.cd_cargo]||0;o.n++;});
     const rows=Object.values(b);
+    if(rows.length<=1)$("rk1Card").style.display="none";   /* 2000 a 2008: o TSE não informa o bairro */
     tabela("tRk1",[{h:"Bairro",k:r=>r.nm},{h:"Votos",n:1,k:r=>r.v,f:r=>`<b>${nf(r.v)}</b>`},{h:"% válidos",n:1,k:r=>r.t?r.v/r.t:0,f:r=>pct(r.v,r.t)},{h:"Locais",n:1,k:r=>r.n}],rows,{sort:1});
     CSV.rk1=()=>[`bairros_${ano}`,["eleicao","bairro","votos","validos_vereador","pct","locais"],rows.map(r=>[ano,r.nm,r.v,r.t,r.t?+(r.v/r.t*100).toFixed(2):0,r.n])];
   }
-  /* 2: locais da cidade selecionada */
-  const lr=j.locais.map((l,i)=>({l,i,a:j.agg[i]})).filter(x=>x.l[0]===S.city);
-  $("rk2Title").textContent=`Locais de votação · ${MUNNM[S.city]||""}`;$("rk2Sub").textContent=`${nf(lr.length)} locais · clique numa linha para ver as seções.`;
-  const c2=[{h:"Local",k:x=>x.l[3],f:x=>`${esc(x.l[3])}<br><span style="color:var(--steel);font-size:11.5px">zona ${x.l[1]} · ${esc(x.l[4]||"")}</span>`},
-    ...cs.map(c=>({h:esc(c.nome.replace("Milton Leite Filho","Leite Filho")),n:1,k:x=>x.a.v[c.id]||0,f:x=>`<b>${nf(x.a.v[c.id]||0)}</b> <span style="color:var(--steel)">${pct(x.a.v[c.id]||0,x.a.v["t"+c.cd_cargo])}</span>`})),
-    {h:"Seções",n:1,k:x=>x.a.sec}];
-  tabela("tRk2",c2,lr,{sort:1,limit:300,onrow:x=>{S.loc=x.i;g2.selectAll("circle.loc").classed("sel",d=>d.i===x.i);drawLocal();}});
-  CSV.rk2=()=>[`locais_${ano}_${MUNNM[S.city]}`,["eleicao","municipio","zona","local","nome","endereco","bairro","distrito_capital","latitude","longitude","secoes",...cs.flatMap(c=>[`votos_${c.nome}`,`validos_${c.cargo}`])],
-    lr.map(x=>[ano,MUNNM[x.l[0]],x.l[1],x.l[2],x.l[3],x.l[8]||"",x.l[4],x.l[7]?DISTNM[x.l[7]]:"",x.l[5],x.l[6],x.a.sec,...cs.flatMap(c=>[x.a.v[c.id]||0,x.a.v["t"+c.cd_cargo]||0])])];
   /* 3: distritos da capital */
   const dv={};j.locais.forEach((l,i)=>{if(l[0]!=="3550308"||!l[7])return;const o=dv[l[7]]||(dv[l[7]]={cod:l[7],nm:DISTNM[l[7]],v:{},t:{}});cs.forEach(c=>{o.v[c.id]=(o.v[c.id]||0)+(j.agg[i].v[c.id]||0);o.t[c.id]=(o.t[c.id]||0)+(j.agg[i].v["t"+c.cd_cargo]||0);});});
   const drs=Object.values(dv);
