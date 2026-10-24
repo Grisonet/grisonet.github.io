@@ -95,6 +95,7 @@
         const r = await fetch(PUSH + "/assinar", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ assinatura: sub.toJSON(), freq, govs }) });
         if (!r.ok) throw new Error("O servidor de avisos não respondeu. Tente de novo em instantes.");
         gravar({ freq, govs, endpoint: sub.endpoint });
+        (window.gaFila = window.gaFila || []).push(["push_subscribed", { freq, governadores: govs.length }]);
         rotulo();
         diz("Pronto! Avisos ligados ✅ Um aviso de confirmação deve chegar em instantes.");
         setTimeout(fecha, 2200);

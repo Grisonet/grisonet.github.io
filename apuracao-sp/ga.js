@@ -1,7 +1,10 @@
 /* GA4 da Griso: Consent Mode v2, aviso de cookies (LGPD) e page_view em SPA de hash.
    Uso: <script src="ga.js" data-ga-id="G-XXXXXXX" async></script>
    Opções na mesma tag: data-ga-domains="a.com.br,b.com.br" (domínios cruzados),
-   data-ga-hash (rotas em #/…, page_view manual), data-ga-cor="#FF4C00" (botão do aviso).
+   data-ga-hash (rotas em #/…, page_view manual), data-ga-cor="#FF4C00" (botão do aviso),
+   data-ga-produto="grdata" (vai como "product" em todo evento).
+   Eventos: window.gaEvento(nome, params); data-ga-evento="nome" + data-ga-p-<param> num
+   elemento clicável; links wa.me/tel:/mailto: viram generate_lead sozinhos.
    Sem ID válido, ou rodando em localhost, não faz nada. Mesmo arquivo em todos os sites. */
 (function () {
   var tag = document.currentScript;
@@ -52,6 +55,39 @@
     pagina();
     window.addEventListener('hashchange', pagina);
   }
+
+  // eventos: window.gaEvento('nome', {params}) em qualquer página; data-ga-produto na tag
+  // entra como "product" em todo evento. Sem dado pessoal em parâmetro (o Google apaga a propriedade).
+  var produto = tag.getAttribute('data-ga-produto');
+  var evento = window.gaEvento = function (nome, params) {
+    var p = {};
+    if (produto) p.product = produto;
+    for (var k in params || {}) if (params[k] != null && params[k] !== '') p[k] = params[k];
+    gtag('event', nome, p);
+  };
+  // a página pode chamar antes deste arquivo carregar: (window.gaFila = window.gaFila || []).push([nome, params])
+  (window.gaFila || []).forEach(function (f) { evento(f[0], f[1]); });
+  window.gaFila = { push: function (f) { evento(f[0], f[1]); } };
+
+  // cliques: link de WhatsApp, telefone ou e-mail é lead; data-ga-evento="nome" dispara o evento,
+  // e cada data-ga-p-<param>="valor" do mesmo elemento vira parâmetro
+  document.addEventListener('click', function (e) {
+    var el = e.target && e.target.closest ? e.target.closest('a, button, [data-ga-evento]') : null;
+    if (!el) return;
+    var nome = el.getAttribute('data-ga-evento');
+    if (nome) {
+      var params = {};
+      for (var i = 0; i < el.attributes.length; i++) {
+        var a = el.attributes[i];
+        if (a.name.indexOf('data-ga-p-') === 0) params[a.name.slice(10).replace(/-/g, '_')] = a.value;
+      }
+      evento(nome, params);
+    }
+    var href = el.getAttribute('href') || '';
+    var metodo = /^https:\/\/(wa\.me|api\.whatsapp\.com)\//.test(href) ? 'whatsapp'
+      : /^tel:/.test(href) ? 'telefone' : /^mailto:/.test(href) ? 'email' : null;
+    if (metodo) evento('generate_lead', { method: metodo, origem: el.getAttribute('data-ga-origem') || undefined });
+  }, true);
 
   if (escolha === 'sim' || escolha === 'nao') return;
 

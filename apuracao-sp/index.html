@@ -236,7 +236,7 @@
   @media (max-width:520px){.dtiles{gap:8px}.dt{padding:12px 14px}}
 </style>
 <link rel="stylesheet" href="tema-grquest.css">
-<script src="ga.js" data-ga-id="G-C2S57QPWRM" data-ga-cor="#FF6428" async></script>
+<script src="ga.js" data-ga-id="G-C2S57QPWRM" data-ga-produto="grdata" data-ga-cor="#FF6428" async></script>
 </head>
 <body>
 
@@ -704,6 +704,7 @@ function mostraTurno(){
   document.querySelectorAll("#turnos button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===TURNO));
   const q=new URLSearchParams(location.search); TURNO==="1"?q.set("turno","1"):q.delete("turno");
   history.replaceState(null,"",location.pathname+(q.toString()?"?"+q:""));
+  (window.gaFila=window.gaFila||[]).push(["apuracao_viewed",{turno:TURNO,cargo:TURNO==="2"?"presidente":"todos",uf:"SP"}]);
 }
 document.getElementById("turnos").addEventListener("click",e=>{const b=e.target.closest("[data-t]"); if(!b||b.dataset.t===TURNO)return; TURNO=b.dataset.t; mostraTurno(); loop(); tickProj();});
 function loop(){ TURNO==="2"?tick2():tick(); }
