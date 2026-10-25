@@ -89,9 +89,8 @@
       s = await (await fetch(LIVE + "/snapshot.json?t=" + Date.now(), { cache: "no-store" })).json();
       els.forEach(el => render(el, s));
     } catch (e) { /* mantém o último quadro */ }
-    await horaTSE();
-    aviso(s);
-    atrasoBU(s);
+    /* 25/10 20h30: faixas de pausa (vermelha) e de atraso dos boletins (amarela) desligadas */
+    ["pausa-tse", "bu-atraso"].forEach((id) => { const e = document.getElementById(id); if (e) e.remove(); });
   }
   function init() {
     const els = [...document.querySelectorAll("[data-origem]")];
