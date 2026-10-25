@@ -515,7 +515,7 @@
       } else {
         badge.textContent = "Tendência · pode mudar";
         $("st-titulo").innerHTML = `Tendência: <span class="c${p.status}">${N[p.status]} à frente</span>`;
-        $("st-detalhe").textContent = `A faixa provável está do lado ${de(p.status)}, mas com ${nf(2).format(sec.pct || 0)}% das seções e poucas urnas de algumas regiões isto ainda pode mudar. A projeção só indica um vencedor com pelo menos 5% das seções e urnas de todas as regiões. O resultado oficial é o do TSE.`;
+        $("st-detalhe").textContent = `A faixa provável está do lado ${de(p.status)}, mas com ${nf(2).format((s.oficial && s.oficial.pst) || sec.pct || 0)}% das seções apuradas e poucas urnas de algumas regiões isto ainda pode mudar. A projeção só indica um vencedor com pelo menos 5% das seções e urnas de todas as regiões. O resultado oficial é o do TSE.`;
       }
     }
     const pa = p ? p.pcta : null;
