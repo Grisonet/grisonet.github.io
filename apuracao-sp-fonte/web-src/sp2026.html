@@ -673,17 +673,24 @@ async function tick2(){
 /* projeção GR Data (snapshot do coletor): destaca quando a faixa provável inteira fica de um lado */
 const PROJ2=[{id:"presidente",saida:""},..."ac am df es rn to".split(" ").map(uf=>({id:"gov-"+uf,saida:`governador/${uf}/`}))];
 const projCor=k=>k==="a"?"#FFC200":"#FF4C00";
-const projTxt=s=>{const p=s&&s.projecao; if(!p||!s.candidatos) return null;
+/* amostra robusta: ≥5% das seções e todas as regiões do Brasil com ≥2% (Sudeste ≥3%); antes disso é só tendência */
+const projRobusta=s=>{const sec=s&&s.secoes; if(!sec||(sec.pct||0)<5) return false; const rs=(s.regioes||[]).filter(r=>r.nome!=="Exterior");
+  return rs.length>0&&rs.every(r=>(r.apurado_pct||0)>=(r.nome==="Sudeste"?3:2));};
+const projTxt=(s,pres)=>{const p=s&&s.projecao; if(!p||!s.candidatos) return null;
   if(p.status!=="a"&&p.status!=="b") return {dec:false,nome:null,txt:"projeção: ainda indefinido"};
   const nome=s.candidatos[p.status].nome, desde=p.desde_pct!=null?` desde ${String(p.desde_pct).replace(".",",")}% das seções`:"";
-  return {dec:true,k:p.status,nome,desde,txt:`projeção: <b>${esc(nome)} vence</b>`};};
+  const firme=pres?projRobusta(s):((s.secoes&&s.secoes.pct)||0)>=5;
+  return {dec:true,firme,k:p.status,nome,desde,pct:s.secoes&&s.secoes.pct,txt:firme?`projeção: <b>${esc(nome)} deve vencer</b>`:`tendência: <b>${esc(nome)} à frente</b> (pode mudar)`};};
 async function tickProj(){
   if(TURNO!=="2") return;
   const snaps=await Promise.all(PROJ2.map(d=>getJSON(`${LIVE}/${d.saida}snapshot.json?t=${Date.now()}`).catch(()=>null)));
-  const pr=projTxt(snaps[0]), ban=document.getElementById("projban");
+  const pr=projTxt(snaps[0],true), ban=document.getElementById("projban");
   if(pr&&pr.dec){
     ban.style.setProperty("--c",projCor(pr.k));
-    ban.innerHTML=`<span class="k">Projeção GR Data</span><span class="t">${esc(pr.nome)} vence a eleição para presidente</span><span class="go">ver a projeção →</span><span class="d">A faixa provável inteira está do lado de ${esc(pr.nome)}${pr.desde}. Projeção independente; o resultado oficial é o do TSE.</span>`;
+    const pct=pr.pct!=null?String(pr.pct).replace(".",","):"";
+    ban.innerHTML=pr.firme
+      ?`<span class="k">Projeção GR Data</span><span class="t">${esc(pr.nome)} deve vencer a eleição para presidente</span><span class="go">ver a projeção →</span><span class="d">A faixa provável inteira está do lado de ${esc(pr.nome)}${pr.desde}, com urnas de todas as regiões. É uma projeção estatística e ainda pode mudar até o fim da apuração; o resultado oficial é o do TSE.</span>`
+      :`<span class="k">Tendência · pode mudar</span><span class="t">${esc(pr.nome)} está à frente na projeção</span><span class="go">ver a projeção →</span><span class="d">Com ${pct}% das seções apuradas e poucas urnas de algumas regiões (sobretudo do Sudeste), isto é só uma tendência e pode mudar. A projeção só vai indicar um vencedor com amostra de todas as regiões. O resultado oficial é o do TSE.</span>`;
     ban.hidden=false;
   } else ban.hidden=true;
   PROJ2.slice(1).forEach((d,i)=>{ const a=document.querySelector(`.gov2 a[data-proj="${d.saida}"]`); if(!a) return;

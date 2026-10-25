@@ -498,11 +498,25 @@
       $("st-titulo").textContent = "Ainda indefinido";
       $("st-detalhe").textContent = "A faixa provável ainda cruza o empate. A projeção só indica um vencedor quando a faixa inteira fica de um lado.";
     } else {
+      const rs = (s.regioes || []).filter((r) => r.nome !== "Exterior");
+      const firme = s.modo === "final" || ((!!s.subareas || (s.disputa && s.disputa !== "presidente"))
+        ? (sec.pct || 0) >= 5
+        : (sec.pct || 0) >= 5 && rs.length > 0 && rs.every((r) => (r.apurado_pct || 0) >= (r.nome === "Sudeste" ? 3 : 2)));
       badge.className = "badge win" + p.status;
-      badge.textContent = s.modo === "final" ? "Resultado" : "Projeção";
-      $("st-titulo").innerHTML = `Projeção: <span class="c${p.status}">${N[p.status]} vence</span>`;
-      $("st-detalhe").textContent = `A faixa provável inteira está do lado ${de(p.status)}` +
-        (p.desde_pct != null ? ` desde ${nf(1).format(p.desde_pct)}% das seções apuradas` : "") + ". O resultado oficial é o do TSE.";
+      if (s.modo === "final") {
+        badge.textContent = "Resultado";
+        $("st-titulo").innerHTML = `<span class="c${p.status}">${N[p.status]} vence</span>`;
+        $("st-detalhe").textContent = "Apuração encerrada. O resultado oficial é o do TSE.";
+      } else if (firme) {
+        badge.textContent = "Projeção";
+        $("st-titulo").innerHTML = `Projeção: <span class="c${p.status}">${N[p.status]} deve vencer</span>`;
+        $("st-detalhe").textContent = `A faixa provável inteira está do lado ${de(p.status)}` +
+          (p.desde_pct != null ? ` desde ${nf(1).format(p.desde_pct)}% das seções apuradas` : "") + ", com urnas de todas as regiões. É uma projeção estatística e ainda pode mudar; o resultado oficial é o do TSE.";
+      } else {
+        badge.textContent = "Tendência · pode mudar";
+        $("st-titulo").innerHTML = `Tendência: <span class="c${p.status}">${N[p.status]} à frente</span>`;
+        $("st-detalhe").textContent = `A faixa provável está do lado ${de(p.status)}, mas com ${nf(2).format(sec.pct || 0)}% das seções e poucas urnas de algumas regiões isto ainda pode mudar. A projeção só indica um vencedor com pelo menos 5% das seções e urnas de todas as regiões. O resultado oficial é o do TSE.`;
+      }
     }
     const pa = p ? p.pcta : null;
     $("pca").textContent = pc(pa, 1); $("pcb").textContent = pa == null ? "—" : pc(100 - pa, 1);
