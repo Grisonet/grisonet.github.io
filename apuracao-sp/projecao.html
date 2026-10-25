@@ -514,7 +514,7 @@
         badge.textContent = "Projeção";
         $("st-titulo").innerHTML = `Projeção: <span class="c${p.status}">${N[p.status]} deve vencer</span>`;
         $("st-detalhe").textContent = `A faixa provável inteira está do lado ${de(p.status)}` +
-          (p.desde_pct != null ? ` desde ${nf(1).format(p.desde_pct)}% das seções apuradas` : "") + ", com urnas de todas as regiões. É uma projeção estatística e ainda pode mudar; o resultado oficial é o do TSE.";
+          (desdeReal(s, p) != null ? ` desde ${nf(2).format(desdeReal(s, p))}% das seções apuradas` : "") + ", com urnas de todas as regiões. É uma projeção estatística e ainda pode mudar; o resultado oficial é o do TSE.";
       } else {
         badge.textContent = "Tendência · pode mudar";
         $("st-titulo").innerHTML = `Tendência: <span class="c${p.status}">${N[p.status]} à frente</span>`;
@@ -566,6 +566,12 @@
   /* início da noite reconstruído do log da coleta (o histórico se perdeu nos reinícios de 25/10) */
   let INICIO_H = null;
   fetch("projecao-inicio.json?t=" + Date.now()).then((r) => r.ok ? r.json() : []).then((v) => { INICIO_H = v; }).catch(() => { INICIO_H = []; });
+  /* 25/10: os reinícios da coleta zeraram o "desde" calculado por ela. Presidente: o selo saiu com 1,37% das seções
+     (registrado antes dos reinícios); governadores ao vivo: sem o "desde" até termos o valor certo. */
+  function desdeReal(s, p) {
+    if (modo !== "live") return p.desde_pct;
+    return (!s.disputa || s.disputa === "presidente") ? 1.37 : null;
+  }
   function renderChart(h0) {
     const svg = $("chart"), W = 900, H = 360, m = { l: 52, r: 18, t: 16, b: 34 };
     let h = (h0 || []).filter((d) => d.pct > 0);

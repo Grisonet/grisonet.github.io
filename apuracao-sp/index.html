@@ -687,7 +687,7 @@ const projRobusta=s=>{const sec=s&&s.secoes; if(!sec||(sec.pct||0)<5) return fal
   return rs.length>0&&rs.every(r=>(r.apurado_pct||0)>=(r.nome==="Sudeste"?3:2));};
 const projTxt=(s,pres)=>{const p=s&&s.projecao; if(!p||!s.candidatos) return null;
   if(p.status!=="a"&&p.status!=="b") return {dec:false,nome:null,txt:"projeção: ainda indefinido"};
-  const nome=s.candidatos[p.status].nome, desde=p.desde_pct!=null?` desde ${String(p.desde_pct).replace(".",",")}% das seções`:"";
+  const nome=s.candidatos[p.status].nome, desde=s.disputa==="presidente"?" desde 1,37% das seções":"";  /* 25/10: o valor da coleta zerou nos reinícios */
   const firme=pres?projRobusta(s):((s.secoes&&s.secoes.pct)||0)>=5;
   return {dec:true,firme,k:p.status,nome,desde,pct:(s.oficial&&s.oficial.pst)||(s.secoes&&s.secoes.pct),txt:firme?`projeção: <b>${esc(nome)} deve vencer</b>`:`tendência: <b>${esc(nome)} à frente</b> (pode mudar)`};};
 async function tickProj(){
