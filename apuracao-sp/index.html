@@ -696,7 +696,8 @@ async function tickProj(){
   const pr=projTxt(snaps[0],true), ban=document.getElementById("projban");
   if(pr&&pr.dec){
     ban.style.setProperty("--c",projCor(pr.k));
-    const pct=pr.pct!=null?Number(pr.pct).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}):"";
+    const pstTSE=typeof LAST2!=="undefined"&&LAST2&&LAST2.br&&LAST2.br.s&&LAST2.br.s.pst; /* mesmo número do card (TSE, lido a cada 20 s) */
+    const pct=pstTSE?String(pstTSE):pr.pct!=null?Number(pr.pct).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}):"";
     ban.innerHTML=pr.firme
       ?`<span class="k">Projeção GR Data</span><span class="t">${esc(pr.nome)} deve vencer a eleição para presidente</span><span class="go">ver a projeção →</span><span class="d">A faixa provável inteira está do lado de ${esc(pr.nome)}${pr.desde}, com urnas de todas as regiões. É uma projeção estatística e ainda pode mudar até o fim da apuração; o resultado oficial é o do TSE.</span>`
       :`<span class="k">Tendência · pode mudar</span><span class="t">${esc(pr.nome)} está à frente na projeção</span><span class="go">ver a projeção →</span><span class="d">Com ${pct}% das seções apuradas e poucas urnas de algumas regiões (sobretudo do Sudeste), isto é só uma tendência e pode mudar. A projeção só vai indicar um vencedor com amostra de todas as regiões. O resultado oficial é o do TSE.</span>`;
@@ -716,7 +717,7 @@ function mostraTurno(){
 }
 document.getElementById("turnos").addEventListener("click",e=>{const b=e.target.closest("[data-t]"); if(!b||b.dataset.t===TURNO)return; TURNO=b.dataset.t; mostraTurno(); loop(); tickProj();});
 function loop(){ TURNO==="2"?tick2():tick(); }
-mostraTurno(); loop(); setInterval(loop,20000); tickProj(); setInterval(tickProj,30000);
+mostraTurno(); loop(); setInterval(loop,20000); tickProj(); setInterval(tickProj,20000);
 
 /* ===== mapas embutidos: Presidente (por UF) e Governador (por cidade) ===== */
 const tip=document.getElementById("tip");
