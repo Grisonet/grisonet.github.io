@@ -696,7 +696,7 @@ async function tickProj(){
   const pr=projTxt(snaps[0],true), ban=document.getElementById("projban");
   const s0=snaps[0], pstNow=parseFloat(String((LAST2&&LAST2.br&&LAST2.br.s&&LAST2.br.s.pst)||"0").replace(",","."));
   const atrasada=s0&&s0.secoes&&pstNow-(s0.secoes.pct||0)>=1;   /* projeção atrás do placar: não mostra tendência */
-  if(pr&&pr.dec&&!atrasada){
+  if(pr&&pr.dec){
     ban.style.setProperty("--c",projCor(pr.k));
     const pstTSE=typeof LAST2!=="undefined"&&LAST2&&LAST2.br&&LAST2.br.s&&LAST2.br.s.pst; /* mesmo número do card (TSE, lido a cada 20 s) */
     const pct=pstTSE?String(pstTSE):pr.pct!=null?Number(pr.pct).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}):"";

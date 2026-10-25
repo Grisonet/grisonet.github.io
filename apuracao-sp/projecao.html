@@ -497,11 +497,6 @@
       badge.textContent = "Ainda indefinido";
       $("st-titulo").textContent = "Ainda indefinido";
       $("st-detalhe").textContent = "A faixa provável ainda cruza o empate. A projeção só indica um vencedor quando a faixa inteira fica de um lado.";
-    } else if (s.modo !== "final" && s.oficial && s.oficial.pst - (sec.pct || 0) >= 1) {
-      badge.className = "badge";
-      badge.textContent = "Atualizando";
-      $("st-titulo").textContent = "Projeção atualizando";
-      $("st-detalhe").textContent = `A projeção está atrás do placar oficial: leu ${nf(2).format(sec.pct || 0)}% das seções e o TSE já apurou ${nf(2).format(s.oficial.pst)}%. Enquanto ela não alcançar o placar, não indicamos tendência.`;
     } else {
       const rs = (s.regioes || []).filter((r) => r.nome !== "Exterior");
       const firme = s.modo === "final" || ((!!s.subareas || (s.disputa && s.disputa !== "presidente"))
