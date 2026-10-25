@@ -497,20 +497,30 @@
       badge.textContent = "Ainda indefinido";
       $("st-titulo").textContent = "Ainda indefinido";
       $("st-detalhe").textContent = "A faixa provável ainda cruza o empate. A projeção só indica um vencedor quando a faixa inteira fica de um lado.";
-    } else {
-      /* 25/10 20h: sem veredito na noite; só os números da projeção */
+    } else if (s.modo !== "final" && s.oficial && s.oficial.pst - (sec.pct || 0) >= 1) {
       badge.className = "badge";
+      badge.textContent = "Atualizando";
+      $("st-titulo").textContent = "Projeção atualizando";
+      $("st-detalhe").textContent = `A projeção está atrás do placar oficial: leu ${nf(2).format(sec.pct || 0)}% das seções e o TSE já apurou ${nf(2).format(s.oficial.pst)}%. Enquanto ela não alcançar o placar, não indicamos tendência.`;
+    } else {
+      const rs = (s.regioes || []).filter((r) => r.nome !== "Exterior");
+      const firme = s.modo === "final" || ((!!s.subareas || (s.disputa && s.disputa !== "presidente"))
+        ? (sec.pct || 0) >= 5
+        : (sec.pct || 0) >= 5 && rs.length > 0 && rs.every((r) => (r.apurado_pct || 0) >= (r.nome === "Sudeste" ? 3 : 2)));
+      badge.className = "badge win" + p.status;
       if (s.modo === "final") {
         badge.textContent = "Resultado";
-        $("st-titulo").textContent = "Apuração encerrada";
-        $("st-detalhe").textContent = "O resultado oficial é o do TSE.";
+        $("st-titulo").innerHTML = `<span class="c${p.status}">${N[p.status]} vence</span>`;
+        $("st-detalhe").textContent = "Apuração encerrada. O resultado oficial é o do TSE.";
+      } else if (firme) {
+        badge.textContent = "Projeção";
+        $("st-titulo").innerHTML = `Projeção: <span class="c${p.status}">${N[p.status]} deve vencer</span>`;
+        $("st-detalhe").textContent = `A faixa provável inteira está do lado ${de(p.status)}` +
+          (p.desde_pct != null ? ` desde ${nf(1).format(p.desde_pct)}% das seções apuradas` : "") + ", com urnas de todas as regiões. É uma projeção estatística e ainda pode mudar; o resultado oficial é o do TSE.";
       } else {
-        const atr = s.oficial && s.oficial.pst != null ? s.oficial.pst - (sec.pct || 0) : 0;
-        badge.textContent = atr >= 1 ? "Atualizando" : "Projeção";
-        $("st-titulo").textContent = "Estimativa do resultado final";
-        $("st-detalhe").textContent = `Estimativa estatística feita com ${nf(2).format(sec.pct || 0)}% das seções já lidas` +
-          (s.oficial && s.oficial.pst != null ? ` (o placar oficial do TSE está em ${nf(2).format(s.oficial.pst)}%)` : "") +
-          ". Pode mudar até o fim da apuração e não indica vencedor. O resultado oficial é o do TSE.";
+        badge.textContent = "Tendência · pode mudar";
+        $("st-titulo").innerHTML = `Tendência: <span class="c${p.status}">${N[p.status]} à frente</span>`;
+        $("st-detalhe").textContent = `A faixa provável está do lado ${de(p.status)}, mas com ${nf(2).format((s.oficial && s.oficial.pst) || sec.pct || 0)}% das seções apuradas e poucas urnas de algumas regiões isto ainda pode mudar. A projeção só indica um vencedor com pelo menos 5% das seções e urnas de todas as regiões. O resultado oficial é o do TSE.`;
       }
     }
     const pa = p ? p.pcta : null;

@@ -689,14 +689,14 @@ const projTxt=(s,pres)=>{const p=s&&s.projecao; if(!p||!s.candidatos) return nul
   if(p.status!=="a"&&p.status!=="b") return {dec:false,nome:null,txt:"projeção: ainda indefinido"};
   const nome=s.candidatos[p.status].nome, desde=p.desde_pct!=null?` desde ${String(p.desde_pct).replace(".",",")}% das seções`:"";
   const firme=pres?projRobusta(s):((s.secoes&&s.secoes.pct)||0)>=5;
-  return {dec:true,firme,k:p.status,nome,desde,pct:(s.oficial&&s.oficial.pst)||(s.secoes&&s.secoes.pct),txt:"projeção em andamento"};};
+  return {dec:true,firme,k:p.status,nome,desde,pct:(s.oficial&&s.oficial.pst)||(s.secoes&&s.secoes.pct),txt:firme?`projeção: <b>${esc(nome)} deve vencer</b>`:`tendência: <b>${esc(nome)} à frente</b> (pode mudar)`};};
 async function tickProj(){
   if(TURNO!=="2") return;
   const snaps=await Promise.all(PROJ2.map(d=>getJSON(`${LIVE}/${d.saida}snapshot.json?t=${Date.now()}`).catch(()=>null)));
   const pr=projTxt(snaps[0],true), ban=document.getElementById("projban");
   const s0=snaps[0], pstNow=parseFloat(String((LAST2&&LAST2.br&&LAST2.br.s&&LAST2.br.s.pst)||"0").replace(",","."));
   const atrasada=s0&&s0.secoes&&pstNow-(s0.secoes.pct||0)>=1;   /* projeção atrás do placar: não mostra tendência */
-  if(false&&pr&&pr.dec&&!atrasada){   /* 25/10 20h: faixa de veredito desligada */
+  if(pr&&pr.dec&&!atrasada){
     ban.style.setProperty("--c",projCor(pr.k));
     const pstTSE=typeof LAST2!=="undefined"&&LAST2&&LAST2.br&&LAST2.br.s&&LAST2.br.s.pst; /* mesmo número do card (TSE, lido a cada 20 s) */
     const pct=pstTSE?String(pstTSE):pr.pct!=null?Number(pr.pct).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}):"";
