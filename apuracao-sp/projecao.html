@@ -497,6 +497,11 @@
       badge.textContent = "Ainda indefinido";
       $("st-titulo").textContent = "Ainda indefinido";
       $("st-detalhe").textContent = "A faixa provável ainda cruza o empate. A projeção só indica um vencedor quando a faixa inteira fica de um lado.";
+    } else if (s.modo !== "final" && s.oficial && s.oficial.pst - (sec.pct || 0) >= 1) {
+      badge.className = "badge";
+      badge.textContent = "Atualizando";
+      $("st-titulo").textContent = "Projeção atualizando";
+      $("st-detalhe").textContent = `A projeção está atrás do placar oficial: leu ${nf(2).format(sec.pct || 0)}% das seções e o TSE já apurou ${nf(2).format(s.oficial.pst)}%. Enquanto ela não alcançar o placar, não indicamos tendência.`;
     } else {
       const rs = (s.regioes || []).filter((r) => r.nome !== "Exterior");
       const firme = s.modo === "final" || ((!!s.subareas || (s.disputa && s.disputa !== "presidente"))
@@ -540,15 +545,10 @@
     $("k-oficial").innerHTML = of && of.pcta != null ? `<span class="ca">${pc(of.pcta)}</span> × <span class="cb">${pc(100 - of.pcta)}</span> <small>${pc(of.pst, 1)} urnas</small>` : (replay ? "<small>igual ao placar contado</small>" : "—");
     $("k-hora").textContent = sec.apuradas || replay ? horaS(s.gerado_tse) : "—";
     renderSelo(s);
-    if (p && pl && pl.pcta != null) {
-      const lid = pl.pcta > 50 ? "a" : "b", proj = p.pcta > 50 ? "a" : "b";
-      const v = (k, x) => (k === "a" ? x : 100 - x);
-      $("ins-proj").innerHTML = lid !== proj
-        ? `O placar mostra <b>${N[lid]} na frente com ${pc(v(lid, pl.pcta))}</b>, mas as seções já apuradas, comparadas com o 1º turno, apontam <b>${N[proj]} com ${pc(v(proj, p.pcta))}</b> no final. A diferença vem da ordem em que as urnas chegam.`
-        : `Placar e projeção apontam para o mesmo lado: <b>${N[proj]}</b>, com ${pc(v(proj, p.pcta))} projetados no final (placar agora: ${pc(v(lid, pl.pcta))}).`;
-    } else {
-      $("ins-proj").textContent = "Projeção independente, não é resultado oficial: o resultado oficial é o do TSE.";
-    }
+    const atrasoP = of && of.pst != null && sec.pct != null ? of.pst - sec.pct : 0;
+    $("ins-proj").innerHTML = atrasoP >= 1
+      ? `A projeção ainda está lendo os boletins de urna: já processou <b>${nf(2).format(sec.pct)}% das seções</b>, enquanto o placar oficial está em ${nf(2).format(of.pst)}%. Os números da projeção podem mudar quando ela alcançar o placar.`
+      : "Projeção independente, não é resultado oficial: o resultado oficial é o do TSE.";
     renderChart(historico || s.historico || []);
     renderDif(s); renderTransf(s); renderTabela(s);
   }
