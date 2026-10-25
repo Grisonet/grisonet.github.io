@@ -34,16 +34,50 @@
 <div class="leg">${rs.map(r => `<span><em style="background:${COR[r.nome] || "#999"}"></em>${r.nome} <b>${fmt(r.v / tot * 100, r.v / tot < .01 ? 1 : 0)}%</b></span>`).join("")}</div>
 <div class="nota">${nota} <span style="opacity:.7">${sec.apuradas ? fmt(sec.apuradas) + " urnas lidas pela GR Data" : ""}${hora ? " · " + hora : ""}.</span></div></div>`;
   }
-  async function tick(els) {
+  /* Aviso piscante "TSE pausou a divulgação" (25/10/2026: votação prorrogada até 19h).
+     Fica no ar enquanto nem o placar oficial do TSE nem a lista de boletins de urna forem
+     atualizados depois das 19h; some sozinho quando o TSE voltar a publicar. */
+  const RETOMA = new Date("2026-10-25T19:00:00-03:00");
+  const FIM_AVISO = new Date("2026-10-26T06:00:00-03:00");
+  const cssPausa = `#pausa-tse{background:#DC2626;color:#fff;font:600 14px/1.4 Inter,system-ui,sans-serif;text-align:center;padding:10px 16px;position:relative;z-index:40}
+#pausa-tse b{font-weight:800}#pausa-tse .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#fff;margin-right:8px;vertical-align:1px;animation:pausaPisca 1s steps(2,start) infinite}
+#pausa-tse .txt{animation:pausaFade 1.6s ease-in-out infinite}
+@keyframes pausaPisca{to{visibility:hidden}}@keyframes pausaFade{50%{opacity:.55}}
+@media (prefers-reduced-motion:reduce){#pausa-tse .dot,#pausa-tse .txt{animation:none}}`;
+  let tseHora = null;
+  async function horaTSE() {
     try {
-      const s = await (await fetch(LIVE + "/snapshot.json?t=" + Date.now(), { cache: "no-store" })).json();
+      const d = await (await fetch("https://resultados.tse.jus.br/oficial/ele2026/6258/dados/br/br-c0001-e006258-u.json?t=" + Date.now(), { cache: "no-store" })).json();
+      const [dd, mm, aa] = (d.dg || "").split("/");
+      if (aa && d.hg) tseHora = new Date(`${aa}-${mm}-${dd}T${d.hg}-03:00`);
+    } catch (e) { /* sem acesso ao TSE: decide só pelo snapshot */ }
+  }
+  function aviso(s) {
+    const agora = new Date();
+    const ultimos = [tseHora, s && s.gerado_tse ? new Date(s.gerado_tse) : null].filter(Boolean);
+    const voltou = ultimos.some(t => t >= RETOMA);
+    const pausado = agora < FIM_AVISO && ultimos.length && !voltou;
+    let el = document.getElementById("pausa-tse");
+    if (!pausado) { if (el) el.remove(); return; }
+    if (!el) {
+      el = document.createElement("div"); el.id = "pausa-tse"; el.setAttribute("role", "status");
+      document.body.insertBefore(el, document.body.firstChild);
+    }
+    const h = ultimos.sort((a, b) => b - a)[0].toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    el.innerHTML = `<span class="dot"></span><span class="txt"><b>O TSE pausou a divulgação dos resultados</b> às ${h}, por causa da prorrogação da votação até as 19h. Nenhuma urna nova foi publicada desde então. A apuração volta depois das 19h e esta página se atualiza sozinha.</span>`;
+  }
+  async function tick(els) {
+    let s = null;
+    try {
+      s = await (await fetch(LIVE + "/snapshot.json?t=" + Date.now(), { cache: "no-store" })).json();
       els.forEach(el => render(el, s));
     } catch (e) { /* mantém o último quadro */ }
+    await horaTSE();
+    aviso(s);
   }
   function init() {
     const els = [...document.querySelectorAll("[data-origem]")];
-    if (!els.length) return;
-    const st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
+    const st = document.createElement("style"); st.textContent = css + cssPausa; document.head.appendChild(st);
     els.forEach(el => el.hidden = true);
     tick(els); setInterval(() => tick(els), 30000);
   }
