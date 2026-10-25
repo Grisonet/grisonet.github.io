@@ -246,6 +246,7 @@
     <p class="gq-lead">Resultado oficial do TSE para presidente no Brasil e em São Paulo, atualizado a cada 20 segundos, com mapas por estado e por cidade. O 1º turno completo, com governador, senado e deputados de SP, continua logo abaixo.</p>
     <div class="gq-cta"><a class="gq-btn pri" href="projecao.html"><span class="k">Novo</span>Projeção do 2º turno · Presidente e governadores →</a><a class="gq-btn" href="#" data-avisos hidden><span class="k">🔔</span><span data-avisos-txt>Receber avisos no navegador</span></a></div>
     <div class="gq-disc" role="note"><strong>Votação prorrogada até as 19h.</strong> O ministro Cristiano Zanin, do Supremo Tribunal Federal e do Tribunal Superior Eleitoral, decretou a prorrogação da votação em todo o território nacional até as 19h. A medida é resultado da redução na circulação de ônibus e de outros meios de transporte coletivo em diversas regiões do país, especialmente nas capitais de São Paulo e da Bahia. Isso deve atrasar o início da apuração. Ative as notificações e receba as parciais.</div>
+    <div data-origem hidden></div>
   </section>
 </div>
 
@@ -768,4 +769,5 @@ async function loadSP2(){
 genMap({svg:"imap-P2BR",geojson:"br-uf.geojson",loader:loadUF2,every:60000,kind:"uf",W:1000,H:1000,pin:6,photo:"pres",legend:"ileg-P2BR",upd:"iupd-P2BR",color:n=>C2[n]||"#b5b3ae"});
 genMap({svg:"imap-P2SP",geojson:"sp-mun.geojson",loader:loadSP2,every:30000,kind:"cid",W:1000,H:820,pin:5,photo:"pres",legend:"ileg-P2SP",upd:"iupd-P2SP",color:n=>C2[n]||"#b5b3ae"});
 </script>
+<script src="origem.js" defer></script>
 <script src="avisos.js" defer></script>
