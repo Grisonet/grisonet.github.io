@@ -430,6 +430,7 @@
   const votos = (v) => { const a = Math.abs(v); return a >= 1e6 ? nf(1).format(a / 1e6) + (a >= 2e6 ? " milhões" : " milhão") : a >= 1e3 ? nf(0).format(a / 1e3) + " mil" : nf(0).format(a); };
   const votosC = (v) => { const a = Math.abs(v); return a >= 1e6 ? nf(1).format(a / 1e6) + " mi" : a >= 1e3 ? nf(0).format(a / 1e3) + " mil" : nf(0).format(a); };
   const hora = (iso) => { const m = iso && iso.match(/T(\d\d):(\d\d)/); return m ? `${m[1]}:${m[2]}` : "—"; };
+  const horaS = (iso) => { const m = iso && iso.match(/T(\d\d):(\d\d):(\d\d)/); return m ? `${m[1]}:${m[2]}:${m[3]}` : hora(iso); };
   const pontos = (v) => v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "") + nf(1).format(Math.abs(v)) + (Math.abs(v) >= 2 ? " pontos" : " ponto");
 
   let disputa = DISPUTAS.find((d) => d.id === qs.get("d")) || DISPUTAS[0];
@@ -523,7 +524,7 @@
     $("k-placar").innerHTML = pl && pl.pcta != null ? `<span class="ca">${pc(pl.pcta)}</span> × <span class="cb">${pc(100 - pl.pcta)}</span>` : "—";
     const of = s.oficial;
     $("k-oficial").innerHTML = of && of.pcta != null ? `<span class="ca">${pc(of.pcta)}</span> × <span class="cb">${pc(100 - of.pcta)}</span> <small>${pc(of.pst, 1)} urnas</small>` : (replay ? "<small>igual ao placar contado</small>" : "—");
-    $("k-hora").textContent = sec.apuradas || replay ? hora(s.gerado_tse) : "—";
+    $("k-hora").textContent = sec.apuradas || replay ? horaS(s.gerado_tse) : "—";
     renderSelo(s);
     if (p && pl && pl.pcta != null) {
       const lid = pl.pcta > 50 ? "a" : "b", proj = p.pcta > 50 ? "a" : "b";
@@ -681,7 +682,7 @@
       const esperando = s.modo === "aguardando";
       $("espera").hidden = !esperando;
       $("dot").classList.toggle("on", !esperando && s.modo !== "final");
-      $("livetxt").textContent = esperando ? "votação até 19h" : s.modo === "final" ? "apuração encerrada" : `ao vivo · ${hora(s.gerado_painel)}`;
+      $("livetxt").textContent = esperando ? "votação até 19h" : s.modo === "final" ? "apuração encerrada" : `ao vivo · ${horaS(s.gerado_painel)}`;
       render(s);
     } catch (e) {
       if (modo !== "live" || d !== disputa) return;
