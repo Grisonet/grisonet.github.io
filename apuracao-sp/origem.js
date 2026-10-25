@@ -66,6 +66,23 @@
     const h = ultimos.sort((a, b) => b - a)[0].toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
     el.innerHTML = `<span class="dot"></span><span class="txt"><b>O TSE pausou a divulgação dos resultados</b> às ${h}, por causa da prorrogação da votação até as 19h. Nenhuma urna nova foi publicada desde então. A apuração volta depois das 19h e esta página se atualiza sozinha.</span>`;
   }
+  /* Projeção: avisa quando o placar oficial do TSE anda e os boletins de urna (base da projeção) não. */
+  function atrasoBU(s) {
+    if (!/projecao/.test(location.pathname)) return;
+    let el = document.getElementById("bu-atraso");
+    const of = s && s.oficial, sec = s && s.secoes;
+    const bu = s && s.gerado_tse ? new Date(s.gerado_tse) : null;
+    const atrasado = of && sec && bu && (of.pst || 0) - (sec.pct || 0) >= 0.5 && Date.now() - bu > 8 * 60000;
+    if (!atrasado) { if (el) el.remove(); return; }
+    if (!el) {
+      el = document.createElement("div"); el.id = "bu-atraso"; el.setAttribute("role", "status");
+      el.style.cssText = "background:#FFC200;color:#080808;font:600 14px/1.45 Inter,system-ui,sans-serif;text-align:center;padding:10px 16px;position:relative;z-index:39";
+      const ref = document.getElementById("pausa-tse");
+      ref ? ref.after(el) : document.body.insertBefore(el, document.body.firstChild);
+    }
+    const h = bu.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    el.innerHTML = `O placar oficial do TSE já está em <b>${fmt(of.pst, 2)}% das seções</b>, mas o TSE não publica os boletins de urna desde as ${h}. A projeção é feita com esses boletins, por isso está parada em ${fmt(sec.pct, 2)}%. Ela volta a andar sozinha assim que o TSE retomar a publicação.`;
+  }
   async function tick(els) {
     let s = null;
     try {
@@ -74,12 +91,13 @@
     } catch (e) { /* mantém o último quadro */ }
     await horaTSE();
     aviso(s);
+    atrasoBU(s);
   }
   function init() {
     const els = [...document.querySelectorAll("[data-origem]")];
     const st = document.createElement("style"); st.textContent = css + cssPausa; document.head.appendChild(st);
     els.forEach(el => el.hidden = true);
-    tick(els); setInterval(() => tick(els), 30000);
+    tick(els); setInterval(() => tick(els), 20000);
   }
   document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", init) : init();
 })();
