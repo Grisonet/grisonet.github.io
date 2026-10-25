@@ -228,6 +228,7 @@
   .gov2 .chips a{font-size:13.5px;text-decoration:none;color:var(--ink);background:var(--pearl);border:1px solid var(--hairline);border-radius:12px;padding:9px 13px}
   .gov2 .chips a b{color:#C93B00}
   @media (max-width:520px){.dtiles{gap:8px}.dt{padding:12px 14px}}
+.gq-disc{margin-top:16px;max-width:760px;background:rgba(255,194,0,.10);border:1px solid rgba(255,194,0,.35);border-left:4px solid #FFC200;border-radius:12px;padding:12px 16px;font-size:14px;line-height:1.5;color:inherit}.gq-disc strong{color:#FFC200}
 </style>
 <link rel="stylesheet" href="tema-grquest.css">
 
@@ -244,6 +245,7 @@
     <h1>O 2º turno <span class="gq-hl">voto a voto</span></h1>
     <p class="gq-lead">Resultado oficial do TSE para presidente no Brasil e em São Paulo, atualizado a cada 20 segundos, com mapas por estado e por cidade. O 1º turno completo, com governador, senado e deputados de SP, continua logo abaixo.</p>
     <div class="gq-cta"><a class="gq-btn pri" href="projecao.html"><span class="k">Novo</span>Projeção do 2º turno · Presidente e governadores →</a><a class="gq-btn" href="#" data-avisos hidden><span class="k">🔔</span><span data-avisos-txt>Receber avisos no navegador</span></a></div>
+    <div class="gq-disc" role="note"><strong>Votação prorrogada até as 19h.</strong> O ministro Cristiano Zanin, do Supremo Tribunal Federal e do Tribunal Superior Eleitoral, decretou a prorrogação da votação em todo o território nacional até as 19h. A medida é resultado da redução na circulação de ônibus e de outros meios de transporte coletivo em diversas regiões do país, especialmente nas capitais de São Paulo e da Bahia. Isso deve atrasar o início da apuração. Ative as notificações e receba as parciais.</div>
   </section>
 </div>
 
@@ -634,7 +636,7 @@ const T2={br:u(E2,"br","0001"),sp:u(E2,"sp","0001")};
 const C2={"22":"#FFC200","13":"#FF4C00"};
 const F2={pl:E2,uf:"br"};                                          // fotos de presidente ficam em /br                          // paleta GR Quest, sem cor partidária
 const UFS2="ac al am ap ba ce df es go ma mg ms mt pa pb pe pi pr rj rn ro rr rs sc se sp to".split(" ");
-const INICIO2=new Date("2026-10-25T17:00:00-03:00");
+const INICIO2=new Date("2026-10-25T19:00:00-03:00");
 let TURNO=new URLSearchParams(location.search).get("turno")==="1"?"1":"2";
 let LAST2=null;
 function duelo(doc){
@@ -659,9 +661,9 @@ function paint2(){
   renderMajorInto("P2SP",{tipo:"exec",foto:F2},sp);
   const av=document.getElementById("t2aviso");
   av.hidden=ap>0;
-  if(!ap) av.innerHTML=Date.now()<INICIO2?"A apuração do 2º turno começa <b>domingo, 25 de outubro, às 17h</b> (Brasília). Esta página se atualiza sozinha: é só deixar aberta.":"Aguardando as primeiras urnas do 2º turno.";
+  if(!ap) av.innerHTML=Date.now()<INICIO2?"A apuração do 2º turno começa <b>domingo, 25 de outubro, às 19h</b> (Brasília), após a prorrogação da votação. Esta página se atualiza sozinha: é só deixar aberta.":"Aguardando as primeiras urnas do 2º turno.";
   if(br.dg&&br.hg) document.getElementById("tsetime").textContent=`${br.dg} ${br.hg}`;
-  document.getElementById("livetxt").textContent=ap>=100?"apuração encerrada":ap>0?"ao vivo":"começa domingo, 17h";
+  document.getElementById("livetxt").textContent=ap>=100?"apuração encerrada":ap>0?"ao vivo":"votação até 19h";
 }
 async function tick2(){
   try{ const [br,sp]=await Promise.all([getJSON(T2.br),getJSON(T2.sp)]); LAST2={br,sp}; paint2(); }

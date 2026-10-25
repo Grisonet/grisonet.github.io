@@ -223,6 +223,7 @@
   footer b{color:#fff}
   footer .cred{flex-basis:100%;font-size:11px;color:#7a7a7a}
   @media (max-width:520px){.chart text{font-size:22px}.hd{gap:10px}.nav{display:flex;order:3;width:100%;margin-left:0;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}.live{margin-left:auto}.controls > *{flex:1 1 100%}.tabs{justify-content:space-between}.card,.panel{padding:16px}.duo{gap:8px}.cand{padding:12px 14px}.cand .foto{position:static;display:block;width:44px;height:44px;margin-bottom:8px}.cand.temfoto .nm{padding-right:0}.side{grid-template-columns:1fr 1fr}}
+.gq-disc{margin:12px auto 0;max-width:760px;background:rgba(255,194,0,.10);border:1px solid rgba(255,194,0,.35);border-left:4px solid #FFC200;border-radius:12px;padding:12px 16px;font-size:14px;line-height:1.5;color:inherit}.gq-disc strong{color:#FFC200}
 </style>
 <script src="ga.js" data-ga-id="G-C2S57QPWRM" data-ga-produto="grdata" data-ga-cor="#FF6428" async></script>
 </head>
@@ -247,6 +248,7 @@
     <h1>O resultado do 2º turno <span class="hl">antes do placar</span></h1>
     <p class="lead">As urnas não chegam todas ao mesmo tempo, então o placar do começo da noite mostra só uma parte dos votos. Aqui, cada seção apurada é comparada com ela mesma no 1º turno: como votam as mesmas pessoas, dá para ver para que lado o voto está andando.</p>
     <p class="avcta"><a class="avbtn" href="#" data-avisos hidden data-avisos-txt="Receber avisos da apuração no navegador">🔔 <span data-avisos-txt>Receber avisos da apuração no navegador</span></a></p>
+    <div class="gq-disc" role="note"><strong>Votação prorrogada até as 19h.</strong> O ministro Cristiano Zanin, do Supremo Tribunal Federal e do Tribunal Superior Eleitoral, decretou a prorrogação da votação em todo o território nacional até as 19h. A medida é resultado da redução na circulação de ônibus e de outros meios de transporte coletivo em diversas regiões do país, especialmente nas capitais de São Paulo e da Bahia. Isso deve atrasar o início da apuração. Ative as notificações e receba as parciais.</div>
     <div class="controls">
       <div class="disputas" role="group" aria-label="Disputa" id="disputas"></div>
       <div class="tabs" role="group" aria-label="Modo" id="modos">
@@ -262,7 +264,7 @@
         <div><b id="cd-d">—</b><span>dias</span></div><div><b id="cd-h">—</b><span>horas</span></div>
         <div><b id="cd-m">—</b><span>min</span></div><div><b id="cd-s">—</b><span>seg</span></div>
       </div>
-      <p class="aviso">A apuração começa domingo, 25 de outubro, às 17h (Brasília). A partir daí esta página passa a mostrar sozinha o placar e a projeção, atualizados a cada 30 segundos. Enquanto isso, <a href="#" id="go-replay">reveja a noite de 2022</a> com o mesmo método.</p>
+      <p class="aviso">A votação foi prorrogada até as 19h (Brasília); a apuração começa depois disso. A partir daí esta página passa a mostrar sozinha o placar e a projeção, atualizados a cada 30 segundos. Enquanto isso, <a href="#" id="go-replay">reveja a noite de 2022</a> com o mesmo método.</p>
     </div>
 
     <div class="board">
@@ -398,7 +400,7 @@
   const qs = new URLSearchParams(location.search);
   const LIVE = qs.get("fonte") || (location.hostname === "localhost" || location.hostname === "127.0.0.1"
     ? "http://localhost:8787" : "https://grdata-apuracao-production.up.railway.app");
-  const INICIO = new Date("2026-10-25T17:00:00-03:00");
+  const INICIO = new Date("2026-10-25T19:00:00-03:00");
   const TSE = "https://resultados.tse.jus.br/oficial/ele2026/arquivo-urna";
   const AZUL = "#0B57D0", VERM = "#C5221F", GA = "#0F766E", GB = "#7C3AED";
   const c = (nome, completo, numero, cor) => ({ nome, completo, numero, cor });
@@ -678,14 +680,14 @@
       const esperando = s.modo === "aguardando";
       $("espera").hidden = !esperando;
       $("dot").classList.toggle("on", !esperando && s.modo !== "final");
-      $("livetxt").textContent = esperando ? "começa domingo, 17h" : s.modo === "final" ? "apuração encerrada" : `ao vivo · ${hora(s.gerado_painel)}`;
+      $("livetxt").textContent = esperando ? "votação até 19h" : s.modo === "final" ? "apuração encerrada" : `ao vivo · ${hora(s.gerado_painel)}`;
       render(s);
     } catch (e) {
       if (modo !== "live" || d !== disputa) return;
       const antes = Date.now() < INICIO.getTime();
       $("espera").hidden = !antes;
       $("dot").classList.remove("on");
-      $("livetxt").textContent = antes ? "começa domingo, 17h" : "reconectando…";
+      $("livetxt").textContent = antes ? "votação até 19h" : "reconectando…";
       if (!ultimoLive) render({ modo: "aguardando", historico: [], candidatos: d.cand });
     }
   }
