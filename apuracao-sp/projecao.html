@@ -254,6 +254,7 @@
       <div class="disputas" role="group" aria-label="Disputa" id="disputas"></div>
       <div class="tabs" role="group" aria-label="Modo" id="modos">
         <button data-modo="live" aria-pressed="true">Ao vivo 2026</button>
+        <button data-modo="2026" aria-pressed="false">▶ Replay de hoje</button>
         <button data-modo="2022" aria-pressed="false">2022</button>
         <button data-modo="2018" aria-pressed="false">2018</button>
         <button data-modo="2014" aria-pressed="false">2014</button>
@@ -424,7 +425,7 @@
     { id: "gov-to", rot: "TO", titulo: "Governador", abr: "Tocantins", uf: "TO", saida: "governador/to/", cargo: 3, e1: 6259, e2: 6260,
       cand: { a: c("Dorinha", "Professora Dorinha (União)", 44, GA), b: c("Vicentinho", "Vicentinho Júnior (PSDB)", 45, GB) } },
   ];
-  const ANOS = ["2022", "2018", "2014"];
+  const ANOS = ["2026", "2022", "2018", "2014"];
   const $ = (id) => document.getElementById(id);
   const nf = (d) => new Intl.NumberFormat("pt-BR", { minimumFractionDigits: d, maximumFractionDigits: d });
   const pc = (v, d = 1) => v == null ? "—" : nf(d).format(v) + "%";
@@ -452,7 +453,7 @@
       poeFoto(k, f ? `fotos/replay/${f}.jpg` : "", cand[k].completo);
     }
   }
-  const FOTOS_REPLAY = { "2014": { 13: "dilma", 45: "aecio" }, "2018": { 17: "bolsonaro", 13: "haddad" }, "2022": { 13: "lula", 22: "bolsonaro" } };
+  const FOTOS_REPLAY = { "2014": { 13: "dilma", 45: "aecio" }, "2018": { 17: "bolsonaro", 13: "haddad" }, "2022": { 13: "lula", 22: "bolsonaro" }, "2026": { 13: "lula", 22: "flavio" } };
   function poeFoto(k, src, alt) {
     const i = $(k === "a" ? "fta" : "ftb");
     if (!src) { i.hidden = true; i.parentNode.classList.remove("temfoto"); return; }
