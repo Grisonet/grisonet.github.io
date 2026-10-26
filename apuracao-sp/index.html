@@ -700,7 +700,11 @@ async function tickProj(){
     ban.style.setProperty("--c",projCor(pr.k));
     const pstTSE=typeof LAST2!=="undefined"&&LAST2&&LAST2.br&&LAST2.br.s&&LAST2.br.s.pst; /* mesmo número do card (TSE, lido a cada 20 s) */
     const pct=pstTSE?String(pstTSE):pr.pct!=null?Number(pr.pct).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}):"";
-    ban.innerHTML=pr.firme
+    const of0=s0&&s0.oficial, eleito=of0&&of0.pcta!=null&&(of0.eleito||(of0.pst||0)>=99.9||parseFloat(String((LAST2&&LAST2.br&&LAST2.br.s&&LAST2.br.s.pst)||"0").replace(",","."))>=99.9);
+    const nomeEl=eleito?s0.candidatos[of0.pcta>50?"a":"b"].nome:"";
+    ban.innerHTML=eleito
+      ?`<span class="k">Resultado</span><span class="t">${esc(nomeEl)} eleito presidente</span><span class="go">ver a projeção →</span><span class="d">Com mais de 99,9% das seções apuradas pelo TSE, as urnas que faltam não mudam o resultado${of0.eleito?"":" (o TSE ainda vai oficializar)"}. A projeção GR Data indicou esse resultado desde 1,37% das seções.</span>`
+      :pr.firme
       ?`<span class="k">Projeção GR Data</span><span class="t">${esc(pr.nome)} deve vencer a eleição para presidente</span><span class="go">ver a projeção →</span><span class="d">A faixa provável inteira está do lado de ${esc(pr.nome)}${pr.desde}, com urnas de todas as regiões. É uma projeção estatística e ainda pode mudar até o fim da apuração; o resultado oficial é o do TSE.</span>`
       :`<span class="k">Tendência · pode mudar</span><span class="t">${esc(pr.nome)} está à frente na projeção</span><span class="go">ver a projeção →</span><span class="d">Com ${pct}% das seções apuradas e poucas urnas de algumas regiões (sobretudo do Sudeste), isto é só uma tendência e pode mudar. A projeção só vai indicar um vencedor com amostra de todas as regiões. O resultado oficial é o do TSE.</span>`;
     ban.hidden=false;

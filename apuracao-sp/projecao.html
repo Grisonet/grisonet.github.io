@@ -510,6 +510,12 @@
         badge.textContent = "Resultado";
         $("st-titulo").innerHTML = `<span class="c${p.status}">${N[p.status]} vence</span>`;
         $("st-detalhe").textContent = "Apuração encerrada. O resultado oficial é o do TSE.";
+      } else if (s.oficial && (s.oficial.eleito || (s.oficial.pst || 0) >= 99.9) && s.oficial.pcta != null) {
+        const ve = s.oficial.pcta > 50 ? "a" : "b";
+        badge.textContent = "Eleito";
+        $("st-titulo").innerHTML = `<span class="c${ve}">${N[ve]} eleito</span>`;
+        $("st-detalhe").textContent = `Com ${nf(2).format(s.oficial.pst)}% das seções apuradas pelo TSE, ${N[ve]} tem ${nf(2).format(ve === "a" ? s.oficial.pcta : 100 - s.oficial.pcta)}% dos votos válidos e as urnas que faltam não mudam o resultado` +
+          (s.oficial.eleito ? "." : " (o TSE ainda vai oficializar).") + (desdeReal(s, p) != null ? ` A projeção GR Data indicou esse resultado desde ${nf(2).format(desdeReal(s, p))}% das seções.` : "");
       } else if (firme) {
         badge.textContent = "Projeção";
         $("st-titulo").innerHTML = `Projeção: <span class="c${p.status}">${N[p.status]} deve vencer</span>`;
