@@ -254,7 +254,7 @@
       <div class="disputas" role="group" aria-label="Disputa" id="disputas"></div>
       <div class="tabs" role="group" aria-label="Modo" id="modos">
         <button data-modo="live" aria-pressed="true">Ao vivo 2026</button>
-        <button data-modo="2026" aria-pressed="false">▶ Replay de hoje</button>
+        <button data-modo="2026" aria-pressed="false">▶ Replay 2026</button>
         <button data-modo="2022" aria-pressed="false">2022</button>
         <button data-modo="2018" aria-pressed="false">2018</button>
         <button data-modo="2014" aria-pressed="false">2014</button>
@@ -448,7 +448,7 @@
     $("nma").textContent = N.ca; $("nmb").textContent = N.cb; $("mla").textContent = N.a; $("mlb").textContent = N.b;
     $("g-nome").textContent = "de " + N.a;
     if ($("lg-a")) { $("lg-a").textContent = N.a; $("lg-b").textContent = N.b; }
-    if (modo !== "live") for (const k of ["a", "b"]) {   // replays: retratos guardados no site (créditos no rodapé)
+    if (modo !== "live" && !disputa.uf) for (const k of ["a", "b"]) {   // replays de presidente: retratos guardados no site (créditos no rodapé)
       const f = (FOTOS_REPLAY[modo] || {})[cand[k].numero];
       poeFoto(k, f ? `fotos/replay/${f}.jpg` : "", cand[k].completo);
     }
@@ -463,8 +463,8 @@
   // fotos dos candidatos no ao vivo (TSE publica uma por sqcand); nos replays quem põe é aplicaCandidatos
   const RES = "https://resultados.tse.jus.br/oficial/ele2026", sqCache = {};
   async function fotos() {
-    const d = disputa;
-    if (modo !== "live") return;
+    const d = disputa, gov26 = modo === "2026" && !!d.uf;   // replay 2026 de governador usa as fotos do TSE
+    if (modo !== "live" && !gov26) return;
     const some = () => { poeFoto("a", ""); poeFoto("b", ""); };
     try {
       const uf = (d.uf || "br").toLowerCase(), cg = String(d.cargo).padStart(4, "0");
@@ -474,7 +474,7 @@
         return m;
       });
       const sq = await sqCache[d.id];
-      if (d !== disputa || modo !== "live") return;
+      if (d !== disputa || (modo !== "live" && !gov26)) return;
       for (const k of ["a", "b"]) {
         const q = sq[d.cand[k].numero];
         poeFoto(k, q ? `${RES}/${d.e2}/fotos/${uf}/${q}.jpeg` : "", d.cand[k].completo);
@@ -700,7 +700,7 @@
     const el = $("disputas");
     el.innerHTML = DISPUTAS.map((d, i) => (i === 1 ? `<span class="lbl">Governador</span>` : "") +
       `<button class="chip" data-d="${d.id}" aria-pressed="${d.id === disputa.id}" title="${d.titulo} · ${d.abr}">${d.rot}</button>`).join("");
-    el.onclick = (e) => { const b = e.target.closest("[data-d]"); if (b) { disputa = DISPUTAS.find((d) => d.id === b.dataset.d); if (disputa.uf) modo = "live"; aplica(); } };
+    el.onclick = (e) => { const b = e.target.closest("[data-d]"); if (b) { disputa = DISPUTAS.find((d) => d.id === b.dataset.d); if (disputa.uf && modo !== "2026") modo = "live"; rIdx = 0; aplica(); } };
   }
 
   function aplica() {
@@ -708,9 +708,9 @@
     document.querySelectorAll("#disputas [data-d]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.d === disputa.id));
     document.querySelectorAll("#modos button").forEach((b) => {
       b.setAttribute("aria-pressed", b.dataset.modo === modo);
-      b.hidden = b.dataset.modo !== "live" && !!disputa.uf;      // os replays são só de Presidente
+      b.hidden = !!disputa.uf && !["live", "2026"].includes(b.dataset.modo);      // governador: só o replay de 2026
     });
-    $("eyebrow").textContent = modo === "live" ? `${disputa.titulo} · ${disputa.abr} · domingo, 25 de outubro` : `Presidente · Brasil · 2º turno de ${modo}`;
+    $("eyebrow").textContent = modo === "live" ? `${disputa.titulo} · ${disputa.abr} · domingo, 25 de outubro` : `${disputa.titulo} · ${disputa.abr} · 2º turno de ${modo}`;
     $("player").classList.toggle("on", modo !== "live");
     $("espera").hidden = true;
     if (modo === "live") { aplicaCandidatos(disputa.cand); $("nota-ordem").hidden = true; carregaLive(); liveTimer = setInterval(carregaLive, 30000); }
@@ -745,15 +745,18 @@
     }
   }
 
-  async function indice(ano) {
-    if (!replays[ano]) replays[ano] = fetch(`projecao/replay${ano}/indice.json`).then((r) => r.json());
-    return replays[ano];
+  // pasta do replay: governadores só em 2026 (projecao/replay2026/governador/xx/)
+  const rdir = (ano, d = disputa) => ano === "2026" && d.uf ? `projecao/replay2026/governador/${d.uf.toLowerCase()}/` : `projecao/replay${ano}/`;
+  async function indice(ano, d = disputa) {
+    const dir = rdir(ano, d);
+    if (!replays[dir]) replays[dir] = fetch(`${dir}indice.json`).then((r) => r.json());
+    return replays[dir];
   }
 
   async function carregaReplay(ano) {
     $("livetxt").textContent = `rever ${ano}`; $("dot").classList.remove("on");
-    const ix = await indice(ano);
-    if (modo !== ano) return;
+    const d = disputa, ix = await indice(ano);
+    if (modo !== ano || d !== disputa) return;
     aplicaCandidatos(ix.candidatos);
     $("slider").max = ix.pontos.length - 1;
     rIdx = Math.min(rIdx, ix.pontos.length - 1);
@@ -761,13 +764,15 @@
     nota.hidden = false;
     nota.textContent = ix.ordem === "real"
       ? `Boletins reais de ${ano}, liberados na ordem e no horário em que chegaram ao TSE naquela noite.`
+      : ano === "2026"
+      ? `Boletins reais de 2026. Neste estado o TSE republicou a lista de boletins com um horário único para todas as seções, e a hora real de chegada se perdeu: a ordem foi simulada dando a cada seção o horário de chegada de uma seção do mesmo município em 2022, duas horas mais tarde (a votação foi até as 19h).`
       : `Boletins reais de ${ano}. O TSE não publicou a hora de chegada das urnas nesse ano: a ordem foi simulada dando a cada seção o horário de chegada de uma seção do mesmo município em 2022.`;
     vaiPara(rIdx);
   }
 
   async function ponto(ano, i) {
-    const ix = await indice(ano), key = ano + ":" + i;
-    if (!cacheP.has(key)) cacheP.set(key, fetch(`projecao/replay${ano}/${ix.pontos[i].arquivo}`).then((r) => r.json()));
+    const ix = await indice(ano), key = rdir(ano) + ":" + i;
+    if (!cacheP.has(key)) cacheP.set(key, fetch(`${rdir(ano)}${ix.pontos[i].arquivo}`).then((r) => r.json()));
     return cacheP.get(key);
   }
 
@@ -802,7 +807,7 @@
   async function renderValidacao(ano) {
     anoVal = ano;
     document.querySelectorAll("#seg-val button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.ano === ano));
-    const ix = await indice(ano);
+    const ix = await indice(ano, DISPUTAS[0]);   // validação: sempre Presidente
     if (anoVal !== ano) return;
     const v = ix.validacao, f = ix.final, na = ix.candidatos.a.nome, nb = ix.candidatos.b.nome;
     let h = `<thead><tr><th>Seções apuradas</th><th>Horário</th><th>Projeção ${na}</th><th>Faixa provável</th><th>Erro</th></tr></thead><tbody>`;
@@ -956,7 +961,7 @@
   };
 
   // ------------------------------------------------------------------ eventos
-  $("modos").onclick = (e) => { const b = e.target.closest("[data-modo]"); if (b && !b.hidden) { modo = b.dataset.modo; if (modo !== "live") disputa = DISPUTAS[0]; aplica(); } };
+  $("modos").onclick = (e) => { const b = e.target.closest("[data-modo]"); if (b && !b.hidden) { modo = b.dataset.modo; if (!["live", "2026"].includes(modo)) disputa = DISPUTAS[0]; aplica(); } };
   $("go-replay").onclick = (e) => { e.preventDefault(); modo = "2022"; disputa = DISPUTAS[0]; aplica(); play(); };
   $("play").onclick = () => (rTimer ? pause() : play());
   $("slider").oninput = (e) => { pause(); vaiPara(+e.target.value); };
