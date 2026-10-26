@@ -659,7 +659,7 @@ function paint2(){
   document.getElementById("kpis2").innerHTML=kpis(br,"Apuração Brasil");
   document.getElementById("duelo").innerHTML=duelo(br);
   renderMajorInto("P2BR",{tipo:"exec",foto:F2},br);
-  renderMajorInto("P2SP",{tipo:"exec",foto:F2},sp);
+  renderMajorInto("P2SP",{tipo:"uf",foto:F2},sp);   // presidente só em SP: vencer no estado não elege ninguém
   const av=document.getElementById("t2aviso");
   av.hidden=ap>0;
   if(!ap) av.innerHTML=Date.now()<INICIO2?"A apuração do 2º turno começa <b>domingo, 25 de outubro, às 19h</b> (Brasília), após a prorrogação da votação. Esta página se atualiza sozinha: é só deixar aberta.":"Aguardando as primeiras urnas do 2º turno.";
