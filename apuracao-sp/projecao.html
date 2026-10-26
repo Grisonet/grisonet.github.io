@@ -566,6 +566,10 @@
   /* início da noite reconstruído do log da coleta (o histórico se perdeu nos reinícios de 25/10) */
   let INICIO_H = null;
   fetch("projecao-inicio.json?t=" + Date.now()).then((r) => r.ok ? r.json() : []).then((v) => { INICIO_H = v; }).catch(() => { INICIO_H = []; });
+  /* a noite na ordem real de chegada dos boletins ao TSE (noite2026.py, regerado a cada 5 min) */
+  let NOITE = null;
+  const carregaNoite = () => fetch("projecao-noite.json?t=" + Date.now()).then((r) => r.ok ? r.json() : null).then((v) => { if (v && v.pontos && v.pontos.length) NOITE = v; }).catch(() => {});
+  carregaNoite(); setInterval(carregaNoite, 60000);
   /* 25/10: os reinícios da coleta zeraram o "desde" calculado por ela. Presidente: o selo saiu com 1,37% das seções
      (registrado antes dos reinícios); governadores ao vivo: sem o "desde" até termos o valor certo. */
   function desdeReal(s, p) {
@@ -576,22 +580,26 @@
     const svg = $("chart"), W = 900, H = 360, m = { l: 52, r: 18, t: 16, b: 34 };
     let h = (h0 || []).filter((d) => d.pct > 0);
     const ini = modo === "live" && INICIO_H && h.length ? INICIO_H.filter((d) => d.pct < h[0].pct) : [];
-    const pts = ini.concat(h);
+    const pts = modo === "live" && NOITE && disputa.id === DISPUTAS[0].id ? NOITE.pontos.filter((d) => d.pct > 0) : ini.concat(h);
     // escala vertical simétrica em torno de 50%
-    let dev = 14;
-    for (const d of pts) for (const v of [d.placara, d.proj, d.faixa && d.faixa[0], d.faixa && d.faixa[1]]) if (v != null) dev = Math.max(dev, Math.abs(v - 50) + 1);
-    dev = Math.ceil(dev / 2) * 2;
+    // escala pelo que acontece depois de 1% das seções (os primeiros minutos oscilam muito e ficam cortados)
+    let dev = 3;
+    for (const d of pts) if (d.pct >= 1) for (const v of [d.placara, d.proj, d.faixa && d.faixa[0], d.faixa && d.faixa[1]]) if (v != null) dev = Math.max(dev, Math.abs(v - 50) + 0.6);
+    dev = Math.ceil(dev);
     const lo = 50 - dev, hi = 50 + dev;
     const xmaxDado = pts.length ? pts[pts.length - 1].pct : 10;
     const xmax = (modo !== "live" || (pts.length && pts[pts.length - 1].pct >= 99)) ? 100 : Math.min(100, Math.max(10, Math.ceil(xmaxDado / 10) * 10));
     const x = (v) => m.l + (v / xmax) * (W - m.l - m.r), y = (v) => m.t + (hi - v) / (hi - lo) * (H - m.t - m.b);
     let g = "";
-    for (let v = lo; v <= hi; v += 2)
+    const passoY = dev <= 4 ? 1 : 2;
+    g += `<defs><clipPath id="clipg"><rect x="${m.l}" y="${m.t}" width="${W - m.l - m.r}" height="${H - m.t - m.b}"/></clipPath></defs>`;
+    for (let v = lo; v <= hi; v += passoY)
       g += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--divider)"/><text x="${m.l - 8}" y="${y(v) + 4}" text-anchor="end">${v}%</text>`;
     const passo = xmax <= 20 ? 5 : xmax <= 50 ? 10 : 20;
     const xt = []; for (let v = 0; v < xmax - passo / 2; v += passo) xt.push(v); xt.push(xmax);
     for (const v of xt) g += `<text x="${x(v)}" y="${H - 10}" text-anchor="middle">${v}%</text>`;
     g += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(50)}" y2="${y(50)}" stroke="var(--ink)" stroke-opacity=".55" stroke-width="1.2"/>`;
+    g += `<g clip-path="url(#clipg)">`;
     const lin = (arr, f) => arr.map((d) => `${x(d.pct).toFixed(1)},${y(f(d)).toFixed(1)}`).join(" ");
     const fx = pts.filter((d) => d.faixa);
     const pl = pts.filter((d) => d.placara != null);
@@ -607,12 +615,19 @@
       const u = fx[fx.length - 1];
       if (u) g += `<circle cx="${x(u.pct)}" cy="${y(val(u.proj))}" r="4.5" fill="${cor}"/>`;
     }
+    g += `</g>`;
     svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
     svg.innerHTML = g;
     const last = pts[pts.length - 1];
     if (!last) { $("ins-chart").textContent = "O gráfico começa com as primeiras seções."; return; }
     const lp = last.proj != null ? (last.proj > 50 ? "a" : "b") : null;
-    $("ins-chart").innerHTML = lp ? `Com ${pc(last.pct, 1)} das seções lidas, a projeção estima <b>${N[lp]} com ${pc(lp === "a" ? last.proj : 100 - last.proj)}</b> no final. As linhas cheias são a projeção; as tracejadas, os votos já contados pelo TSE; a faixa em volta é a margem de erro. É uma estimativa e pode mudar.` : "—";
+    // trechos em que o placar teve cada candidato à frente
+    const trechos = []; let cur = null;
+    for (const d of pts) { if (d.placara == null || d.pct < 1) continue; const q = d.placara > 50 ? "a" : "b";
+      if (!cur || cur.q !== q) { cur = { q, de: d, ate: d }; trechos.push(cur); } else cur.ate = d; }
+    const hm = (d) => d.t ? " (" + String(d.t).slice(11, 16) + ")" : "";
+    const lider = trechos.length > 1 ? " O placar mudou de mãos: " + trechos.map((t) => `${N[t.q]} à frente de ${pc(t.de.pct, 0)}${hm(t.de)} a ${pc(t.ate.pct, 0)}${hm(t.ate)}`).join("; ") + "." : "";
+    $("ins-chart").innerHTML = lp ? `Com ${pc(last.pct, 1)} das seções apuradas, a projeção estima <b>${N[lp]} com ${pc(lp === "a" ? last.proj : 100 - last.proj)}</b> no final. As linhas cheias são a projeção; as tracejadas, o placar do TSE na ordem em que os boletins chegaram; a faixa em volta é a margem de erro. É uma estimativa e pode mudar.${lider}` : "—";
   }
 
   function renderDif(s) {
