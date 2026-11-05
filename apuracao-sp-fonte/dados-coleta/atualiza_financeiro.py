@@ -63,7 +63,7 @@ if seg: d["resumo"]["seg_cobertura"] = seg
 mudou = sum(1 for sq, c in C.items() if (c["desp"], c["rec"], c["imp_meta"], c["publico"]) != antes[sq])
 if not mudou and d.get("data_prestacao"):
     print("nada mudou desde", d["data_prestacao"]); sys.exit(0)
-d["gerado"] = f"prestacao de contas TSE 2026 (parcial, dados de {ROT}) x resultados oficiais"
+d["gerado"] = f"prestacao de contas TSE 2026 (final, dados de {ROT}) x resultados oficiais"
 d["data_prestacao"] = ROT
 json.dump(d, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
 
