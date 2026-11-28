@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assinar GR Data</title>
+<meta name="description" content="Assine o GR Data Plus ou Pro com cartão, Pix ou boleto.">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="apuracao-sp/ga.js" data-ga-id="G-C2S57QPWRM" data-ga-produto="grdata" data-ga-cor="#FF6428" async></script>
+<style>
+:root{--primary:#FF4C00;--focus:#FF6428;--gold:#FFC200;--ink:#080808;--g80:#454545;--g48:#7a7a7a;--hair:#e5e5e5;--parch:#f6f5f3;--pearl:#faf9f7;--ok:#16A34A;--okbg:#E8F7EE;--bad:#DC2626;--badbg:#FDEAEA}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Inter,system-ui,-apple-system,sans-serif;background:var(--parch);color:var(--ink);-webkit-font-smoothing:antialiased;font-size:17px;line-height:1.47;letter-spacing:-.374px}
+a{color:var(--primary)}
+header{background:#080808;color:#fff}
+.nav{max-width:980px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.nav img{height:22px;display:block}
+.nav a{color:#fff;font-size:12px;text-decoration:none;letter-spacing:-.12px}
+main{max-width:980px;margin:0 auto;padding:48px 16px 80px}
+h1{font-size:40px;font-weight:600;line-height:1.1;letter-spacing:-.28px;margin-bottom:8px}
+.sub{font-size:21px;font-weight:400;color:var(--g80);margin-bottom:32px;letter-spacing:.231px;line-height:1.3}
+h2{font-size:21px;font-weight:600;margin:0 0 14px;letter-spacing:.231px}
+.card{background:#fff;border:1px solid var(--hair);border-radius:18px;padding:24px;margin-bottom:20px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.plano{border:2px solid var(--hair);border-radius:18px;padding:20px;cursor:pointer;background:#fff;text-align:left;font:inherit;color:inherit;width:100%}
+.plano[aria-pressed=true]{border-color:var(--primary)}
+.plano .nm{font-size:21px;font-weight:600}
+.plano .pr{font-size:28px;font-weight:600;margin:6px 0;font-variant-numeric:tabular-nums}
+.plano .pr small{font-size:14px;font-weight:400;color:var(--g48)}
+.plano ul{list-style:none;font-size:14px;color:var(--g80);line-height:1.6}
+.plano ul li::before{content:"✓ ";color:var(--primary);font-weight:700}
+.tag{display:inline-block;background:var(--gold);color:#080808;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;margin-left:6px;vertical-align:middle}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.pill{border:1px solid var(--hair);background:var(--pearl);border-radius:999px;padding:8px 16px;font:400 14px Inter,sans-serif;cursor:pointer;color:var(--g80)}
+.pill[aria-pressed=true]{background:#080808;color:#fff;border-color:#080808}
+label{display:block;font-size:14px;color:var(--g80);margin-bottom:6px;letter-spacing:-.224px}
+input{width:100%;font:400 17px Inter,sans-serif;padding:11px 14px;border:1px solid var(--hair);border-radius:11px;background:#fff;color:var(--ink)}
+input:focus{outline:2px solid var(--focus);outline-offset:0;border-color:transparent}
+.f{margin-bottom:14px}
+.row{display:grid;gap:12px;grid-template-columns:repeat(var(--c,2),minmax(0,1fr))}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--primary);color:#080808;border:0;border-radius:999px;padding:12px 26px;font:600 17px Inter,sans-serif;cursor:pointer;text-decoration:none}
+.btn:focus-visible,.pill:focus-visible,.plano:focus-visible,.lk:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.btn[disabled]{opacity:.55;cursor:wait}
+.btn.sec{background:var(--pearl);color:var(--g80);border:1px solid var(--hair);font-weight:400;font-size:14px;padding:8px 16px}
+.lk{background:none;border:0;color:var(--primary);font:inherit;cursor:pointer;text-decoration:underline;padding:0}
+.msg{border-radius:11px;padding:12px 14px;font-size:14px;margin-bottom:14px}
+.msg.err{background:var(--badbg);color:var(--bad)}
+.msg.ok{background:var(--okbg);color:var(--ok)}
+.fine{font-size:12px;color:var(--g48);letter-spacing:-.12px;margin-top:12px}
+.pay{text-align:center}
+.pay img{width:220px;height:220px;margin:8px auto 12px;display:block;background:#fff;padding:8px;border-radius:11px;border:1px solid var(--hair)}
+.code{font:400 12px/1.5 Menlo,monospace;word-break:break-all;background:var(--parch);border-radius:11px;padding:10px;margin:8px 0 12px;text-align:left;max-height:110px;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--hair)}
+th{font-weight:600;color:var(--g48);font-size:12px;text-transform:uppercase;letter-spacing:.2px}
+.st{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600}
+.st.pago{background:var(--okbg);color:var(--ok)}.st.pendente{background:#FFF4D6;color:#7a5a00}.st.recusado,.st.expirado,.st.cancelado{background:var(--badbg);color:var(--bad)}
+.hide{display:none!important}
+@media (max-width:700px){h1{font-size:32px}.grid{grid-template-columns:1fr}.row{grid-template-columns:1fr}.row.keep{grid-template-columns:repeat(var(--c,2),minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header><div class="nav"><a href="landing.html" aria-label="GR Data"><img src="assets/logo-gr-data-branco.svg" alt="GR Data"></a><a href="index.html#/dashboard">Voltar ao app</a></div></header>
+<main>
+  <h1>Assinar o GR Data</h1>
+  <p class="sub">Cartão, Pix ou boleto pelo PagBank. Cancele quando quiser, sem multa.</p>
+
+  <div id="erroGeral" class="msg err hide" role="alert"></div>
+
+  <!-- Entrar -->
+  <section id="secLogin" class="card hide" aria-labelledby="tLogin">
+    <h2 id="tLogin">Entre na sua conta</h2>
+    <p class="fine" style="margin:-6px 0 16px">A assinatura fica na sua conta do GR Data. <button class="lk" id="trocaModo" type="button">Ainda não tenho conta</button></p>
+    <form id="fLogin">
+      <div class="row"><div class="f"><label for="lEmail">E-mail</label><input id="lEmail" type="email" autocomplete="email" required></div>
+      <div class="f"><label for="lSenha">Senha</label><input id="lSenha" type="password" autocomplete="current-password" minlength="6" required></div></div>
+      <div id="lMsg" class="msg hide" role="status"></div>
+      <button class="btn" id="lBtn" type="submit">Entrar</button>
+    </form>
+  </section>
+
+  <!-- Minha assinatura -->
+  <section id="secMinha" class="card hide" aria-labelledby="tMinha">
+    <h2 id="tMinha">Sua assinatura</h2>
+    <div id="minhaResumo"></div>
+    <div id="minhaAberto" class="hide" style="margin-top:16px"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+      <button class="btn sec hide" id="btnCancelar" type="button">Cancelar assinatura</button>
+      <button class="btn sec" id="btnSair" type="button">Sair</button>
+    </div>
+  </section>
+
+  <!-- Escolha e pagamento -->
+  <section id="secAssinar" class="hide" aria-labelledby="tPlano">
+    <div class="card">
+      <h2 id="tPlano">Plano</h2>
+      <div class="pills" id="periodos" role="group" aria-label="Período"></div>
+      <div class="grid" id="planos"></div>
+    </div>
+
+    <form class="card" id="fPagar">
+      <h2>Pagamento</h2>
+      <div class="pills" id="metodos" role="group" aria-label="Forma de pagamento"></div>
+      <div class="row"><div class="f"><label for="pNome">Nome completo ou razão social</label><input id="pNome" autocomplete="name" required></div>
+      <div class="f"><label for="pDoc">CPF ou CNPJ</label><input id="pDoc" inputmode="numeric" required></div></div>
+      <div class="row"><div class="f"><label for="pEmail">E-mail</label><input id="pEmail" type="email" autocomplete="email" required></div>
+      <div class="f"><label for="pTel">Celular com DDD</label><input id="pTel" inputmode="tel" autocomplete="tel" placeholder="11 99999-9999"></div></div>
+
+      <div id="blocoCartao">
+        <div class="f"><label for="cNum">Número do cartão</label><input id="cNum" inputmode="numeric" autocomplete="cc-number" placeholder="0000 0000 0000 0000"></div>
+        <div class="row keep" style="--c:3"><div class="f"><label for="cMes">Mês</label><input id="cMes" inputmode="numeric" autocomplete="cc-exp-month" placeholder="MM" maxlength="2"></div>
+        <div class="f"><label for="cAno">Ano</label><input id="cAno" inputmode="numeric" autocomplete="cc-exp-year" placeholder="AAAA" maxlength="4"></div>
+        <div class="f"><label for="cCvv">CVV</label><input id="cCvv" inputmode="numeric" autocomplete="cc-csc" maxlength="4"></div></div>
+        <div class="f"><label for="cNome">Nome impresso no cartão</label><input id="cNome" autocomplete="cc-name"></div>
+        <p class="fine">O cartão é criptografado no seu navegador e guardado no cofre do PagBank para as renovações.</p>
+      </div>
+
+      <div id="blocoBoleto" class="hide">
+        <div class="row keep" style="--c:3"><div class="f"><label for="bCep">CEP</label><input id="bCep" inputmode="numeric" autocomplete="postal-code"></div>
+        <div class="f" style="grid-column:span 2"><label for="bRua">Rua</label><input id="bRua" autocomplete="address-line1"></div></div>
+        <div class="row keep" style="--c:3"><div class="f"><label for="bNum">Número</label><input id="bNum"></div>
+        <div class="f" style="grid-column:span 2"><label for="bComp">Complemento</label><input id="bComp" autocomplete="address-line2"></div></div>
+        <div class="row keep" style="--c:3"><div class="f"><label for="bBairro">Bairro</label><input id="bBairro"></div>
+        <div class="f"><label for="bCidade">Cidade</label><input id="bCidade" autocomplete="address-level2"></div>
+        <div class="f"><label for="bUf">UF</label><input id="bUf" maxlength="2" autocomplete="address-level1"></div></div>
+      </div>
+
+      <p class="fine" id="notaMetodo"></p>
+      <div id="pMsg" class="msg hide" role="alert"></div>
+      <button class="btn" id="pBtn" type="submit">Assinar</button>
+    </form>
+  </section>
+
+  <section id="secPagamento" class="card pay hide" aria-live="polite"></section>
+
+  <section id="secHist" class="card hide" aria-labelledby="tHist">
+    <h2 id="tHist">Histórico</h2>
+    <div style="overflow-x:auto"><table><thead><tr><th>Data</th><th>Plano</th><th>Forma</th><th>Valor</th><th>Situação</th></tr></thead><tbody id="hist"></tbody></table></div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+(function(){
+  var REF="lrtacwxvsrqbcmgbvyrl", URL_SB="https://"+REF+".supabase.co", FN=URL_SB+"/functions/v1/grdata-assinatura";
+  var sb=window.supabase.createClient(URL_SB,"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxydGFjd3h2c3JxYmNtZ2J2eXJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NTAwMzUsImV4cCI6MjA5NDEyNjAzNX0.iq2oDxARTUnVlsSQr_m65LV-nDfqM4MfTUKbY8kT85g");
+  var $=function(id){return document.getElementById(id)};
+  var NOME={cidadao:"Cidadão",plus:"Plus",pro:"Pro"}, MET={cartao:"Cartão",pix:"Pix",boleto:"Boleto"};
+  var PER={mensal:"Mensal",trimestral:"Trimestral",semestral:"Semestral",anual:"Anual"};
+  var SUF={mensal:"/mês",trimestral:"/trimestre",semestral:"/semestre",anual:"/ano"};
+  var FEAT={plus:["Consultas de candidato ilimitadas","Meu Mapa (salvar favoritos)","Histórico de eleições","IA: 30 perguntas/dia","Export CSV (1 por dia)"],
+            pro:["Tudo do Plus","Mapa por seção eleitoral","Emendas parlamentares cruzadas","Comparativo de até 5 candidatos","Planejamento eleitoral","IA: 200 perguntas/dia","Doadores e despesas detalhados"]};
+  var qs=new URLSearchParams(location.search);
+  var st={plano:qs.get("plano")==="pro"?"pro":(qs.get("plano")==="plus"?"plus":"pro"),periodo:PER[qs.get("periodo")]?qs.get("periodo"):"mensal",metodo:"cartao",cfg:null,token:null,email:null,poll:null};
+  var brl=function(v){return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})};
+  var digits=function(s){return String(s||"").replace(/\D/g,"")};
+  function show(id,on){$(id).classList.toggle("hide",!on)}
+  function msg(id,t,ok){var e=$(id);e.textContent=t||"";e.className="msg "+(ok?"ok":"err")+(t?"":" hide")}
+
+  function api(acao,body,method){
+    var h={"Content-Type":"application/json"}; if(st.token) h.Authorization="Bearer "+st.token;
+    var o=method==="GET"?{headers:h}:{method:"POST",headers:h,body:JSON.stringify(Object.assign({acao:acao},body||{}))};
+    var u=FN+(method==="GET"?"?acao="+acao+(body&&body.ref?"&ref="+encodeURIComponent(body.ref):""):"");
+    return fetch(u,o).then(function(r){return r.json().then(function(j){j._ok=r.ok;return j})});
+  }
+
+  // ---------- planos ----------
+  function renderPlanos(){
+    var p=$("periodos"); p.innerHTML="";
+    Object.keys(PER).forEach(function(k){var b=document.createElement("button");b.type="button";b.className="pill";b.textContent=PER[k]+({trimestral:" −10%",semestral:" −20%",anual:" −30%"}[k]||"");b.setAttribute("aria-pressed",st.periodo===k);b.onclick=function(){st.periodo=k;renderPlanos()};p.appendChild(b)});
+    var g=$("planos"); g.innerHTML="";
+    ["plus","pro"].forEach(function(k){
+      var b=document.createElement("button");b.type="button";b.className="plano";b.setAttribute("aria-pressed",st.plano===k);
+      var v=st.cfg.precos[k][st.periodo];
+      b.innerHTML='<div class="nm"></div><div class="pr"></div><ul></ul>';
+      b.querySelector(".nm").textContent=NOME[k]; if(k==="pro"){var t=document.createElement("span");t.className="tag";t.textContent="Mais popular";b.querySelector(".nm").appendChild(t)}
+      b.querySelector(".pr").innerHTML=brl(v)+" <small>"+SUF[st.periodo]+"</small>";
+      FEAT[k].forEach(function(f){var li=document.createElement("li");li.textContent=f;b.querySelector("ul").appendChild(li)});
+      b.onclick=function(){st.plano=k;renderPlanos()}; g.appendChild(b)});
+    $("pBtn").textContent=st.metodo==="cartao"?"Assinar "+NOME[st.plano]+" · "+brl(st.cfg.precos[st.plano][st.periodo]):st.metodo==="pix"?"Gerar Pix · "+brl(st.cfg.precos[st.plano][st.periodo]):"Gerar boleto · "+brl(st.cfg.precos[st.plano][st.periodo]);
+  }
+  function renderMetodos(){
+    var m=$("metodos"); m.innerHTML="";
+    if(st.cfg.metodos.indexOf(st.metodo)<0) st.metodo=st.cfg.metodos[0];
+    st.cfg.metodos.forEach(function(k){var b=document.createElement("button");b.type="button";b.className="pill";b.textContent=MET[k];b.setAttribute("aria-pressed",st.metodo===k);b.onclick=function(){st.metodo=k;renderMetodos();renderPlanos()};m.appendChild(b)});
+    show("metodos",st.cfg.metodos.length>1);
+    show("blocoCartao",st.metodo==="cartao"); show("blocoBoleto",st.metodo==="boleto");
+    $("notaMetodo").textContent=st.metodo==="cartao"?"A renovação é cobrada no cartão no dia do vencimento.":st.metodo==="pix"?"O plano é liberado assim que o Pix cair (segundos). Nas renovações, o Pix aparece no app 5 dias antes do vencimento.":"O boleto vence em 3 dias e o plano é liberado quando o PagBank confirmar (até 3 dias úteis). Nas renovações, o boleto aparece no app 5 dias antes do vencimento.";
+  }
+
+  // ---------- pagamento pendente (Pix/boleto) ----------
+  function caixaPagamento(alvo,p,titulo){
+    alvo.innerHTML=""; var h=document.createElement("h2");h.textContent=titulo;alvo.appendChild(h);
+    var info=document.createElement("p");info.textContent=NOME[p.plano]+" "+PER[p.periodo].toLowerCase()+" · "+brl(p.amount_cents/100)+(p.expires_at?" · "+(p.method==="pix"?"válido até ":"vence em ")+new Date(p.expires_at).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:p.method==="pix"?"short":undefined}):"");alvo.appendChild(info);
+    if(p.method==="pix"){
+      if(p.pix_qr_url){var im=document.createElement("img");im.src=p.pix_qr_url;im.alt="QR Code do Pix";alvo.appendChild(im)}
+      if(p.pix_code){var c=document.createElement("div");c.className="code";c.textContent=p.pix_code;alvo.appendChild(c);alvo.appendChild(copiar(p.pix_code,"Copiar código Pix"))}
+    } else {
+      if(p.boleto_line){var c2=document.createElement("div");c2.className="code";c2.textContent=p.boleto_line;alvo.appendChild(c2);alvo.appendChild(copiar(p.boleto_line,"Copiar linha digitável"))}
+      if(p.boleto_pdf_url){var a=document.createElement("p");a.style.marginTop="12px";a.innerHTML='<a target="_blank" rel="noopener">Abrir o boleto (PDF)</a>';a.firstChild.href=p.boleto_pdf_url;alvo.appendChild(a)}
+    }
+    var s=document.createElement("p");s.className="fine";s.id="statusPag";s.textContent="Aguardando o pagamento… esta página atualiza sozinha.";alvo.appendChild(s);
+    acompanhar(p);
+  }
+  function copiar(txt,rot){var b=document.createElement("button");b.type="button";b.className="btn sec";b.textContent=rot;b.onclick=function(){navigator.clipboard.writeText(txt).then(function(){b.textContent="Copiado ✓";setTimeout(function(){b.textContent=rot},2000)})};return b}
+  function acompanhar(p){
+    clearInterval(st.poll);
+    st.poll=setInterval(function(){
+      api("status",{ref:p.reference},"GET").then(function(j){
+        if(j.status==="pago"){clearInterval(st.poll);var e=$("statusPag");if(e){e.className="msg ok";e.textContent="Pagamento confirmado! Seu plano "+NOME[p.plano]+" já está ativo."}try{localStorage.removeItem("grdata.plano")}catch(x){}setTimeout(carregar,1500)}
+        else if(j.status&&j.status!=="pendente"){clearInterval(st.poll);var e2=$("statusPag");if(e2){e2.className="msg err";e2.textContent="Esta cobrança não está mais válida ("+j.status+"). Gere um novo pagamento."}}
+      }).catch(function(){});
+    },p.method==="pix"?5000:30000);
+  }
+
+  // ---------- conta ----------
+  function carregar(){
+    return sb.auth.getSession().then(function(r){
+      var s=r.data.session; st.token=s?s.access_token:null; st.email=s?s.user.email:null;
+      if(!s){show("secLogin",true);["secMinha","secAssinar","secHist","secPagamento"].forEach(function(i){show(i,false)});return}
+      show("secLogin",false);
+      return api("minha",null,"GET").then(function(j){
+        var a=j.assinatura, ativo=j.plano!=="cidadao";
+        var r2=$("minhaResumo"); r2.innerHTML="";
+        var p=document.createElement("p");
+        if(ativo&&a){p.innerHTML="<strong></strong>";p.firstChild.textContent="Plano "+NOME[j.plano]+" "+(PER[a.periodo]||"").toLowerCase();
+          var d=document.createElement("p");d.className="fine";d.style.marginTop="4px";
+          d.textContent=(a.status==="cancelada"?"Cancelada · vale até ":a.status==="atrasada"?"Em atraso · venceu em ":"Próxima cobrança em ")+new Date(a.vence_em).toLocaleDateString("pt-BR")+" · "+MET[a.pay_method]+(a.pay_method==="cartao"&&a.card_last4?" "+(a.card_brand||"").toUpperCase()+" •••• "+a.card_last4:"");
+          r2.appendChild(p);r2.appendChild(d)}
+        else {p.textContent="Você está no plano Cidadão (gratuito)"+(j.email?" · "+j.email:"")+".";r2.appendChild(p)}
+        show("btnCancelar",ativo&&a&&a.status!=="cancelada");
+        show("secMinha",true);
+        if(j.aberto){show("minhaAberto",true);caixaPagamento($("minhaAberto"),j.aberto,(j.aberto.method==="pix"?"Pix":"Boleto")+" em aberto")} else show("minhaAberto",false);
+        // pré-preenche com o cadastro de cobrança
+        if(a){if(a.billing_name&&!$("pNome").value)$("pNome").value=a.billing_name;if(a.billing_tax_id&&!$("pDoc").value)$("pDoc").value=a.billing_tax_id;if(a.billing_phone&&!$("pTel").value)$("pTel").value=a.billing_phone;
+          var ad=a.billing_address||{};if(ad.postal_code&&!$("bCep").value){$("bCep").value=ad.postal_code;$("bRua").value=ad.street||"";$("bNum").value=ad.number||"";$("bComp").value=ad.complement||"";$("bBairro").value=ad.locality||"";$("bCidade").value=ad.city||"";$("bUf").value=ad.region_code||""}
+          if(st.cfg.metodos.indexOf(a.pay_method)>=0&&!qs.get("metodo")){st.metodo=a.pay_method}}
+        if(!$("pEmail").value)$("pEmail").value=(a&&a.billing_email)||j.email||"";
+        renderMetodos();renderPlanos();show("secAssinar",true);
+        var h=$("hist");h.innerHTML="";(j.historico||[]).forEach(function(x){var tr=document.createElement("tr");
+          [new Date(x.created_at).toLocaleDateString("pt-BR"),NOME[x.plano]+" "+(PER[x.periodo]||"").toLowerCase(),MET[x.method],brl(x.amount_cents/100)].forEach(function(t){var td=document.createElement("td");td.textContent=t;tr.appendChild(td)});
+          var td=document.createElement("td");var sp=document.createElement("span");sp.className="st "+x.status;sp.textContent=x.status;td.appendChild(sp);tr.appendChild(td);h.appendChild(tr)});
+        show("secHist",(j.historico||[]).length>0);
+      });
+    }).catch(function(){msg("erroGeral","Não foi possível carregar sua assinatura. Atualize a página.")});
+  }
+
+  var modoCadastro=false;
+  $("trocaModo").onclick=function(){modoCadastro=!modoCadastro;$("lBtn").textContent=modoCadastro?"Criar conta":"Entrar";$("trocaModo").textContent=modoCadastro?"Já tenho conta":"Ainda não tenho conta";$("tLogin").textContent=modoCadastro?"Crie sua conta":"Entre na sua conta";$("lSenha").autocomplete=modoCadastro?"new-password":"current-password"};
+  $("fLogin").onsubmit=function(e){e.preventDefault();$("lBtn").disabled=true;msg("lMsg","");
+    var em=$("lEmail").value.trim(),pw=$("lSenha").value;
+    var p=modoCadastro?sb.auth.signUp({email:em,password:pw}):sb.auth.signInWithPassword({email:em,password:pw});
+    p.then(function(r){$("lBtn").disabled=false;
+      if(r.error){msg("lMsg",r.error.message.indexOf("Invalid login")>=0?"E-mail ou senha incorretos.":r.error.message);return}
+      if(modoCadastro&&!r.data.session){msg("lMsg","Conta criada. Confirme pelo link que enviamos para "+em+" e depois entre aqui.",true);return}
+      carregar()})};
+  $("btnSair").onclick=function(){sb.auth.signOut().then(function(){location.reload()})};
+  $("btnCancelar").onclick=function(){
+    if(!confirm("Cancelar a assinatura? Você continua com o plano até o fim do período já pago e não haverá nova cobrança.")) return;
+    api("cancelar").then(function(){carregar()})};
+
+  $("bCep").addEventListener("blur",function(){var c=digits(this.value);if(c.length!==8)return;
+    fetch("https://viacep.com.br/ws/"+c+"/json/").then(function(r){return r.json()}).then(function(j){if(j.erro)return;
+      if(j.logradouro)$("bRua").value=j.logradouro;if(j.bairro)$("bBairro").value=j.bairro;if(j.localidade)$("bCidade").value=j.localidade;if(j.uf)$("bUf").value=j.uf;$("bNum").focus()}).catch(function(){})});
+
+  var pubKey=null, sdk=null;
+  function carregarSdk(){if(sdk)return sdk;sdk=new Promise(function(ok,no){var s=document.createElement("script");s.src="https://assets.pagseguro.com.br/checkout-sdk-js/rc/dist/browser/pagseguro.min.js";s.onload=ok;s.onerror=no;document.head.appendChild(s)});return sdk}
+
+  $("fPagar").onsubmit=function(e){e.preventDefault();msg("pMsg","");
+    var body={plano:st.plano,periodo:st.periodo,method:st.metodo,nome:$("pNome").value.trim(),email:$("pEmail").value.trim(),tax_id:digits($("pDoc").value),phone:digits($("pTel").value)};
+    var fim=function(){$("pBtn").disabled=false};
+    $("pBtn").disabled=true;
+    var prep=Promise.resolve();
+    if(st.metodo==="boleto") body.address={postal_code:digits($("bCep").value),street:$("bRua").value,number:$("bNum").value,complement:$("bComp").value,locality:$("bBairro").value,city:$("bCidade").value,region_code:$("bUf").value};
+    if(st.metodo==="cartao"){
+      prep=Promise.all([carregarSdk(),pubKey?pubKey:api("chave").then(function(j){if(!j.public_key)throw new Error(j.error||"Falha ao preparar o pagamento.");pubKey=j.public_key;return pubKey})]).then(function(){
+        var ano=digits($("cAno").value);if(ano.length===2)ano="20"+ano;
+        var enc=window.PagSeguro.encryptCard({publicKey:pubKey,holder:$("cNome").value.trim()||body.nome,number:digits($("cNum").value),expMonth:digits($("cMes").value).padStart(2,"0"),expYear:ano,securityCode:digits($("cCvv").value)});
+        if(enc.hasErrors) throw new Error("Confira os dados do cartão ("+enc.errors.map(function(x){return x.code}).join(", ")+").");
+        body.encrypted=enc.encryptedCard; body.holder=$("cNome").value.trim()||body.nome;
+      });
+    }
+    prep.then(function(){return api("assinar",body)}).then(function(j){fim();
+      if(!j._ok){msg("pMsg",j.error||"Não foi possível concluir.");return}
+      var p=j.pagamento;
+      if(p.method==="cartao"){try{localStorage.removeItem("grdata.plano")}catch(x){}
+        show("secAssinar",false);var box=$("secPagamento");box.innerHTML='<h2>Assinatura confirmada</h2><p></p><p style="margin-top:18px"><a class="btn" href="index.html#/dashboard">Ir para o GR Data</a></p>';box.querySelector("p").textContent="Seu plano "+NOME[p.plano]+" já está ativo. Bom trabalho!";show("secPagamento",true);setTimeout(carregar,800);return}
+      show("secAssinar",false);show("secPagamento",true);caixaPagamento($("secPagamento"),p,p.method==="pix"?"Pague com Pix":"Seu boleto");window.scrollTo({top:$("secPagamento").offsetTop-20,behavior:"smooth"});
+    }).catch(function(err){fim();msg("pMsg",err.message||"Falha de conexão. Tente de novo.")});
+  };
+
+  // início
+  api("config",null,"GET").then(function(cfg){st.cfg=cfg;
+    if(qs.get("metodo")&&cfg.metodos.indexOf(qs.get("metodo"))>=0) st.metodo=qs.get("metodo");
+    renderMetodos();renderPlanos();return carregar()})
+   .catch(function(){msg("erroGeral","Não foi possível carregar a página de assinatura. Atualize em instantes.")});
+  sb.auth.onAuthStateChange(function(ev){if(ev==="SIGNED_IN"||ev==="SIGNED_OUT")carregar()});
+})();
+</script>
+</body>
+</html>

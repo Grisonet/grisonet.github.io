@@ -388,7 +388,7 @@ section[id]{scroll-margin-top:84px}
           <li>IA: 30 perguntas/dia</li>
           <li>Export CSV (1 por dia)</li>
         </ul>
-        <a href="https://wa.me/551132807177?text=Ol%C3%A1%21%20Quero%20assinar%20o%20plano%20Plus%20do%20GR%20Data%20%28R%24%2019/m%C3%AAs%29%20e%20preciso%20de%20ajuda%20para%20come%C3%A7ar." target="_blank" rel="noopener" class="btn btn-primary btn-block plan-cta" data-plan="plus">Assinar Plus</a>
+        <a href="assinar.html?plano=plus" data-plano-link="plus" class="btn btn-primary btn-block plan-cta" data-plan="plus">Assinar Plus</a>
       </div>
 
       <div class="plan featured">
@@ -409,7 +409,7 @@ section[id]{scroll-margin-top:84px}
           <li>Doadores + despesas detalhados</li>
           <li>3 usuários</li>
         </ul>
-        <a href="https://wa.me/551132807177?text=Ol%C3%A1%21%20Quero%20assinar%20o%20plano%20Pro%20do%20GR%20Data%20%28R%24%2079/m%C3%AAs%29%20e%20preciso%20de%20ajuda%20para%20come%C3%A7ar." target="_blank" rel="noopener" class="btn btn-primary btn-block plan-cta" data-plan="pro">Assinar Pro</a>
+        <a href="assinar.html?plano=pro" data-plano-link="pro" class="btn btn-primary btn-block plan-cta" data-plan="pro">Assinar Pro</a>
       </div>
 
       <div class="plan">
@@ -572,13 +572,16 @@ document.querySelectorAll('.faq-item').forEach(item=>{
   });
 });
 
-// Plan CTAs → redirect to SPA with plan param
+// Plan CTAs → checkout (Plus/Pro) ou página de planos do app
 document.querySelectorAll('.plan-cta').forEach(btn=>{
   btn.addEventListener('click',(e)=>{
     e.preventDefault();
     const plan=btn.dataset.plan;
     const period=document.querySelector('.toggle-btn.active').dataset.period;
-    window.location.href=`index.html#/planos?plano=${plan}&periodo=${period}`;
+    // Plus e Pro: checkout direto (cartão, Pix ou boleto). Os demais: conversa pelo app.
+    window.location.href=(plan==='plus'||plan==='pro')
+      ?`assinar.html?plano=${plan}&periodo=${period}`
+      :`index.html#/planos?plano=${plan}&periodo=${period}`;
   });
 });
 
